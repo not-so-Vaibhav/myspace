@@ -11,30 +11,31 @@ const defaultData = [
 
 const ActivityGraph = ({ data = defaultData, title = 'Monthly Progress', subtitle = 'This is the latest improvement' }) => {
   return (
-    <div className="bg-[var(--color-surface)] p-6 rounded-[var(--radius-card)] border border-[var(--color-border-light)] shadow-[var(--shadow-card)] card-hover">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-[var(--color-surface)] p-8 rounded-[var(--radius-card)] border border-[var(--color-border-light)] shadow-[var(--shadow-card)] transition-all hover:shadow-lg">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h3 className="text-lg font-bold text-[var(--color-text)]">{title}</h3>
-          <p className="text-sm text-[var(--color-text-muted)]">{subtitle}</p>
+          <h3 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">{title}</h3>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">{subtitle}</p>
         </div>
       </div>
-      <div className="h-48 w-full">
+      <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorProgress" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                <stop offset="5%" stopColor="#1a1b4b" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#1a1b4b" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-subtle)' }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-subtle)' }} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f6fa" />
+            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#94a3b8', textTransform: 'uppercase' }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#94a3b8' }} />
             <Tooltip
-              contentStyle={{ borderRadius: 'var(--radius-button)', border: '1px solid var(--color-border)' }}
+              contentStyle={{ borderRadius: '1rem', border: 'none', backgroundColor: '#fff', boxShadow: 'var(--shadow-card)' }}
+              itemStyle={{ fontWeight: 'black', fontSize: '12px' }}
               formatter={(value) => [`${value}%`, 'Progress']}
             />
-            <Area type="monotone" dataKey="progress" stroke="var(--color-primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorProgress)" />
+            <Area type="monotone" dataKey="progress" stroke="#1a1b4b" strokeWidth={4} fillOpacity={1} fill="url(#colorProgress)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

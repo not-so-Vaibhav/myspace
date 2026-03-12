@@ -1,4 +1,4 @@
-import { Search, Bell, HelpCircle, Globe, Menu, Plus } from 'lucide-react';
+import { Search, Bell, Menu, Youtube, Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Topbar = ({ onMenuClick }) => {
@@ -7,50 +7,51 @@ const Topbar = ({ onMenuClick }) => {
   const displayRole = role === 'instructor' ? 'INSTRUCTOR' : role === 'admin' ? 'ADMIN' : 'STUDENT';
 
   return (
-    <header className="h-16 bg-white border-b border-[var(--color-border-light)] flex items-center justify-between px-4 sm:px-6 fixed top-0 left-0 lg:left-64 right-0 z-10">
+    <header className="h-20 bg-white border-b border-[var(--color-border-light)] flex items-center justify-between px-6 sm:px-10 fixed top-0 left-0 lg:left-64 right-0 z-10 shadow-sm">
       <div className="flex items-center gap-4">
-        <button type="button" onClick={onMenuClick} className="p-2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-muted)] rounded-[var(--radius-button)] lg:hidden" aria-label="Menu">
-          <Menu size={20} />
+        <button type="button" onClick={onMenuClick} className="p-3 text-[#1a1b4b] hover:bg-[#f4f6fa] rounded-full lg:hidden" aria-label="Menu">
+          <Menu size={24} strokeWidth={2.5} />
         </button>
-        <div className="relative w-80 max-w-full hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-subtle)]" size={18} />
+        <div className="relative w-96 max-w-full hidden sm:block">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={2.5} />
           <input
             type="text"
-            placeholder="Search courses..."
-            className="w-full pl-10 pr-4 py-2 bg-[var(--color-surface-muted)] border-0 rounded-[var(--radius-button)] text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-subtle)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-shadow"
+            placeholder="Search here..."
+            className="w-full pl-14 pr-6 py-3 bg-[#f4f6fa] border-2 border-transparent focus:border-[#1a1b4b]/10 rounded-full text-sm font-bold text-[#1a1b4b] placeholder:text-gray-400 outline-none transition-all shadow-inner"
           />
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4">
-        <button type="button" className="p-2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-muted)] rounded-[var(--radius-button)]" aria-label="Notifications">
-          <Bell size={20} />
-          <span className="sr-only">Notifications</span>
-        </button>
-        <button type="button" className="p-2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-muted)] rounded-[var(--radius-button)] hidden sm:block" aria-label="Help">
-          <HelpCircle size={20} />
-        </button>
-        <button type="button" className="p-2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-muted)] rounded-[var(--radius-button)] hidden sm:block" aria-label="Language">
-          <Globe size={20} />
-        </button>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 pr-4 border-r border-[#f4f6fa]">
+          <button type="button" className="p-3 text-gray-400 hover:text-[#1a1b4b] hover:bg-[#f4f6fa] rounded-full transition-all" aria-label="Notifications">
+            <Bell size={20} strokeWidth={2.5} />
+          </button>
+        </div>
 
-        <div className="flex items-center gap-3 pl-2 border-l border-[var(--color-border-light)]">
-          <div className="text-right hidden md:block">
-            <p className="text-sm font-semibold text-[var(--color-text)]">{profile?.full_name || 'User'}</p>
-            <p className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">{displayRole}</p>
+        <div className="flex items-center gap-4 pl-2">
+          <div className="hidden lg:flex items-center gap-2 mr-2">
+            {[
+              { Icon: Youtube },
+              { Icon: Instagram },
+              { Icon: Facebook },
+              { Icon: Twitter },
+              { Icon: Linkedin }
+            ].map(({ Icon }, i) => (
+              <a key={i} href="#" className={`w-8 h-8 rounded-full bg-[#f4f6fa] flex items-center justify-center transition-all hover:bg-[#1a1b4b] hover:text-white text-[#1a1b4b] shadow-sm border border-transparent active:scale-90`}>
+                <Icon size={14} strokeWidth={2.5} />
+              </a>
+            ))}
           </div>
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-[var(--color-primary)]/10 flex items-center justify-center border border-[var(--color-border-light)]">
+          <div className="w-11 h-11 rounded-full overflow-hidden bg-[#1a1b4b]/5 flex items-center justify-center border-2 border-[#f4f6fa] shadow-sm">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-sm font-bold text-[var(--color-primary)]">
+              <span className="text-sm font-black text-[#1a1b4b]">
                 {(profile?.full_name || 'U').charAt(0).toUpperCase()}
               </span>
             )}
           </div>
-          <button type="button" className="p-2 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 rounded-[var(--radius-button)]" aria-label="Add">
-            <Plus size={20} />
-          </button>
         </div>
       </div>
     </header>

@@ -6,14 +6,14 @@ const StatsCards = ({ items }) => {
       {items.map(({ label, value, icon: Icon, iconBg }) => (
         <div
           key={label}
-          className="bg-[var(--color-surface)] p-6 rounded-[var(--radius-card)] border border-[var(--color-border-light)] shadow-[var(--shadow-card)] card-hover"
+          className="bg-[var(--color-surface)] p-8 rounded-[var(--radius-card)] border border-[var(--color-border-light)] shadow-[var(--shadow-card)] transition-all hover:-translate-y-2"
         >
-          <p className="text-sm font-medium text-[var(--color-text-muted)] mb-1">{label}</p>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{label}</p>
           <div className="flex items-center justify-between">
-            <span className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{value}</span>
+            <span className="text-3xl sm:text-4xl font-black text-[#1a1b4b] tracking-tighter">{value}</span>
             {Icon && (
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg || 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'}`}>
-                <Icon size={24} />
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm ${iconBg || 'bg-[#1a1b4b]/5 text-[#1a1b4b]'}`}>
+                <Icon size={28} strokeWidth={2.5} />
               </div>
             )}
           </div>

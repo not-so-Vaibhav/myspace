@@ -10,6 +10,7 @@ import Notes from './pages/Notes';
 import Courses from './pages/Courses';
 import CourseDetail from './pages/CourseDetail';
 import Resources from './pages/Resources';
+import Payment from './pages/Payment';
 import Placeholder from './pages/Placeholder';
 
 // Layout wrapper for authenticated routes
@@ -99,13 +100,16 @@ function App() {
             <Route path="/notes" element={<Notes />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
-            <Route path="/messages" element={<Placeholder />} />
-            <Route path="/quizzes" element={<Placeholder />} />
+            <Route path="/announcements" element={<Placeholder />} />
+            <Route path="/assignments" element={<Placeholder />} />
+            <Route path="/library" element={<Placeholder />} />
+            <Route path="/calendar" element={<Placeholder />} />
             <Route path="/schedule" element={<Placeholder />} />
-            <Route path="/history" element={<Placeholder />} />
+            <Route path="/results" element={<Placeholder />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/request-letter" element={<Placeholder />} />
+            <Route path="/attendance" element={<Placeholder />} />
             <Route path="/resources" element={<Resources />} />
-            <Route path="/settings" element={<Placeholder />} />
-            <Route path="/alerts" element={<Placeholder />} />
           </Route>
         </Routes>
       </Router>
