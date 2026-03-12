@@ -75,7 +75,7 @@ const Sidebar = ({ open = false, onClose }) => {
 
       <div className="p-4 border-t border-[var(--color-border-light)] space-y-3">
         {/* Profile Section */}
-        <div className="flex items-center gap-3 px-4 py-4 rounded-3xl bg-gradient-to-br from-[#1a1b4b] to-[#2d3a8c] text-white shadow-lg">
+        <Link to="/profile" onClick={() => onClose?.()} className="flex items-center gap-3 px-4 py-4 rounded-3xl bg-gradient-to-br from-[#1a1b4b] to-[#2d3a8c] text-white shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all">
           <div className="w-11 h-11 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center flex-shrink-0 shadow-inner backdrop-blur-sm">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover rounded-2xl" />
@@ -94,7 +94,7 @@ const Sidebar = ({ open = false, onClose }) => {
             </p>
           </div>
           <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0 shadow-[0_0_6px_2px_rgba(74,222,128,0.5)]"></div>
-        </div>
+        </Link>
 
         {/* Logout Button */}
         <button

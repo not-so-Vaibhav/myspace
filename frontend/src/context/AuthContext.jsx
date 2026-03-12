@@ -73,6 +73,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         signOut,
         hasRole, // Export helper
+        fetchProfile,
+        setProfile,
     };
 
     return (
