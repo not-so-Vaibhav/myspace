@@ -7,7 +7,7 @@ const data = [
 
 const AttendanceChart = () => {
     return (
-        <div className="bg-[var(--color-surface)] p-6 rounded-[var(--radius-card)] border border-[var(--color-border-light)] shadow-[var(--shadow-card)] relative flex flex-col items-center justify-center h-full min-h-[350px]">
+        <div className="bg-[var(--color-surface)] p-6 rounded-[var(--radius-card)] border border-[var(--color-border-light)] shadow-[var(--shadow-card)] relative flex flex-col items-center justify-center" style={{ height: '350px' }}>
             <div className="absolute top-8 left-8">
                 <h2 className="text-[var(--color-text)] font-black text-xl tracking-tight uppercase opacity-40">Attendance</h2>
             </div>

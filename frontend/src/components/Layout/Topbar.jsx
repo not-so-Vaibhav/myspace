@@ -43,15 +43,6 @@ const Topbar = ({ onMenuClick }) => {
               </a>
             ))}
           </div>
-          <div className="w-11 h-11 rounded-full overflow-hidden bg-[#1a1b4b]/5 flex items-center justify-center border-2 border-[#f4f6fa] shadow-sm">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-sm font-black text-[#1a1b4b]">
-                {(profile?.full_name || 'U').charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
         </div>
       </div>
     </header>

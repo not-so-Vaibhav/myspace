@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import QuickAccess from '../components/Dashboard/QuickAccess';
 import AttendanceChart from '../components/Dashboard/AttendanceChart';
+import ScheduleCard from '../components/Dashboard/ScheduleCard';
 import AntiRagging from '../components/Dashboard/AntiRagging';
 
 const StudentDashboard = () => {
@@ -16,12 +17,13 @@ const StudentDashboard = () => {
       <QuickAccess />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <AttendanceChart />
-        <div className="flex flex-col gap-8 h-full">
-          <div className="flex-1"></div> {/* Empty space */}
-          <AntiRagging />
+        <div className="flex flex-col gap-8">
+          <AttendanceChart />
         </div>
+        <ScheduleCard />
       </div>
+
+      <AntiRagging />
     </div>
   );
 };
