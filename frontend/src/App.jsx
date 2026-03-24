@@ -111,6 +111,8 @@ function App() {
             <Route path="/request-letter" element={<Placeholder />} />
             <Route path="/attendance" element={<Placeholder />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/proposals" element={<Placeholder />} />
+            <Route path="/lor" element={<Placeholder />} />
             <Route path="/profile" element={<StudentProfile />} />
           </Route>
         </Routes>

@@ -17,6 +17,17 @@ import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 
 const getNavItems = (role) => {
+  if (role === 'instructor' || role === 'admin') {
+    return [
+      { to: '/faculty-dashboard', icon: GraduationCap, label: 'My Classes' },
+      { to: '/library', icon: Library, label: 'Library' },
+      { to: '/request-letter', icon: FileText, label: 'Requisitions' },
+      { to: '/proposals', icon: FileText, label: 'Proposals' },
+      { to: '/lor', icon: FileText, label: 'LOR' },
+      { to: '/payment', icon: CreditCard, label: 'Salary Slip' },
+    ];
+  }
+
   const base = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/announcements', icon: Megaphone, label: 'Announcement' },
@@ -42,7 +53,8 @@ const Sidebar = ({ open = false, onClose }) => {
   const navItems = getNavItems(role || 'student');
 
   const isActive = (path) => {
-    if (path === '/') return location.pathname === '/' || location.pathname === '/student-dashboard' || location.pathname === '/faculty-dashboard';
+    if (path === '/') return location.pathname === '/' || location.pathname === '/student-dashboard';
+    if (path === '/faculty-dashboard') return location.pathname === '/faculty-dashboard' || location.pathname === '/';
     return location.pathname.startsWith(path);
   };
 
