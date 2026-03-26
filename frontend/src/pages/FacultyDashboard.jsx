@@ -1,4 +1,6 @@
 import InstructorQuickAccess from '../components/Dashboard/InstructorQuickAccess';
+import MeetingSection from '../components/Dashboard/MeetingSection';
+import FacultyTimetable from '../components/Dashboard/FacultyTimetable';
 import { useAuth } from '../context/AuthContext';
 
 const FacultyDashboard = () => {
@@ -18,6 +20,12 @@ const FacultyDashboard = () => {
 
       {/* 6-Card Quick Access Grid */}
       <InstructorQuickAccess />
+
+      {/* Upcoming Meetings */}
+      <MeetingSection />
+
+      {/* Faculty Timetable */}
+      <FacultyTimetable />
     </div>
   );
 };

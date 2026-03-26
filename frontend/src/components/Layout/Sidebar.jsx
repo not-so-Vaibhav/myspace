@@ -19,8 +19,9 @@ import { Link, useLocation } from 'react-router-dom';
 const getNavItems = (role) => {
   if (role === 'instructor' || role === 'admin') {
     return [
-      { to: '/faculty-dashboard', icon: GraduationCap, label: 'My Classes' },
+      { to: '/faculty-dashboard', icon: Home, label: 'Home' },
       { to: '/library', icon: Library, label: 'Library' },
+      { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/request-letter', icon: FileText, label: 'Requisitions' },
       { to: '/proposals', icon: FileText, label: 'Proposals' },
       { to: '/lor', icon: FileText, label: 'LOR' },
@@ -74,7 +75,7 @@ const Sidebar = ({ open = false, onClose }) => {
             key={to}
             to={to}
             onClick={() => onClose?.()}
-            className={`flex items-center gap-3 px-4 py-3 rounded-full text-sm font-bold transition-all ${isActive(to)
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${isActive(to)
               ? 'bg-[#1a1b4b]/10 text-[#1a1b4b]'
               : 'text-gray-500 hover:bg-[#f4f6fa] hover:text-[#1a1b4b]'
               }`}
@@ -105,14 +106,14 @@ const Sidebar = ({ open = false, onClose }) => {
               {profile?.role?.toLowerCase() === 'instructor' ? 'Instructor' : profile?.role?.toLowerCase() === 'admin' ? 'Admin' : 'Student'}
             </p>
           </div>
-          <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0 shadow-[0_0_6px_2px_rgba(74,222,128,0.5)]"></div>
+          <div className="w-2 h-2 bg-green-400 flex-shrink-0 shadow-[0_0_6px_2px_rgba(74,222,128,0.5)]"></div>
         </Link>
 
         {/* Logout Button */}
         <button
           type="button"
           onClick={signOut}
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-full text-sm font-bold text-[#ef4444] hover:bg-red-50 transition-all shadow-sm active:scale-95"
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold text-[#ef4444] hover:bg-red-50 transition-all shadow-sm active:scale-95"
         >
           <LogOut size={20} strokeWidth={2.5} />
           <span>Logout</span>

@@ -13,6 +13,7 @@ import Resources from './pages/Resources';
 import Payment from './pages/Payment';
 import Placeholder from './pages/Placeholder';
 import StudentProfile from './pages/StudentProfile';
+import AllMeetings from './pages/AllMeetings';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -114,6 +115,7 @@ function App() {
             <Route path="/proposals" element={<Placeholder />} />
             <Route path="/lor" element={<Placeholder />} />
             <Route path="/profile" element={<StudentProfile />} />
+            <Route path="/meetings" element={<AllMeetings />} />
           </Route>
         </Routes>
       </Router>
