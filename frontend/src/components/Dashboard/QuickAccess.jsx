@@ -15,10 +15,10 @@ const QuickAccess = () => {
                 {cards.map((card, idx) => (
                     <div
                         key={idx}
-                        className={`${card.bgColor} ${card.borderColor} border p-6 rounded-[var(--radius-card)] shadow-[var(--shadow-card)] relative cursor-pointer hover:-translate-y-2 transition-transform flex flex-col justify-between h-52`}
+                        className={`${card.bgColor} ${card.borderColor} border p-6 shadow-[var(--shadow-card)] relative cursor-pointer hover:-translate-y-2 transition-transform flex flex-col justify-between h-52`}
                     >
                         <div className="flex justify-center w-full pt-2">
-                            <div className="w-16 h-16 rounded-3xl bg-[#f4f6fa] flex items-center justify-center border-t border-white shadow-inner">
+                            <div className="w-16 h-16 bg-[#f4f6fa] flex items-center justify-center border-t border-white shadow-inner">
                                 <CalendarCheck size={26} className={card.iconColor} />
                             </div>
                         </div>

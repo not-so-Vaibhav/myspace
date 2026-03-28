@@ -5,6 +5,10 @@ import Sidebar from './components/Layout/Sidebar';
 import Topbar from './components/Layout/Topbar';
 import StudentDashboard from './pages/StudentDashboard';
 import FacultyDashboard from './pages/FacultyDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import DeanDashboard from './pages/DeanDashboard';
+import HODDashboard from './pages/HODDashboard';
+import StaffDashboard from './pages/StaffDashboard';
 import Login from './pages/Login';
 import Notes from './pages/Notes';
 import Courses from './pages/Courses';
@@ -46,7 +50,11 @@ const RoleRoute = ({ allowedRoles, children }) => {
 
   if (!allowedRoles.includes(userRole)) {
     if (userRole === 'student') return <Navigate to="/student-dashboard" replace />;
-    if (userRole === 'instructor' || userRole === 'admin') return <Navigate to="/faculty-dashboard" replace />;
+    if (userRole === 'instructor') return <Navigate to="/faculty-dashboard" replace />;
+    if (userRole === 'admin') return <Navigate to="/admin-dashboard" replace />;
+    if (userRole === 'dean') return <Navigate to="/dean-dashboard" replace />;
+    if (userRole === 'hod') return <Navigate to="/hod-dashboard" replace />;
+    if (userRole === 'staff') return <Navigate to="/staff-dashboard" replace />;
     return <Navigate to="/login" replace />;
   }
 
@@ -62,7 +70,11 @@ const RootRedirect = () => {
   const userRole = profile?.role?.toLowerCase();
 
   if (userRole === 'student') return <Navigate to="/student-dashboard" replace />;
-  if (userRole === 'instructor' || userRole === 'admin') return <Navigate to="/faculty-dashboard" replace />;
+  if (userRole === 'instructor') return <Navigate to="/faculty-dashboard" replace />;
+  if (userRole === 'admin') return <Navigate to="/admin-dashboard" replace />;
+  if (userRole === 'dean') return <Navigate to="/dean-dashboard" replace />;
+  if (userRole === 'hod') return <Navigate to="/hod-dashboard" replace />;
+  if (userRole === 'staff') return <Navigate to="/staff-dashboard" replace />;
 
   return <Navigate to="/login" replace />;
 };
@@ -88,12 +100,52 @@ function App() {
               }
             />
 
-            {/* Faculty-only routes (instructor role in DB) */}
+            {/* Faculty-only routes */}
             <Route
               path="/faculty-dashboard"
               element={
-                <RoleRoute allowedRoles={['instructor', 'admin']}>
+                <RoleRoute allowedRoles={['instructor', 'hod']}>
                   <FacultyDashboard />
+                </RoleRoute>
+              }
+            />
+
+            {/* Admin-only routes */}
+            <Route
+              path="/admin-dashboard"
+              element={
+                <RoleRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </RoleRoute>
+              }
+            />
+
+            {/* Dean-only routes */}
+            <Route
+              path="/dean-dashboard"
+              element={
+                <RoleRoute allowedRoles={['dean']}>
+                  <DeanDashboard />
+                </RoleRoute>
+              }
+            />
+
+            {/* HOD-only routes */}
+            <Route
+              path="/hod-dashboard"
+              element={
+                <RoleRoute allowedRoles={['hod', 'admin']}>
+                  <HODDashboard />
+                </RoleRoute>
+              }
+            />
+
+            {/* Staff-only routes */}
+            <Route
+              path="/staff-dashboard"
+              element={
+                <RoleRoute allowedRoles={['staff']}>
+                  <StaffDashboard />
                 </RoleRoute>
               }
             />
@@ -116,6 +168,9 @@ function App() {
             <Route path="/lor" element={<Placeholder />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/meetings" element={<AllMeetings />} />
+
+            {/* Fallback Catch-All Route to prevent white screens on invalid URLs */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       </Router>

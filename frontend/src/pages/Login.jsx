@@ -27,14 +27,28 @@ const Login = () => {
             data: {
               full_name: fullName,
               role: role,
-            }
-          }
+            },
+          },
         });
-        if (error) throw error;
-        alert('Check your email for the confirmation link!');
+
+        if (error) {
+          console.error("AUTH ERROR:", error);
+          alert(error.message);
+          return;
+        }
+
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          console.error("AUTH ERROR:", error);
+          alert(error.message);
+          return;
+        }
+
         navigate('/');
       }
     } catch (error) {
@@ -43,7 +57,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 font-sans">
       <div className="w-full max-w-5xl bg-[#f4f6fa] rounded-[2rem] shadow-xl overflow-hidden flex flex-col md:flex-row relative">
@@ -94,27 +107,27 @@ const Login = () => {
 
                   <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 ml-1">Role</label>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setRole('student')}
-                        className={`flex-1 py-3 rounded-full border-2 transition-all font-semibold text-sm shadow-sm ${role === 'student'
-                          ? 'bg-white border-[#1a1b4b] text-[#1a1b4b]'
-                          : 'bg-[#f4f6fa] border-transparent text-gray-500 hover:bg-white'
-                          }`}
-                      >
-                        Student
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRole('instructor')}
-                        className={`flex-1 py-3 rounded-full border-2 transition-all font-semibold text-sm shadow-sm ${role === 'instructor'
-                          ? 'bg-white border-[#1a1b4b] text-[#1a1b4b]'
-                          : 'bg-[#f4f6fa] border-transparent text-gray-500 hover:bg-white'
-                          }`}
-                      >
-                        Faculty
-                      </button>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'student', label: 'Student' },
+                        { id: 'instructor', label: 'Faculty' },
+                        { id: 'dean', label: 'Dean' },
+                        { id: 'hod', label: 'HOD' },
+                        { id: 'staff', label: 'Staff' },
+                        { id: 'admin', label: 'Admin' }
+                      ].map((r) => (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() => setRole(r.id)}
+                          className={`py-2 rounded-full border-2 transition-all font-semibold text-xs shadow-sm ${role === r.id
+                            ? 'bg-white border-[#1a1b4b] text-[#1a1b4b]'
+                            : 'bg-[#f4f6fa] border-transparent text-gray-500 hover:bg-white'
+                            }`}
+                        >
+                          {r.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </>

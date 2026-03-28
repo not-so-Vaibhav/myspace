@@ -17,7 +17,43 @@ import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 
 const getNavItems = (role) => {
-  if (role === 'instructor' || role === 'admin') {
+  if (role === 'admin') {
+    return [
+      { to: '/admin-dashboard', icon: Home, label: 'Admin Dashboard' },
+      { to: '/users', icon: FileText, label: 'Users' },
+      { to: '/roles', icon: FileText, label: 'Roles' },
+      { to: '/system-logs', icon: FileText, label: 'Logs' },
+    ];
+  }
+
+  if (role === 'dean') {
+    return [
+      { to: '/dean-dashboard', icon: Home, label: 'Dean Dashboard' },
+      { to: '/analytics', icon: FileText, label: 'Analytics' },
+      { to: '/departments', icon: FileText, label: 'Departments' },
+      { to: '/reports', icon: FileText, label: 'Reports' },
+    ];
+  }
+
+  if (role === 'hod') {
+    return [
+      { to: '/hod-dashboard', icon: Home, label: 'HOD Dashboard' },
+      { to: '/faculty-dashboard', icon: Home, label: 'Instructor View' },
+      { to: '/faculty', icon: FileText, label: 'Faculty List' },
+      { to: '/approvals', icon: FileText, label: 'Approvals' },
+    ];
+  }
+
+  if (role === 'staff') {
+    return [
+      { to: '/staff-dashboard', icon: Home, label: 'Staff Dashboard' },
+      { to: '/finance', icon: CreditCard, label: 'Finance' },
+      { to: '/admissions', icon: FileText, label: 'Admissions' },
+      { to: '/records', icon: FolderOpen, label: 'Records' },
+    ];
+  }
+
+  if (role === 'instructor') {
     return [
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
       { to: '/library', icon: Library, label: 'Library' },
@@ -55,7 +91,11 @@ const Sidebar = ({ open = false, onClose }) => {
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/' || location.pathname === '/student-dashboard';
-    if (path === '/faculty-dashboard') return location.pathname === '/faculty-dashboard' || location.pathname === '/';
+    if (path === '/faculty-dashboard') return location.pathname === '/faculty-dashboard';
+    if (path === '/admin-dashboard') return location.pathname === '/admin-dashboard';
+    if (path === '/dean-dashboard') return location.pathname === '/dean-dashboard';
+    if (path === '/hod-dashboard') return location.pathname === '/hod-dashboard';
+    if (path === '/staff-dashboard') return location.pathname === '/staff-dashboard';
     return location.pathname.startsWith(path);
   };
 
@@ -103,7 +143,7 @@ const Sidebar = ({ open = false, onClose }) => {
               {profile?.full_name || 'User'}
             </p>
             <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
-              {profile?.role?.toLowerCase() === 'instructor' ? 'Instructor' : profile?.role?.toLowerCase() === 'admin' ? 'Admin' : 'Student'}
+              {profile?.role ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1) : 'Student'}
             </p>
           </div>
           <div className="w-2 h-2 bg-green-400 flex-shrink-0 shadow-[0_0_6px_2px_rgba(74,222,128,0.5)]"></div>
