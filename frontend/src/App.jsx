@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import DeanDashboard from './pages/DeanDashboard';
 import HODDashboard from './pages/HODDashboard';
 import StaffDashboard from './pages/StaffDashboard';
+import AllocationDashboard from './pages/AllocationDashboard';
 import Login from './pages/Login';
 import Notes from './pages/Notes';
 import Courses from './pages/Courses';
@@ -50,12 +51,14 @@ const RoleRoute = ({ allowedRoles, children }) => {
 
   if (!allowedRoles.includes(userRole)) {
     if (userRole === 'student') return <Navigate to="/student-dashboard" replace />;
-    if (userRole === 'instructor') return <Navigate to="/faculty-dashboard" replace />;
+    if (userRole === 'faculty') return <Navigate to="/faculty-dashboard" replace />;
     if (userRole === 'admin') return <Navigate to="/admin-dashboard" replace />;
     if (userRole === 'dean') return <Navigate to="/dean-dashboard" replace />;
     if (userRole === 'hod') return <Navigate to="/hod-dashboard" replace />;
-    if (userRole === 'staff') return <Navigate to="/staff-dashboard" replace />;
-    return <Navigate to="/login" replace />;
+    if (userRole === 'non_teaching') return <Navigate to="/staff-dashboard" replace />;
+
+    // To prevent infinite loops with Login.jsx, unrecognized roles go to unauthorized instead of ping-ponging back to login.
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;
@@ -70,13 +73,30 @@ const RootRedirect = () => {
   const userRole = profile?.role?.toLowerCase();
 
   if (userRole === 'student') return <Navigate to="/student-dashboard" replace />;
-  if (userRole === 'instructor') return <Navigate to="/faculty-dashboard" replace />;
+  if (userRole === 'faculty') return <Navigate to="/faculty-dashboard" replace />;
   if (userRole === 'admin') return <Navigate to="/admin-dashboard" replace />;
   if (userRole === 'dean') return <Navigate to="/dean-dashboard" replace />;
   if (userRole === 'hod') return <Navigate to="/hod-dashboard" replace />;
-  if (userRole === 'staff') return <Navigate to="/staff-dashboard" replace />;
+  if (userRole === 'non_teaching') return <Navigate to="/staff-dashboard" replace />;
 
-  return <Navigate to="/login" replace />;
+  return <Navigate to="/unauthorized" replace />;
+};
+
+const UnauthorizedFallback = () => {
+  const { signOut } = useAuth();
+
+  return (
+    <div className="p-12 text-center space-y-6">
+      <h1 className="text-3xl font-black text-red-500 uppercase tracking-widest">Unauthorized Role</h1>
+      <p className="text-gray-500 font-bold uppercase text-sm tracking-widest">Your specific account role could not be authorized or mapped to a live dashboard.</p>
+      <button
+        onClick={signOut}
+        className="px-6 py-2 bg-[#1a1b4b] text-white font-bold rounded-xl shadow-md uppercase text-xs tracking-widest hover:bg-[#2a2c6d] transition-colors"
+      >
+        Sign Out & Switch Account
+      </button>
+    </div>
+  );
 };
 
 function App() {
@@ -104,7 +124,7 @@ function App() {
             <Route
               path="/faculty-dashboard"
               element={
-                <RoleRoute allowedRoles={['instructor', 'hod']}>
+                <RoleRoute allowedRoles={['faculty', 'hod']}>
                   <FacultyDashboard />
                 </RoleRoute>
               }
@@ -116,6 +136,16 @@ function App() {
               element={
                 <RoleRoute allowedRoles={['admin']}>
                   <AdminDashboard />
+                </RoleRoute>
+              }
+            />
+
+            {/* Admin/HOD Academic Allocator */}
+            <Route
+              path="/allocation-dashboard"
+              element={
+                <RoleRoute allowedRoles={['admin', 'hod']}>
+                  <AllocationDashboard />
                 </RoleRoute>
               }
             />
@@ -144,13 +174,14 @@ function App() {
             <Route
               path="/staff-dashboard"
               element={
-                <RoleRoute allowedRoles={['staff']}>
+                <RoleRoute allowedRoles={['non_teaching']}>
                   <StaffDashboard />
                 </RoleRoute>
               }
             />
 
             {/* Shared routes (both roles can access) */}
+            <Route path="/unauthorized" element={<UnauthorizedFallback />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
