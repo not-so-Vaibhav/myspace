@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import loginIllustration from '../assets/login_illustration.png';
 
 const Login = () => {
@@ -12,6 +13,14 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
+
+  // Safely navigate only AFTER the global Authentication state and DB Profile have synchronized
+  useEffect(() => {
+    if (user && profile) {
+      navigate('/');
+    }
+  }, [user, profile, navigate]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -48,8 +57,6 @@ const Login = () => {
           alert(error.message);
           return;
         }
-
-        navigate('/');
       }
     } catch (error) {
       setError(error.message);
@@ -110,10 +117,10 @@ const Login = () => {
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'student', label: 'Student' },
-                        { id: 'instructor', label: 'Faculty' },
+                        { id: 'faculty', label: 'Faculty' },
                         { id: 'dean', label: 'Dean' },
                         { id: 'hod', label: 'HOD' },
-                        { id: 'staff', label: 'Staff' },
+                        { id: 'non_teaching', label: 'Staff' },
                         { id: 'admin', label: 'Admin' }
                       ].map((r) => (
                         <button

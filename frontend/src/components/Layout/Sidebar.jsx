@@ -11,7 +11,9 @@ import {
   Mail,
   Clock,
   FolderOpen,
-  LogOut
+  LogOut,
+  BookOpen,
+  CheckSquare
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -20,6 +22,7 @@ const getNavItems = (role) => {
   if (role === 'admin') {
     return [
       { to: '/admin-dashboard', icon: Home, label: 'Admin Dashboard' },
+      { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/users', icon: FileText, label: 'Users' },
       { to: '/roles', icon: FileText, label: 'Roles' },
       { to: '/system-logs', icon: FileText, label: 'Logs' },
@@ -38,13 +41,14 @@ const getNavItems = (role) => {
   if (role === 'hod') {
     return [
       { to: '/hod-dashboard', icon: Home, label: 'HOD Dashboard' },
+      { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/faculty-dashboard', icon: Home, label: 'Instructor View' },
       { to: '/faculty', icon: FileText, label: 'Faculty List' },
       { to: '/approvals', icon: FileText, label: 'Approvals' },
     ];
   }
 
-  if (role === 'staff') {
+  if (role === 'non_teaching') {
     return [
       { to: '/staff-dashboard', icon: Home, label: 'Staff Dashboard' },
       { to: '/finance', icon: CreditCard, label: 'Finance' },
@@ -53,7 +57,7 @@ const getNavItems = (role) => {
     ];
   }
 
-  if (role === 'instructor') {
+  if (role === 'faculty') {
     return [
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
       { to: '/library', icon: Library, label: 'Library' },
@@ -96,6 +100,7 @@ const Sidebar = ({ open = false, onClose }) => {
     if (path === '/dean-dashboard') return location.pathname === '/dean-dashboard';
     if (path === '/hod-dashboard') return location.pathname === '/hod-dashboard';
     if (path === '/staff-dashboard') return location.pathname === '/staff-dashboard';
+    if (path === '/allocation-dashboard') return location.pathname === '/allocation-dashboard';
     return location.pathname.startsWith(path);
   };
 
