@@ -60,6 +60,9 @@ const getNavItems = (role) => {
   if (role === 'faculty') {
     return [
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
+      { to: '/faculty-courses', icon: BookOpen, label: 'My Courses' },
+      { to: '/faculty-assignments', icon: CheckSquare, label: 'Assignments' },
+      { to: '/faculty-resources', icon: FolderOpen, label: 'Resources' },
       { to: '/library', icon: Library, label: 'Library' },
       { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/request-letter', icon: FileText, label: 'Requisitions' },

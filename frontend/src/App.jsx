@@ -22,6 +22,9 @@ import AllMeetings from './pages/AllMeetings';
 import Attendance from './pages/Attendance';
 import Approvals from './pages/Approvals';
 import FacultyList from './pages/FacultyList';
+import FacultyCourses from './pages/FacultyCourses';
+import FacultyAssignments from './pages/FacultyAssignments';
+import FacultyResources from './pages/FacultyResources';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -188,6 +191,9 @@ function App() {
             <Route path="/notes" element={<Notes />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:id" element={<CourseDetail />} />
+            <Route path="/faculty-courses" element={<FacultyCourses />} />
+            <Route path="/faculty-assignments" element={<FacultyAssignments />} />
+            <Route path="/faculty-resources" element={<FacultyResources />} />
             <Route path="/announcements" element={<Placeholder />} />
             <Route path="/assignments" element={<Placeholder />} />
             <Route path="/library" element={<Placeholder />} />

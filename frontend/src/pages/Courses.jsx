@@ -29,7 +29,8 @@ import {
 const Courses = () => {
   const { user, profile } = useAuth();
   const role = profile?.role?.toLowerCase();
-  const isFaculty = role === 'instructor' || role === 'admin';
+  const isFaculty = role === 'instructor' || role === 'faculty' || role === 'admin' || role === 'hod';
+  const canCreate = role === 'admin' || role === 'hod'; // Only system admins/heads can manually create. Faculty receives automated ERP push.
 
   const [courses, setCourses] = useState([]);
   const [enrolledSet, setEnrolledSet] = useState(new Set());
@@ -44,11 +45,49 @@ const Courses = () => {
     setLoading(true);
     try {
       // Students only see published courses
-      const list = await fetchCourses({
+      let list = await fetchCourses({
         instructorId: isFaculty ? profile?.id : undefined,
         publishedOnly: !isFaculty,
         limit: 100
       });
+
+      // AUTO-SYNC ERP ALLOCATIONS -> LMS WORKSPACES FOR FACULTY (THE BRIDGE)
+      if (isFaculty && profile?.id) {
+          const { data: allocations, error: allocError } = await supabase
+              .from('subject_allocations')
+              .select('id, subject:subjects(name, code), batch:batches(name), semester:semesters(term_number)')
+              .eq('faculty_id', profile.id);
+
+          if (!allocError && allocations?.length > 0) {
+              let needRefetch = false;
+
+              for (const alloc of allocations) {
+                  // Format a unique LMS title bridging the ERP subject and the target batch
+                  const lmsTitle = `[${alloc.subject.code}] ${alloc.subject.name} - ${alloc.batch.name}`;
+                  
+                  const exists = list.find(c => c.title === lmsTitle);
+                  
+                  if (!exists) {
+                      // Seamlessly initialize the LMS Workspace so they can upload modules/assignments
+                      try {
+                          await createCourse(user.id, {
+                              title: lmsTitle,
+                              description: `Mapped ERP Curriculum for Semester ${alloc.semester.term_number}. Contains all Modules, Resources, and Assignments for Batch ${alloc.batch.name}.`,
+                              is_published: false
+                          });
+                          needRefetch = true;
+                      } catch (err) {
+                          console.warn("Auto-map generation bypassed or failed:", err);
+                      }
+                  }
+              }
+
+              if (needRefetch) {
+                  list = await fetchCourses({ instructorId: user.id, limit: 100 });
+              }
+          }
+      }
+
       setCourses(list);
 
       if (user && !isFaculty) {
@@ -254,11 +293,11 @@ const Courses = () => {
           </h1>
           <p className="text-[var(--color-text-muted)] mt-1">
             {isFaculty
-              ? 'Create and manage your courses, modules, and lessons.'
+              ? 'Manage modules, lessons, and resources for your assigned curriculum.'
               : 'Browse and enroll in published courses.'}
           </p>
         </div>
-        {isFaculty && (
+        {canCreate && (
           <button
             type="button"
             onClick={handleCreateCourse}
@@ -285,15 +324,14 @@ const Courses = () => {
       {courses.length === 0 ? (
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-card)] border border-[var(--color-border-light)] p-12 text-center">
           <GraduationCap size={48} className="mx-auto text-[var(--color-text-subtle)] mb-4" />
-          <h2 className="text-lg font-bold text-[var(--color-text)] mb-2">No courses yet</h2>
-          <p className="text-[var(--color-text-muted)] mb-4">
-            {isFaculty ? 'Create your first course to get started.' : 'No courses are available to enroll yet.'}
+          <h2 className="text-lg font-bold text-[var(--color-text)] mb-2">No active mapping</h2>
+          <p className="text-[var(--color-text-muted)] mt-2">
+            {canCreate 
+                ? 'Create a course to begin structuring your module ecosystem.' 
+                : isFaculty 
+                    ? 'You have no curriculum explicitly mapped to you right now. Speak with your HOD or Admin.' 
+                    : 'No courses are available to enroll yet.'}
           </p>
-          {isFaculty && (
-            <button type="button" onClick={handleCreateCourse} className="text-[var(--color-primary)] font-medium hover:underline">
-              Create course
-            </button>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

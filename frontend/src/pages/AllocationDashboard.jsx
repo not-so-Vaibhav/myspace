@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Filter, Users, BookOpen, AlertCircle, CheckCircle2, Trash2, Edit2, Layers } from 'lucide-react';
+import { Filter, Users, BookOpen, AlertCircle, CheckCircle2, Trash2, Edit2, Layers, Plus } from 'lucide-react';
+import SubjectCreatorModal from '../components/Dashboard/SubjectCreatorModal';
 
 const AllocationDashboard = () => {
     const { profile } = useAuth();
@@ -28,6 +29,9 @@ const AllocationDashboard = () => {
     // Bulk Assignment States
     const [selectedSubjects, setSelectedSubjects] = useState([]); // Array of IDs for Bulk Mapping
     const [selectedFacultyId, setSelectedFacultyId] = useState('');
+
+    // Modal State
+    const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
 
     // ==========================================
     // 2. DATA FETCHING (Exactly 3 Queries Max)
@@ -61,7 +65,7 @@ const AllocationDashboard = () => {
             const { data: facData, error: facError } = await supabase
                 .from('profiles')
                 .select('id, full_name, email, role')
-                .in('role', ['instructor', 'hod']);
+                .in('role', ['faculty', 'hod', 'instructor']); // Support both legacy and new role tags
             if (facError) throw facError;
 
             // Query 3: Grab live Subject Allocations for the DataGrid table
@@ -226,6 +230,21 @@ const AllocationDashboard = () => {
     };
 
 
+    // OPTIMISTIC DELETE SUBJECT
+    const handleDeleteSubject = async (subjectId) => {
+        if (!window.confirm('WARNING: Deleting this Course will permanently wipe ALL connected student allocations and dependencies. Continue?')) return;
+
+        try {
+            const { error } = await supabase.from('subjects').delete().eq('id', subjectId);
+            if (error) throw error;
+            showSuccess('Course entirely purged from the system.');
+            fetchCoreData(); // Re-sync the core tree immediately to reflect cascaded changes
+        } catch (err) {
+            showError('Failed to remove course: ' + err.message);
+        }
+    };
+
+
     if (isLoading) return <div className="p-8 text-center font-bold text-gray-500 tracking-widest uppercase">Loading Core ERP Hierarchy...</div>;
 
     return (
@@ -320,9 +339,19 @@ const AllocationDashboard = () => {
 
                             {/* Bulk Subjects Filtered Wrapper */}
                             <div className="flex-1 flex flex-col min-h-0">
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <BookOpen className="w-4 h-4 text-[#1a1b4b]" /> 5. Select Curriculum Subjects (Bulk Target)
-                                </label>
+                                <div className="flex items-center justify-between mb-3">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                        <BookOpen className="w-4 h-4 text-[#1a1b4b]" /> 5. Select Curriculum Subjects
+                                    </label>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setIsSubjectModalOpen(true)}
+                                        disabled={!selectedDeptId}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-[#1a1b4b] rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                                    >
+                                        <Plus size={12} strokeWidth={4} /> New Course
+                                    </button>
+                                </div>
 
                                 {selectedBatchId ? (
                                     <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-4 overflow-y-auto max-h-[180px] space-y-2 relative">
@@ -381,10 +410,59 @@ const AllocationDashboard = () => {
                 </form>
             </div>
 
+            {/* 1.5 ACTIVE CURRICULUM REGISTRY */}
+            {activeDepartment && rawSubjects.length > 0 && (
+                 <div className="bg-white rounded-[2rem] p-8 border border-[var(--color-border-light)] shadow-sm">
+                 <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight mb-6 flex justify-between items-center">
+                     <span>{activeDepartment.code} Course Registry</span>
+                     <span className="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{rawSubjects.length} Courses Linked</span>
+                 </h2>
+ 
+                 <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.02)]">
+                     <table className="w-full text-left border-collapse min-w-[900px]">
+                         <thead className="bg-[#f4f6fa]/80">
+                             <tr>
+                                 <th className="p-4 pl-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Subject Code</th>
+                                 <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Full Name</th>
+                                 <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/6">Credits</th>
+                                 <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/12 text-center">Flush</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             {rawSubjects.map(sub => (
+                                 <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50/80 group">
+                                     <td className="p-4 pl-6">
+                                         <p className="font-bold text-[#1a1b4b] text-sm tabular-nums">{sub.code}</p>
+                                     </td>
+                                     <td className="p-4">
+                                        <p className="text-[12px] text-gray-600 font-bold tracking-tight uppercase">{sub.name}</p>
+                                     </td>
+                                     <td className="p-4">
+                                         <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded shadow-[inset_0_0_0_1px_rgba(16,185,129,0.1)]">
+                                             {sub.credits} CR
+                                         </span>
+                                     </td>
+                                     <td className="p-4 text-center">
+                                         <button
+                                             onClick={() => handleDeleteSubject(sub.id)}
+                                             title="Permanently Delete Course"
+                                             className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                         >
+                                             <Trash2 className="w-4 h-4" />
+                                         </button>
+                                     </td>
+                                 </tr>
+                             ))}
+                         </tbody>
+                     </table>
+                 </div>
+             </div>
+            )}
+
             {/* 2. LIVE ALLOCATION GRID (With Optimistic Updates) */}
             <div className="bg-white rounded-[2rem] p-8 border border-[var(--color-border-light)] shadow-sm">
                 <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight mb-6 flex justify-between items-center">
-                    <span>Global Data Registry</span>
+                    <span>Global Allocation Registry</span>
                     <span className="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{allocations.length} Active Records</span>
                 </h2>
 
@@ -451,6 +529,13 @@ const AllocationDashboard = () => {
                     </table>
                 </div>
             </div>
+
+            <SubjectCreatorModal 
+                isOpen={isSubjectModalOpen} 
+                onClose={() => setIsSubjectModalOpen(false)} 
+                targetDepartment={activeDepartment}
+                onSubjectCreated={() => fetchCoreData()} 
+            />
 
         </div>
     );
