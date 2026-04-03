@@ -75,7 +75,7 @@ const getNavItems = (role) => {
   const base = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/announcements', icon: Megaphone, label: 'Announcement' },
-    { to: '/courses', icon: GraduationCap, label: 'Courses' },
+    { to: '/student-courses', icon: GraduationCap, label: 'Courses' },
     { to: '/assignments', icon: FileText, label: 'Assignment' },
     { to: '/library', icon: Library, label: 'Library' },
     { to: '/calendar', icon: CalendarDays, label: 'Calender' },
