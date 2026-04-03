@@ -64,9 +64,9 @@ const FacultyResources = () => {
       if (form.file) {
         const ext = form.file.name.split('.').pop();
         const path = `resources/${form.allocation_id}/${Date.now()}.${ext}`;
-        const { error: uploadErr } = await supabase.storage.from('resources').upload(path, form.file);
+        const { error: uploadErr } = await supabase.storage.from('course-resources').upload(path, form.file);
         if (uploadErr) throw uploadErr;
-        const { data: urlData } = supabase.storage.from('resources').getPublicUrl(path);
+        const { data: urlData } = supabase.storage.from('course-resources').getPublicUrl(path);
         fileUrl = urlData?.publicUrl;
       }
 

@@ -78,13 +78,13 @@ const FacultyCourses = () => {
         const ext = uploadForm.file.name.split('.').pop();
         const filePath = `course-materials/${allocationId}/${Date.now()}.${ext}`;
         const { error: uploadError } = await supabase.storage
-          .from('resources')
+          .from('course-resources')
           .upload(filePath, uploadForm.file);
 
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage
-          .from('resources')
+          .from('course-resources')
           .getPublicUrl(filePath);
         fileUrl = urlData?.publicUrl || null;
       }
