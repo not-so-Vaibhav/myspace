@@ -37,10 +37,10 @@ export const statusColors = {
   cancelled:{ bg: 'bg-red-50',  dot: 'bg-red-400',   text: 'text-red-600',  label: 'Cancelled' },
 };
 
-export const MeetingCard = ({ m }) => {
+export const MeetingCard = ({ m, className = "" }) => {
   const s = statusColors[m.status];
   return (
-    <div className="bg-white border border-[var(--color-border-light)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+    <div className={`bg-white border border-[var(--color-border-light)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col ${className}`}>
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${s.bg} ${s.text}`}>
@@ -53,7 +53,7 @@ export const MeetingCard = ({ m }) => {
       </div>
 
       {/* Details grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 content-center">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-xl bg-[#1a1b4b]/8 flex items-center justify-center flex-shrink-0">
             <CalendarDays size={15} className="text-[#1a1b4b]" strokeWidth={2.5} />

@@ -18,6 +18,8 @@ import Payment from './pages/Payment';
 import Placeholder from './pages/Placeholder';
 import StudentProfile from './pages/StudentProfile';
 import AllMeetings from './pages/AllMeetings';
+import Approvals from './pages/Approvals';
+import FacultyList from './pages/FacultyList';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -168,6 +170,8 @@ function App() {
             <Route path="/lor" element={<Placeholder />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/meetings" element={<AllMeetings />} />
+            <Route path="/approvals" element={<Approvals />} />
+            <Route path="/faculty" element={<FacultyList />} />
 
             {/* Fallback Catch-All Route to prevent white screens on invalid URLs */}
             <Route path="*" element={<Navigate to="/" replace />} />
