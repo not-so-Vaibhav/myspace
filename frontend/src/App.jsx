@@ -19,6 +19,7 @@ import Payment from './pages/Payment';
 import Placeholder from './pages/Placeholder';
 import StudentProfile from './pages/StudentProfile';
 import AllMeetings from './pages/AllMeetings';
+import Attendance from './pages/Attendance';
 import Approvals from './pages/Approvals';
 import FacultyList from './pages/FacultyList';
 
@@ -195,7 +196,7 @@ function App() {
             <Route path="/results" element={<Placeholder />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/request-letter" element={<Placeholder />} />
-            <Route path="/attendance" element={<Placeholder />} />
+            <Route path="/attendance" element={<Attendance />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/proposals" element={<Placeholder />} />
             <Route path="/lor" element={<Placeholder />} />

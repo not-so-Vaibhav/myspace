@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { Link } from 'react-router-dom';
 
 const subjectData = [
     { subject: 'CN', full: 'Computer Networks', present: 18, total: 20 },
@@ -75,40 +76,14 @@ const AttendanceChart = () => {
                 </div>
             </div>
 
-            {/* Subject-wise breakdown */}
-            <div className="mt-4 space-y-2">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Subject Breakdown</p>
-                {subjectData.map((s, i) => {
-                    const pct = Math.round((s.present / s.total) * 100);
-                    const isLow = pct < 75;
-                    const isActive = activeSubject === i;
-                    return (
-                        <div
-                            key={i}
-                            className={`rounded-xl p-3 cursor-pointer transition-all ${isActive ? 'bg-[#f4f6fa] shadow-sm' : 'hover:bg-gray-50'}`}
-                            onClick={() => setActiveSubject(isActive ? null : i)}
-                        >
-                            <div className="flex items-center justify-between mb-1.5">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xs font-black text-[#1a1b4b]">{s.subject}</span>
-                                    {isActive && <span className="text-[10px] text-gray-400 font-medium">{s.full}</span>}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-gray-400 font-bold">{s.present}/{s.total}</span>
-                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${isLow ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-600'}`}>
-                                        {pct}%
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full rounded-full transition-all duration-500 ${isLow ? 'bg-red-400' : 'bg-[#1a1b4b]'}`}
-                                    style={{ width: `${pct}%` }}
-                                />
-                            </div>
-                        </div>
-                    );
-                })}
+            {/* Link to Detailed Subject Breakdown Page */}
+            <div className="mt-8 border-t border-[var(--color-border-light)] pt-6 flex justify-center">
+                <Link to="/attendance" className="inline-flex items-center gap-2 group hover:opacity-70 transition-all cursor-pointer">
+                    <span className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-widest bg-gray-50 border border-gray-100 px-4 py-2 rounded-full shadow-sm">
+                        View Detailed Subject Breakdown
+                    </span>
+                    <span className="text-[#ef4444] font-black transform group-hover:translate-x-1 transition-transform">→</span>
+                </Link>
             </div>
         </div>
     );
