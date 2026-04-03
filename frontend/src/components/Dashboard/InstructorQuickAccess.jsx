@@ -15,7 +15,7 @@ const cards = [
     subtitle: 'Create & Review',
     icon: FileText,
     iconBg: 'bg-[#ef4444]/5',
-    to: '/assignments',
+    to: '/faculty-assignments',
     accent: '#ef4444',
   },
   {
@@ -23,7 +23,7 @@ const cards = [
     subtitle: 'Upload & Share',
     icon: FolderOpen,
     iconBg: 'bg-emerald-50',
-    to: '/resources',
+    to: '/faculty-resources',
     accent: '#10b981',
   },
   {
