@@ -129,9 +129,7 @@ const FacultyAttendance = () => {
         .insert({
           allocation_id: selectedAllocation,
           faculty_id: profile.id,
-          topic: sessionTopic || `Session on ${new Date().toLocaleDateString()}`,
-          session_date: new Date().toISOString().split('T')[0],
-          session_time: new Date().toLocaleTimeString('en-GB')
+          topic: sessionTopic || `Session on ${new Date().toLocaleDateString()}`
         })
         .select()
         .single();
