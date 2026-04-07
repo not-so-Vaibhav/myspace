@@ -26,6 +26,7 @@ import FacultyCourses from './pages/FacultyCourses';
 import FacultyAssignments from './pages/FacultyAssignments';
 import FacultyResources from './pages/FacultyResources';
 import StudentCourses from './pages/StudentCourses';
+import FacultyAttendance from './pages/FacultyAttendance';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -196,6 +197,7 @@ function App() {
             <Route path="/faculty-assignments" element={<FacultyAssignments />} />
             <Route path="/faculty-resources" element={<FacultyResources />} />
             <Route path="/student-courses" element={<StudentCourses />} />
+            <Route path="/faculty-attendance" element={<FacultyAttendance />} />
             <Route path="/announcements" element={<Placeholder />} />
             <Route path="/assignments" element={<Placeholder />} />
             <Route path="/library" element={<Placeholder />} />

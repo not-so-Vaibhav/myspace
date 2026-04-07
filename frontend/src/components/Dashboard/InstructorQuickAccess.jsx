@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 
 const cards = [
   {
-    name: 'Std. Attendance',
+    name: 'Student Attendance',
     subtitle: 'Mark & Track',
     icon: Users,
     iconBg: 'bg-[#1a1b4b]/5',
-    to: '/attendance',
+    to: '/faculty-attendance',
     accent: '#1a1b4b',
   },
   {
@@ -55,9 +55,12 @@ const cards = [
 const InstructorQuickAccess = () => {
   return (
     <section>
-      <h2 className="text-[var(--color-text)] font-bold mb-5 uppercase tracking-tighter text-sm opacity-40">
-        Quick Access
-      </h2>
+      <div className="flex items-center justify-between mb-5">
+         <h2 className="text-[var(--color-text)] font-bold uppercase tracking-tighter text-sm opacity-40">
+           Quick Access
+         </h2>
+      </div>
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {cards.map((card, idx) => (
           <Link
