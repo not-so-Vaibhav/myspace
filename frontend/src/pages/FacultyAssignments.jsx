@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { FileText, Plus, Trash2, ExternalLink, Loader2, CheckSquare, Clock } from 'lucide-react';
+import { FileText, Plus, Trash2, ExternalLink, Loader2, CheckSquare, Clock, Users, ChevronDown, ChevronUp } from 'lucide-react';
 
-// Deadline status helper
 const deadlineStatus = (dl) => {
   if (!dl) return null;
   const now = new Date();
@@ -20,11 +19,13 @@ const FacultyAssignments = () => {
   const { profile } = useAuth();
   const [allocations, setAllocations] = useState([]);
   const [materials, setMaterials] = useState([]);
+  const [submissions, setSubmissions] = useState({}); // material_id -> array of submissions
   const [loading, setLoading] = useState(true);
+  const [loadingSubmissions, setLoadingSubmissions] = useState({}); // material_id -> bool
+  const [expandedId, setExpandedId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Form state
   const [form, setForm] = useState({ title: '', allocation_id: '', deadline: '', file: null });
   const [submitting, setSubmitting] = useState(false);
 
@@ -35,7 +36,6 @@ const FacultyAssignments = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch faculty's allocations for the dropdown
       const { data: allocData } = await supabase
         .from('subject_allocations')
         .select('id, subject:subjects(name, code), batch:batches(name), semester:semesters(term_number)')
@@ -58,6 +58,38 @@ const FacultyAssignments = () => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSubmissions = async (materialId) => {
+    if (submissions[materialId]) return; // Already loaded
+    
+    setLoadingSubmissions(prev => ({ ...prev, [materialId]: true }));
+    try {
+      const { data, error: subErr } = await supabase
+        .from('student_submissions')
+        .select(`
+          *,
+          student:profiles(id, full_name)
+        `)
+        .eq('material_id', materialId)
+        .order('submitted_at', { ascending: false });
+
+      if (subErr) throw subErr;
+      setSubmissions(prev => ({ ...prev, [materialId]: data || [] }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingSubmissions(prev => ({ ...prev, [materialId]: false }));
+    }
+  };
+
+  const toggleExpand = (id) => {
+    if (expandedId === id) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(id);
+      fetchSubmissions(id);
     }
   };
 
@@ -121,21 +153,20 @@ const FacultyAssignments = () => {
     <div className="p-8 sm:p-12 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tighter">Assignments</h1>
+        <h1 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tighter">Assignment Management</h1>
         <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">
-          Create & Publish Assignments for Your Students
+          Create Assignments and Track Student Submissions
         </p>
       </div>
 
-      {/* Alerts */}
       {error && <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-xs font-bold text-red-700">{error}</div>}
       {success && <div className="p-4 bg-green-50 border border-green-100 rounded-xl text-xs font-bold text-green-700">{success}</div>}
 
       {/* Create Panel */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
         <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight mb-6 flex items-center gap-3">
           <CheckSquare className="w-5 h-5 text-amber-500" />
-          New Assignment
+          Create New Task
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -145,8 +176,8 @@ const FacultyAssignments = () => {
                 type="text"
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="e.g. Unit 1 Assignment — Sorting Algorithms"
-                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 placeholder:text-gray-300"
+                placeholder="e.g. Lab 4 — Recursive Functions"
+                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-[#1a1b4b]/20"
                 required
               />
             </div>
@@ -161,95 +192,133 @@ const FacultyAssignments = () => {
                 <option value="">-- Select Course --</option>
                 {allocations.map(a => (
                   <option key={a.id} value={a.id}>
-                    [{a.subject?.code}] {a.subject?.name} · {a.batch?.name} · Sem {a.semester?.term_number}
+                    [{a.subject?.code}] {a.subject?.name} · {a.batch?.name}
                   </option>
                 ))}
               </select>
             </div>
           </div>
-          <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
-              Deadline <span className="text-gray-300 normal-case font-bold">(optional)</span>
-            </label>
-            <input
-              type="datetime-local"
-              value={form.deadline}
-              onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))}
-              className="w-full sm:w-72 p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-[#1a1b4b]/20"
-            />
-          </div>
-          <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
-              Attach File (PDF, DOCX — Optional)
-            </label>
-            <input
-              type="file"
-              onChange={e => setForm(f => ({ ...f, file: e.target.files[0] }))}
-              className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs font-bold text-gray-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-[#1a1b4b] file:text-white cursor-pointer"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Deadline</label>
+              <input
+                type="datetime-local"
+                value={form.deadline}
+                onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))}
+                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Attach Briefing</label>
+              <input
+                type="file"
+                onChange={e => setForm(f => ({ ...f, file: e.target.files[0] }))}
+                className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs font-bold text-gray-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-[#1a1b4b] file:text-white"
+              />
+            </div>
           </div>
           <div className="pt-2">
             <button
               type="submit"
               disabled={submitting || !form.title.trim() || !form.allocation_id}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50"
+              className="px-8 py-3 bg-amber-500 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50"
             >
-              {submitting ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} strokeWidth={3} />}
-              Publish Assignment
+              {submitting ? <Loader2 size={14} className="animate-spin" /> : 'Publish Assignment'}
             </button>
           </div>
         </form>
       </div>
 
-      {/* Assignment List */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-        <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight mb-6 flex items-center justify-between">
-          <span>Published Assignments</span>
-          <span className="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{materials.length} Total</span>
-        </h2>
-        {materials.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-            <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No assignments published yet.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {materials.map(mat => {
-              const status = deadlineStatus(mat.deadline);
-              return (
-              <div key={mat.id} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 hover:border-amber-200 hover:bg-amber-50/30 transition-all group">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
-                    <CheckSquare className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-black text-[#1a1b4b]">{mat.title}</p>
-                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        [{mat.allocation?.subject?.code}] {mat.allocation?.subject?.name} · Batch {mat.allocation?.batch?.name}
-                      </p>
-                      {mat.deadline && (
-                        <span className={`inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${status?.cls}`}>
-                          <Clock size={10} /> {status?.label} · {new Date(mat.deadline).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+      {/* Published List */}
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
+        <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight mb-6">Active Assignments</h2>
+        <div className="space-y-4">
+          {materials.map(mat => {
+            const status = deadlineStatus(mat.deadline);
+            const isExpanded = expandedId === mat.id;
+            const subs = submissions[mat.id] || [];
+            const isLoadingSubs = loadingSubmissions[mat.id];
+
+            return (
+              <div key={mat.id} className="border border-gray-100 rounded-3xl overflow-hidden transition-all hover:border-[#1a1b4b]/10 hover:shadow-md">
+                <div 
+                  className={`p-6 flex items-center justify-between cursor-pointer transition-colors ${isExpanded ? 'bg-gray-50' : 'bg-white'}`}
+                  onClick={() => toggleExpand(mat.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                      <CheckSquare size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-[#1a1b4b]">{mat.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[9px] font-black bg-indigo-50 text-[#1a1b4b] px-2 py-0.5 rounded-md uppercase tracking-widest border border-indigo-100">
+                          {mat.allocation?.batch?.name}
                         </span>
-                      )}
+                        {mat.deadline && <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${status.cls}`}>{status.label}</span>}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-4">
+                     <div className="text-right hidden sm:block">
+                        <div className="text-xs font-black text-[#1a1b4b] uppercase tracking-widest">{subs.length} Uploads</div>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Received</p>
+                     </div>
+                     {isExpanded ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {mat.file_url && (
-                    <a href={mat.file_url} target="_blank" rel="noreferrer" className="p-2 text-gray-400 hover:text-[#1a1b4b] hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-100">
-                      <ExternalLink size={15} />
-                    </a>
-                  )}
-                  <button onClick={() => handleDelete(mat.id)} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100">
-                    <Trash2 size={15} />
-                  </button>
-                </div>
+
+                {isExpanded && (
+                  <div className="p-6 border-t border-gray-100 bg-white">
+                    <div className="flex items-center justify-between mb-6">
+                       <h3 className="text-xs font-black text-[#1a1b4b] uppercase tracking-widest flex items-center gap-2">
+                          <Users size={14} className="text-indigo-500" /> Student Submissions
+                       </h3>
+                       <div className="flex gap-2">
+                          {mat.file_url && <a href={mat.file_url} target="_blank" rel="noreferrer" className="text-[9px] font-black uppercase tracking-widest text-[#1a1b4b] bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-gray-100 transition-colors"><ExternalLink size={12} /> Brief</a>}
+                          <button onClick={(e) => { e.stopPropagation(); handleDelete(mat.id); }} className="text-[9px] font-black uppercase tracking-widest text-red-500 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-1.5"><Trash2 size={12} /> Wipe Task</button>
+                       </div>
+                    </div>
+
+                    {isLoadingSubs ? (
+                        <div className="py-8 flex justify-center"><Loader2 size={18} className="animate-spin text-gray-300" /></div>
+                    ) : subs.length === 0 ? (
+                        <div className="py-8 p-6 bg-gray-50 rounded-2xl text-center border border-dashed border-gray-100">
+                           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">No student has submitted work yet.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                           {subs.map(sub => (
+                              <div key={sub.id} className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-transparent hover:border-indigo-100 group transition-all">
+                                 <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 text-[10px] font-black text-[#1a1b4b]">
+                                       {sub.student?.full_name?.charAt(0)}
+                                    </div>
+                                    <div>
+                                       <p className="text-sm font-black text-[#1a1b4b] tracking-tight">{sub.student?.full_name}</p>
+                                       <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                          ID: {sub.student?.id?.substring(0,8)} · Linked at {new Date(sub.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                       </p>
+                                    </div>
+                                 </div>
+                                 <a 
+                                   href={sub.file_url} 
+                                   target="_blank" 
+                                   rel="noreferrer" 
+                                   className="px-4 py-2 bg-white border border-gray-200 text-[#1a1b4b] text-[10px] font-black uppercase tracking-widest rounded-xl hover:border-indigo-500 transition-all opacity-0 group-hover:opacity-100"
+                                 >
+                                    Review File
+                                 </a>
+                              </div>
+                           ))}
+                        </div>
+                    )}
+                  </div>
+                )}
               </div>
-            );})}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

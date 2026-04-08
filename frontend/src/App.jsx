@@ -24,6 +24,7 @@ import Approvals from './pages/Approvals';
 import FacultyList from './pages/FacultyList';
 import FacultyCourses from './pages/FacultyCourses';
 import FacultyAssignments from './pages/FacultyAssignments';
+import StudentAssignments from './pages/StudentAssignments';
 import FacultyResources from './pages/FacultyResources';
 import StudentCourses from './pages/StudentCourses';
 import FacultyAttendance from './pages/FacultyAttendance';
@@ -199,7 +200,7 @@ function App() {
             <Route path="/student-courses" element={<StudentCourses />} />
             <Route path="/faculty-attendance" element={<FacultyAttendance />} />
             <Route path="/announcements" element={<Placeholder />} />
-            <Route path="/assignments" element={<Placeholder />} />
+            <Route path="/assignments" element={<StudentAssignments />} />
             <Route path="/library" element={<Placeholder />} />
             <Route path="/calendar" element={<Placeholder />} />
             <Route path="/schedule" element={<Placeholder />} />
