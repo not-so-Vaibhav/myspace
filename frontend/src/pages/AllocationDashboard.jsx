@@ -24,17 +24,17 @@ const AllocationDashboard = () => {
     const [selectedDeptId, setSelectedDeptId] = useState('');
     const [selectedYearId, setSelectedYearId] = useState('');
     const [selectedSemesterId, setSelectedSemesterId] = useState('');
-    const [selectedBatchId, setSelectedBatchId] = useState('');
-
-    // Bulk Assignment States
-    const [selectedSubjects, setSelectedSubjects] = useState([]); // Array of IDs for Bulk Mapping
+    
+    // Multi-Select for Batches and Subjects (NxM Matrix)
+    const [selectedBatches, setSelectedBatches] = useState([]);
+    const [selectedSubjects, setSelectedSubjects] = useState([]); 
     const [selectedFacultyId, setSelectedFacultyId] = useState('');
 
     // Modal State
     const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
 
     // ==========================================
-    // 2. DATA FETCHING (Exactly 3 Queries Max)
+    // 2. DATA FETCHING
     // ==========================================
     useEffect(() => {
         fetchCoreData();
@@ -43,8 +43,6 @@ const AllocationDashboard = () => {
     const fetchCoreData = async () => {
         setIsLoading(true);
         try {
-            // Query 1: Deep Inner Join across all structure tables
-            // This eliminates N+1 queries. It builds a localized memory tree.
             const { data: deptData, error: deptError } = await supabase
                 .from('departments')
                 .select(`
@@ -61,14 +59,12 @@ const AllocationDashboard = () => {
                 .eq('is_active', true);
             if (deptError) throw deptError;
 
-            // Query 2: Only grab legitimate faculty roles
             const { data: facData, error: facError } = await supabase
                 .from('profiles')
                 .select('id, full_name, email, role')
-                .in('role', ['faculty', 'hod', 'instructor']); // Support both legacy and new role tags
+                .in('role', ['faculty', 'hod', 'instructor']);
             if (facError) throw facError;
 
-            // Query 3: Grab live Subject Allocations for the DataGrid table
             const { data: allocData, error: allocError } = await supabase
                 .from('subject_allocations')
                 .select(`
@@ -97,30 +93,38 @@ const AllocationDashboard = () => {
     // ==========================================
     // 3. DEPENDENT O(1) DERIVATIONS
     // ==========================================
-    // Memory extraction - Prevents re-calling Supabase API for nested dropdowns
     const activeDepartment = useMemo(() => departments.find(d => d.id === selectedDeptId), [departments, selectedDeptId]);
     const availableYears = useMemo(() => activeDepartment?.academic_years || [], [activeDepartment]);
     const activeYear = useMemo(() => availableYears.find(y => y.id === selectedYearId), [availableYears, selectedYearId]);
     const availableSemesters = useMemo(() => activeYear?.semesters || [], [activeYear]);
     const activeSemester = useMemo(() => availableSemesters.find(s => s.id === selectedSemesterId), [availableSemesters, selectedSemesterId]);
-    const availableBatches = useMemo(() => activeSemester?.batches || [], [activeSemester]);
+    
+    // Sort batches alphabetically/numerically automatically
+    const availableBatches = useMemo(() => {
+        const sorted = [...(activeSemester?.batches || [])];
+        sorted.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+        return sorted;
+    }, [activeSemester]);
+    
     const rawSubjects = useMemo(() => activeDepartment?.subjects || [], [activeDepartment]);
 
-    // Determine subjects available for explicit batch (Exclude already assigned subjects to this batch)
+    // Available subjects logic: Display all if at least one batch is selected
     const availableSubjects = useMemo(() => {
-        if (!selectedBatchId) return [];
+        if (selectedBatches.length === 0) return [];
         return rawSubjects.filter(sub => {
-            // If allocating exists for this exact Subject + Batch combination, hide it!
-            const isAlreadyAssigned = allocations.some(a => a.subject_id === sub.id && a.batch_id === selectedBatchId);
-            return !isAlreadyAssigned;
+            // Return true if this subject is NOT assigned to at least one of the selected batches
+            const isAssignedToAllSelected = selectedBatches.every(bId => 
+                allocations.some(a => a.subject_id === sub.id && a.batch_id === bId)
+            );
+            return !isAssignedToAllSelected;
         });
-    }, [rawSubjects, allocations, selectedBatchId]);
+    }, [rawSubjects, allocations, selectedBatches]);
 
-    // Clean-up cascaded state loops when a parent changes
-    useEffect(() => { setSelectedYearId(''); setSelectedSemesterId(''); setSelectedBatchId(''); setSelectedSubjects([]); }, [selectedDeptId]);
-    useEffect(() => { setSelectedSemesterId(''); setSelectedBatchId(''); setSelectedSubjects([]); }, [selectedYearId]);
-    useEffect(() => { setSelectedBatchId(''); setSelectedSubjects([]); }, [selectedSemesterId]);
-    useEffect(() => { setSelectedSubjects([]); }, [selectedBatchId]);
+    // Clean-up cascaded state loops
+    useEffect(() => { setSelectedYearId(''); setSelectedSemesterId(''); setSelectedBatches([]); setSelectedSubjects([]); }, [selectedDeptId]);
+    useEffect(() => { setSelectedSemesterId(''); setSelectedBatches([]); setSelectedSubjects([]); }, [selectedYearId]);
+    useEffect(() => { setSelectedBatches([]); setSelectedSubjects([]); }, [selectedSemesterId]);
+    useEffect(() => { setSelectedSubjects([]); }, [selectedBatches]);
 
     const toggleSubject = (subjectId) => {
         setSelectedSubjects(prev =>
@@ -128,28 +132,55 @@ const AllocationDashboard = () => {
         );
     };
 
+    const toggleBatch = (batchId) => {
+        setSelectedBatches(prev => 
+            prev.includes(batchId) ? prev.filter(id => id !== batchId) : [...prev, batchId]
+        );
+    };
+
+    const handleSelectAllBatches = () => {
+        if (selectedBatches.length === availableBatches.length) {
+            setSelectedBatches([]);
+        } else {
+            setSelectedBatches(availableBatches.map(b => b.id));
+        }
+    };
+
     // ==========================================
-    // 4. ACTION HANDLERS (Mutations & Bulk Sync)
+    // 4. ACTION HANDLERS (Mutations)
     // ==========================================
 
-    // BULK ALLOCATE FUNCTION
     const handleBulkAllocate = async (e) => {
         e.preventDefault();
         setErrorMsg(''); setSuccessMsg('');
 
-        if (selectedSubjects.length === 0) {
-            return showError('Please select at least one subject to map.');
+        if (selectedSubjects.length === 0 || selectedBatches.length === 0) {
+            return showError('Please select at least one subject and one batch.');
         }
 
         setIsSubmitting(true);
         try {
-            // Create array map for bulk insertion in one Supabase network request
-            const insertionData = selectedSubjects.map(subId => ({
-                subject_id: subId,
-                batch_id: selectedBatchId,
-                semester_id: selectedSemesterId,
-                faculty_id: selectedFacultyId
-            }));
+            // Build NxM Cartesian Product for mapping
+            const insertionData = [];
+            selectedSubjects.forEach(subId => {
+                selectedBatches.forEach(batchId => {
+                    // Check if mapping already exists to prevent duplicate failures
+                    const isExisting = allocations.some(a => a.subject_id === subId && a.batch_id === batchId);
+                    if (!isExisting) {
+                        insertionData.push({
+                            subject_id: subId,
+                            batch_id: batchId,
+                            semester_id: selectedSemesterId,
+                            faculty_id: selectedFacultyId
+                        });
+                    }
+                });
+            });
+
+            if (insertionData.length === 0) {
+                setIsSubmitting(false);
+                return showError('These specific associations already exist. No new mappings were needed.');
+            }
 
             const { data, error } = await supabase
                 .from('subject_allocations')
@@ -162,15 +193,13 @@ const AllocationDashboard = () => {
           faculty:profiles(full_name, email)
         `);
 
-            // DB-Level triggers will block any corrupted data silently.
             if (error) throw error;
 
-            // Optimistically push ALL results immediately into array
             setAllocations([...data, ...allocations]);
-            showSuccess(`Successfully allocated ${data.length} subject(s)!`);
+            showSuccess(`Successfully allocated ${data.length} association(s)!`);
 
-            // Reset form tier
             setSelectedSubjects([]);
+            setSelectedBatches([]);
             setSelectedFacultyId('');
         } catch (err) {
             showError(err.message);
@@ -179,45 +208,29 @@ const AllocationDashboard = () => {
         }
     };
 
-    // OPTIMISTIC UPDATE FACULTY
     const handleUpdateFaculty = async (allocationId, newFacultyId) => {
         if (!newFacultyId) return;
-
-        // 1. Clone array to update optimistically first
         const backupTarget = allocations.find(a => a.id === allocationId);
-        const backupFaculty = backupTarget.faculty; // Save locally incase of revert
+        const backupFaculty = backupTarget.faculty; 
 
-        // Temporarily mutate UI
         setAllocations(allocations.map(a =>
-            a.id === allocationId
-                ? { ...a, faculty_id: newFacultyId, faculty: facultyList.find(f => f.id === newFacultyId) }
-                : a
+            a.id === allocationId ? { ...a, faculty_id: newFacultyId, faculty: facultyList.find(f => f.id === newFacultyId) } : a
         ));
 
         try {
-            // 2. Network push (background)
-            const { error } = await supabase
-                .from('subject_allocations')
-                .update({ faculty_id: newFacultyId })
-                .eq('id', allocationId);
-
+            const { error } = await supabase.from('subject_allocations').update({ faculty_id: newFacultyId }).eq('id', allocationId);
             if (error) throw error;
             showSuccess('Faculty reassigned successfully.');
         } catch (err) {
             showError('Failed to reassign: ' + err.message);
-            // Rollback UI organically
-            setAllocations(allocations.map(a =>
-                a.id === allocationId ? { ...a, faculty_id: backupFaculty.id, faculty: backupFaculty } : a
-            ));
+            setAllocations(allocations.map(a => a.id === allocationId ? { ...a, faculty_id: backupFaculty.id, faculty: backupFaculty } : a));
         }
     };
 
-    // OPTIMISTIC DELETE
     const handleDelete = async (allocationId) => {
         if (!window.confirm('Permanently wipe this module allocation?')) return;
-
         const backupAllocations = [...allocations];
-        setAllocations(allocations.filter(a => a.id !== allocationId)); // Optimistic UI slice
+        setAllocations(allocations.filter(a => a.id !== allocationId)); 
 
         try {
             const { error } = await supabase.from('subject_allocations').delete().eq('id', allocationId);
@@ -225,25 +238,21 @@ const AllocationDashboard = () => {
             showSuccess('Allocation wiped from active semester logs.');
         } catch (err) {
             showError('Failed to remove: ' + err.message);
-            setAllocations(backupAllocations); // Revert
+            setAllocations(backupAllocations);
         }
     };
 
-
-    // OPTIMISTIC DELETE SUBJECT
     const handleDeleteSubject = async (subjectId) => {
         if (!window.confirm('WARNING: Deleting this Course will permanently wipe ALL connected student allocations and dependencies. Continue?')) return;
-
         try {
             const { error } = await supabase.from('subjects').delete().eq('id', subjectId);
             if (error) throw error;
             showSuccess('Course entirely purged from the system.');
-            fetchCoreData(); // Re-sync the core tree immediately to reflect cascaded changes
+            fetchCoreData(); 
         } catch (err) {
             showError('Failed to remove course: ' + err.message);
         }
     };
-
 
     if (isLoading) return <div className="p-8 text-center font-bold text-gray-500 tracking-widest uppercase">Loading Core ERP Hierarchy...</div>;
 
@@ -251,7 +260,7 @@ const AllocationDashboard = () => {
         <div className="p-8 sm:p-12 space-y-10 font-sans">
             <div className="mb-4">
                 <h1 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tighter">Academic Mapping Core</h1>
-                <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">Bulk Subject & Faculty Allocation Matrix</p>
+                <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">NxM Batch Matrix Allocation</p>
             </div>
 
             {/* Floating Alerts */}
@@ -270,142 +279,145 @@ const AllocationDashboard = () => {
                 )}
             </div>
 
-            {/* 1. DEPENDENT MAPPING FORM (O(1) Filtered) */}
+            {/* 1. MAPPING FORM */}
             <div className="bg-white rounded-[2rem] p-8 border border-[var(--color-border-light)] shadow-sm">
                 <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
                     <Layers className="w-6 h-6 text-[#ef4444]" />
-                    <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight">Bulk Allocation Wizard</h2>
+                    <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight">NxM Bulk Matrix Wizard</h2>
                 </div>
 
                 <form onSubmit={handleBulkAllocate} className="space-y-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
-                        <div className="col-span-1 border-r border-gray-100 pr-6 space-y-5">
-                            {/* Dept */}
+                        {/* Dropdowns Column (3 spans) */}
+                        <div className="col-span-1 md:col-span-3 border-r border-gray-100 pr-6 space-y-5">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">1. Department</label>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">1. Department</label>
                                 <select
                                     value={selectedDeptId} onChange={(e) => setSelectedDeptId(e.target.value)}
-                                    className="w-full p-2.5 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-[#1a1b4b]/20"
+                                    className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none"
                                     required
                                 >
                                     <option value="">-- Select --</option>
                                     {departments.map(d => <option key={d.id} value={d.id}>{d.name} ({d.code})</option>)}
                                 </select>
                             </div>
-
-                            {/* Year */}
                             <div>
                                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">2. Year</label>
                                 <select
                                     value={selectedYearId} onChange={(e) => setSelectedYearId(e.target.value)} disabled={!selectedDeptId}
-                                    className="w-full p-2.5 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
+                                    className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
                                     required
                                 >
-                                    <option value="">-- Route --</option>
+                                    <option value="">-- Select --</option>
                                     {availableYears.map(y => <option key={y.id} value={y.id}>{y.year_level}</option>)}
                                 </select>
                             </div>
-
-                            {/* Semester */}
                             <div>
                                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">3. Semester</label>
                                 <select
                                     value={selectedSemesterId} onChange={(e) => setSelectedSemesterId(e.target.value)} disabled={!selectedYearId}
-                                    className="w-full p-2.5 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
+                                    className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
                                     required
                                 >
-                                    <option value="">-- Route --</option>
+                                    <option value="">-- Select --</option>
                                     {availableSemesters.map(s => <option key={s.id} value={s.id}>Sem {s.term_number}</option>)}
-                                </select>
-                            </div>
-
-                            {/* Batch */}
-                            <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">4. Target Batch</label>
-                                <select
-                                    value={selectedBatchId} onChange={(e) => setSelectedBatchId(e.target.value)} disabled={!selectedSemesterId}
-                                    className="w-full p-2.5 bg-gray-50 rounded-lg border border-gray-200 text-sm font-black text-[#ef4444] outline-none disabled:opacity-50"
-                                    required
-                                >
-                                    <option value="">-- Final Target --</option>
-                                    {availableBatches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                                 </select>
                             </div>
                         </div>
 
-                        {/* Selection Area (Spans remaining columns) */}
-                        <div className="lg:col-span-3 space-y-6 flex flex-col pt-1 pl-2">
-
-                            {/* Bulk Subjects Filtered Wrapper */}
-                            <div className="flex-1 flex flex-col min-h-0">
-                                <div className="flex items-center justify-between mb-3">
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                        <BookOpen className="w-4 h-4 text-[#1a1b4b]" /> 5. Select Curriculum Subjects
-                                    </label>
+                        {/* Batches Selector (3 spans) */}
+                        <div className="col-span-1 md:col-span-3 border-r border-gray-100 pr-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">4. Target Batches</label>
+                                {availableBatches.length > 0 && (
                                     <button 
-                                        type="button" 
-                                        onClick={() => setIsSubjectModalOpen(true)}
-                                        disabled={!selectedDeptId}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-[#1a1b4b] rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                                      type="button" 
+                                      onClick={handleSelectAllBatches}
+                                      className="text-[9px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest"
+                                    >
+                                        {selectedBatches.length === availableBatches.length ? 'Deselect All' : 'Select All'}
+                                    </button>
+                                )}
+                            </div>
+                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-2 h-[200px] overflow-y-auto space-y-1">
+                                {!selectedSemesterId ? (
+                                    <p className="text-[10px] p-2 font-bold text-gray-400 uppercase text-center mt-6">Select Semester First</p>
+                                ) : availableBatches.length === 0 ? (
+                                    <p className="text-[10px] p-2 font-bold text-red-400 uppercase text-center mt-6">No batches exist for this sem.</p>
+                                ) : (
+                                    availableBatches.map(b => (
+                                        <label key={b.id} className="flex items-center gap-3 p-2 bg-white border border-gray-100 rounded-lg cursor-pointer hover:border-gray-300 transition-colors shadow-sm">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedBatches.includes(b.id)}
+                                                onChange={() => toggleBatch(b.id)}
+                                                className="w-4 h-4 text-[#ef4444] rounded outline-none"
+                                            />
+                                            <span className="font-bold text-[#1a1b4b] text-sm">{b.name}</span>
+                                        </label>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Selection & Submit Area (6 spans) */}
+                        <div className="col-span-1 md:col-span-6 space-y-6 flex flex-col">
+                            {/* Filtered Subjects */}
+                            <div className="flex-1 flex flex-col min-h-0">
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                        <BookOpen className="w-3.5 h-3.5 text-[#1a1b4b]" /> 5. Select Course(s) to Map
+                                    </label>
+                                    <button type="button" onClick={() => setIsSubjectModalOpen(true)} disabled={!selectedDeptId}
+                                        className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-[#1a1b4b] rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100"
                                     >
                                         <Plus size={12} strokeWidth={4} /> New Course
                                     </button>
                                 </div>
-
-                                {selectedBatchId ? (
-                                    <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-4 overflow-y-auto max-h-[180px] space-y-2 relative">
-                                        {availableSubjects.length === 0 ? (
-                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest text-center mt-6">All mapped or No subjects attached.</p>
+                                <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-3 h-[120px] overflow-y-auto space-y-2">
+                                    {selectedBatches.length > 0 ? (
+                                        availableSubjects.length === 0 ? (
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mt-6">All linked.</p>
                                         ) : (
                                             availableSubjects.map(sub => (
-                                                <label key={sub.id} className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-lg cursor-pointer hover:border-gray-300 transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedSubjects.includes(sub.id)}
-                                                        onChange={() => toggleSubject(sub.id)}
-                                                        className="w-4 h-4 text-[#ef4444] rounded ring-0 outline-none"
-                                                    />
-                                                    <div className="flex-1">
-                                                        <span className="font-bold text-[#1a1b4b] text-sm block">[{sub.code}] {sub.name}</span>
-                                                        <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{sub.credits} Credits</span>
-                                                    </div>
+                                                <label key={sub.id} className="flex items-center gap-3 p-2 bg-white border border-gray-100 rounded-lg cursor-pointer hover:border-gray-300">
+                                                    <input type="checkbox" checked={selectedSubjects.includes(sub.id)} onChange={() => toggleSubject(sub.id)} className="w-4 h-4 text-[#ef4444] rounded" />
+                                                    <span className="font-bold text-[#1a1b4b] text-sm flex-1">[{sub.code}] {sub.name}</span>
+                                                    <span className="text-[10px] text-gray-400 uppercase font-bold">{sub.credits} CR</span>
                                                 </label>
                                             ))
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex-1 bg-gray-50/50 border border-gray-200 border-dashed rounded-xl flex items-center justify-center p-6 text-center">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select a valid Target Batch structure first to resolve missing linkages.</p>
-                                    </div>
-                                )}
+                                        )
+                                    ) : (
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mt-6">Select target batches to unlock subjects.</p>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Faculty Assignment Bottom Row */}
-                            <div className="flex items-end gap-6 bg-[#f4f6fa]/60 p-5 rounded-xl border border-[#1a1b4b]/5">
-                                <div className="flex-1">
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                        <Users className="w-4 h-4 text-[#1a1b4b]" /> 6. Assigned Instructor
+                            <div className="flex flex-col xl:flex-row items-end gap-3 bg-[#f4f6fa]/60 p-4 rounded-xl border border-[#1a1b4b]/5">
+                                <div className="flex-1 w-full">
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                        <Users className="w-3.5 h-3.5 text-[#1a1b4b]" /> 6. Designated Instructor
                                     </label>
                                     <select
-                                        value={selectedFacultyId} onChange={(e) => setSelectedFacultyId(e.target.value)} disabled={!selectedBatchId || selectedSubjects.length === 0}
-                                        className="w-full p-3 bg-white rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
+                                        value={selectedFacultyId} onChange={(e) => setSelectedFacultyId(e.target.value)} disabled={selectedBatches.length === 0 || selectedSubjects.length === 0}
+                                        className="w-full p-2.5 bg-white rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
                                         required
                                     >
-                                        <option value="">-- Bind Faculty --</option>
-                                        {facultyList.map(f => <option key={f.id} value={f.id}>{f.full_name} ({f.email})</option>)}
+                                        <option value="">-- Assign Faculty --</option>
+                                        {facultyList.map(f => <option key={f.id} value={f.id}>{f.full_name}</option>)}
                                     </select>
                                 </div>
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || !selectedBatchId || selectedSubjects.length === 0 || !selectedFacultyId}
-                                    className="px-8 py-3 bg-[#1a1b4b] hover:bg-[#2d3a8c] text-white font-black uppercase tracking-widest text-xs rounded-lg transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:active:scale-100 h-[46px]"
+                                    disabled={isSubmitting || selectedBatches.length === 0 || selectedSubjects.length === 0 || !selectedFacultyId}
+                                    className="px-6 py-2.5 bg-[#1a1b4b] hover:bg-[#2d3a8c] text-white font-black uppercase tracking-widest text-xs rounded-lg transition-all disabled:opacity-50 h-[42px] whitespace-nowrap"
                                 >
-                                    {isSubmitting ? 'Syncing...' : `Map ${selectedSubjects.length} Subject(s)`}
+                                    {isSubmitting ? 'Syncing...' : `Map (${selectedBatches.length}x${selectedSubjects.length})`}
                                 </button>
                             </div>
-
                         </div>
+
                     </div>
                 </form>
             </div>
@@ -445,7 +457,6 @@ const AllocationDashboard = () => {
                                      <td className="p-4 text-center">
                                          <button
                                              onClick={() => handleDeleteSubject(sub.id)}
-                                             title="Permanently Delete Course"
                                              className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                                          >
                                              <Trash2 className="w-4 h-4" />
@@ -459,7 +470,7 @@ const AllocationDashboard = () => {
              </div>
             )}
 
-            {/* 2. LIVE ALLOCATION GRID (With Optimistic Updates) */}
+            {/* 2. LIVE ALLOCATION GRID */}
             <div className="bg-white rounded-[2rem] p-8 border border-[var(--color-border-light)] shadow-sm">
                 <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight mb-6 flex justify-between items-center">
                     <span>Global Allocation Registry</span>
@@ -496,7 +507,6 @@ const AllocationDashboard = () => {
                                         </div>
                                     </td>
                                     <td className="p-4 pt-4 pb-4">
-                                        {/* INLINE FACULTY EDITOR: Automatically performs Optimistic Network updates */}
                                         <div className="relative">
                                             <select
                                                 value={alloc.faculty_id}
@@ -511,7 +521,6 @@ const AllocationDashboard = () => {
                                     <td className="p-4 text-center">
                                         <button
                                             onClick={() => handleDelete(alloc.id)}
-                                            title="Revoke Mapping"
                                             className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                                         >
                                             <Trash2 className="w-4 h-4" />
@@ -521,8 +530,7 @@ const AllocationDashboard = () => {
                             ))}
                             {allocations.length === 0 && (
                                 <tr><td colSpan="5" className="p-12 text-center">
-                                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50 mb-3"><BookOpen className="w-5 h-5 text-gray-300" /></div>
-                                    <p className="text-gray-400 uppercase tracking-widest text-xs font-bold leading-relaxed">No subject mappings have been actively deployed.<br />Use the Wizard to execute bindings.</p>
+                                    <p className="text-gray-400 uppercase tracking-widest text-xs font-bold leading-relaxed">No subject mappings have been actively deployed.<br />Use the Matrix Wizard to execute bindings.</p>
                                 </td></tr>
                             )}
                         </tbody>
