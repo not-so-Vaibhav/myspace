@@ -17,6 +17,7 @@ import CourseDetail from './pages/CourseDetail';
 import Resources from './pages/Resources';
 import Payment from './pages/Payment';
 import Placeholder from './pages/Placeholder';
+import Calendar from './pages/Calendar';
 import StudentProfile from './pages/StudentProfile';
 import AllMeetings from './pages/AllMeetings';
 import Attendance from './pages/Attendance';
@@ -202,7 +203,7 @@ function App() {
             <Route path="/announcements" element={<Placeholder />} />
             <Route path="/assignments" element={<StudentAssignments />} />
             <Route path="/library" element={<Placeholder />} />
-            <Route path="/calendar" element={<Placeholder />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/schedule" element={<Placeholder />} />
             <Route path="/results" element={<Placeholder />} />
             <Route path="/payment" element={<Payment />} />
