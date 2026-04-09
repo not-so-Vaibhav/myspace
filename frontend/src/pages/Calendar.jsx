@@ -37,8 +37,11 @@ import {
   CalendarDays,
   LayoutGrid,
   X,
-  PlusCircle
+  PlusCircle,
+  Users
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const HOLIDAYS_2026 = [
   { id: 'h1', date: '2026-01-01', title: 'New Year Day', type: 'Holiday' },
@@ -64,13 +67,56 @@ const Calendar = () => {
   const [view, setView] = useState('Month'); // 'Day', 'Week', 'Month', 'Year'
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Personal Events State
+  // Personal & Public Events State
   const [personalEvents, setPersonalEvents] = useState(() => {
     const saved = localStorage.getItem('personal_events');
     return saved ? JSON.parse(saved) : [];
   });
+  const [publicEvents, setPublicEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({ title: '', date: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal' });
+  const [newEvent, setNewEvent] = useState({ title: '', startDate: format(new Date(), 'yyyy-MM-dd'), endDate: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal', targetAudience: 'both' });
+
+  const { profile, user } = useAuth();
+  const role = profile?.role?.toLowerCase();
+  const isAdmin = role === 'admin';
+
+  const isDayInEvent = (day, event) => {
+    const startStr = event.startDate || event.date || event.event_date;
+    const endStr = event.endDate || event.date || event.event_date;
+    
+    if (!startStr || !endStr) return false;
+
+    const start = startOfDay(parseISO(startStr));
+    const end = startOfDay(parseISO(endStr));
+    const current = startOfDay(day);
+    return current >= start && current <= end;
+  };
+
+  useEffect(() => {
+    fetchPublicEvents();
+  }, []);
+
+  const fetchPublicEvents = async () => {
+    try {
+      const { data, error } = await supabase.from('public_events').select('*');
+      if (error) throw error;
+      if (data) {
+        setPublicEvents(data.map(e => ({
+          id: e.id,
+          title: e.title,
+          startDate: e.start_date,
+          endDate: e.end_date,
+          date: e.event_date,
+          startTime: e.start_time,
+          endTime: e.end_time,
+          targetAudience: e.target_audience,
+          type: 'Public'
+        })));
+      }
+    } catch (err) {
+      console.error('Error fetching public events:', err);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('personal_events', JSON.stringify(personalEvents));
@@ -97,20 +143,61 @@ const Calendar = () => {
     else if (view === 'Year') setCurrentDate(subMonths(currentDate, 12));
   };
 
-  const handleAddEvent = (e) => {
+  const handleAddEvent = async (e) => {
     e.preventDefault();
     if (!newEvent.title) return;
-    const event = { ...newEvent, id: Date.now().toString() };
-    setPersonalEvents([...personalEvents, event]);
+
+    if (newEvent.type === 'Public' && isAdmin) {
+      try {
+        const { data, error } = await supabase.from('public_events').insert([{
+          title: newEvent.title,
+          start_date: newEvent.startDate,
+          end_date: newEvent.endDate,
+          start_time: newEvent.startTime,
+          end_time: newEvent.endTime,
+          target_audience: newEvent.targetAudience,
+          created_by: user.id
+        }]).select();
+
+        if (error) throw error;
+        if (data) {
+          setPublicEvents([...publicEvents, {
+            id: data[0].id,
+            title: data[0].title,
+            startDate: data[0].start_date,
+            endDate: data[0].end_date,
+            startTime: data[0].start_time,
+            endTime: data[0].end_time,
+            targetAudience: data[0].target_audience,
+            type: 'Public'
+          }]);
+        }
+      } catch (err) {
+        console.error('Failed to create public event', err);
+      }
+    } else {
+      const event = { ...newEvent, id: Date.now().toString() };
+      setPersonalEvents([...personalEvents, event]);
+    }
+
     setIsModalOpen(false);
-    setNewEvent({ title: '', date: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal' });
+    setNewEvent({ title: '', startDate: format(new Date(), 'yyyy-MM-dd'), endDate: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal', targetAudience: 'both' });
   };
 
-  const removeEvent = (id) => {
-    setPersonalEvents(personalEvents.filter(e => e.id !== id));
+  const removeEvent = async (id, type) => {
+    if (type === 'Public' && isAdmin) {
+      try {
+        await supabase.from('public_events').delete().eq('id', id);
+        setPublicEvents(publicEvents.filter(e => e.id !== id));
+      } catch (err) {
+        console.error('Failed to delete public event', err);
+      }
+    } else {
+      setPersonalEvents(personalEvents.filter(e => e.id !== id));
+    }
   };
 
-  const allEvents = useMemo(() => [...HOLIDAYS_2026, ...personalEvents], [personalEvents]);
+  const allEvents = useMemo(() => [...HOLIDAYS_2026, ...personalEvents, ...publicEvents], [personalEvents, publicEvents]);
 
   const renderHeader = () => {
     return (
@@ -178,7 +265,7 @@ const Calendar = () => {
         <div className="grid grid-cols-7 flex-1">
           {days.map(day => {
             const isCurrMonth = isSameMonth(day, monthStart);
-            const dayEvents = allEvents.filter(e => isSameDay(parseISO(e.date), day));
+            const dayEvents = allEvents.filter(e => isDayInEvent(day, e));
             return (
               <div key={day.toString()} className={`p-2 border-r border-b border-gray-200 transition-all hover:bg-gray-50/20 group relative overflow-y-auto ${!isCurrMonth ? 'bg-gray-50/10 opacity-30' : ''}`}>
                  <div className="flex items-center justify-between mb-1">
@@ -188,10 +275,10 @@ const Calendar = () => {
                  </div>
                  <div className="space-y-1">
                    {dayEvents.map(e => (
-                     <div key={e.id} className={`${e.type === 'Holiday' ? 'bg-red-50/60 border-red-500' : 'bg-indigo-50/60 border-indigo-500'} border-l-2 p-1 rounded-r-md group/evt relative`}>
-                        <p className={`text-[8px] font-black truncate uppercase tracking-tighter leading-none ${e.type === 'Holiday' ? 'text-red-700' : 'text-indigo-700'}`}>{e.title}</p>
-                        {e.type !== 'Holiday' && (
-                          <button onClick={(x) => { x.stopPropagation(); removeEvent(e.id); }} className="absolute -right-1 -top-1 opacity-0 group-hover/evt:opacity-100 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-all">
+                     <div key={e.id} className={`${e.type === 'Holiday' ? 'bg-red-50/60 border-red-500' : e.type === 'Public' ? 'bg-green-50/60 border-green-500' : 'bg-indigo-50/60 border-indigo-500'} border-l-2 p-1 rounded-r-md group/evt relative`}>
+                        <p className={`text-[8px] font-black truncate uppercase tracking-tighter leading-none ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
+                        {e.type !== 'Holiday' && (e.type !== 'Public' || isAdmin) && (
+                          <button onClick={(x) => { x.stopPropagation(); removeEvent(e.id, e.type); }} className="absolute -right-1 -top-1 opacity-0 group-hover/evt:opacity-100 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-all">
                             <X size={8} />
                           </button>
                         )}
@@ -236,13 +323,13 @@ const Calendar = () => {
             </div>
             <div className="grid grid-cols-7 divide-x divide-gray-200 relative">
               {weekDays.map(day => {
-                const dayEvents = allEvents.filter(e => isSameDay(parseISO(e.date), day));
+                const dayEvents = allEvents.filter(e => isDayInEvent(day, e));
                 return (
                   <div key={day.toString()} className="h-full relative group hover:bg-gray-50/10">
                     {hours.map(h => <div key={h.toString()} className="h-16 border-b border-gray-100"></div>)}
                     {dayEvents.map(e => (
-                      <div key={e.id} className={`absolute inset-x-1 p-2 border-l-3 rounded-lg shadow-sm ${e.type === 'Holiday' ? 'top-2 bg-red-50 border-red-500' : 'top-20 bg-indigo-50 border-indigo-500'}`}>
-                         <p className={`text-[9px] font-black uppercase leading-tight ${e.type === 'Holiday' ? 'text-red-700' : 'text-indigo-700'}`}>{e.title}</p>
+                      <div key={e.id} className={`absolute inset-x-1 p-2 border-l-3 rounded-lg shadow-sm ${e.type === 'Holiday' ? 'top-2 bg-red-50 border-red-500' : e.type === 'Public' ? 'top-10 bg-green-50 border-green-500' : 'top-20 bg-indigo-50 border-indigo-500'}`}>
+                         <p className={`text-[9px] font-black uppercase leading-tight ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
                       </div>
                     ))}
                   </div>
@@ -256,7 +343,7 @@ const Calendar = () => {
   };
 
   const renderDayView = () => {
-    const dayEvents = allEvents.filter(e => isSameDay(parseISO(e.date), currentDate));
+    const dayEvents = allEvents.filter(e => isDayInEvent(currentDate, e));
     return (
       <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col md:flex-row h-[calc(100vh-240px)]">
         <div className="w-full md:w-64 p-6 border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50/10 flex flex-col">
@@ -267,8 +354,9 @@ const Calendar = () => {
            <div className="flex-1 overflow-y-auto pr-2 space-y-3">
               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 border-b border-gray-100 pb-2">Agenda</p>
               {dayEvents.map(e => (
-                <div key={e.id} className={`p-4 rounded-2xl border ${e.type === 'Holiday' ? 'bg-red-50 border-red-100' : 'bg-white border-indigo-100 shadow-sm'}`}>
-                   <p className={`text-[10px] font-black uppercase mb-1 ${e.type === 'Holiday' ? 'text-red-700' : 'text-indigo-700'}`}>{e.title}</p>
+                <div key={e.id} className={`p-4 rounded-2xl border ${e.type === 'Holiday' ? 'bg-red-50 border-red-100' : e.type === 'Public' ? 'bg-green-50 border-green-100 shadow-sm' : 'bg-white border-indigo-100 shadow-sm'}`}>
+                   <p className={`text-[10px] font-black uppercase mb-1 ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
+                   {e.type === 'Public' && <p className="text-[8px] font-bold text-green-600 uppercase tracking-widest mb-1">Target: {e.targetAudience}</p>}
                    <p className="text-[8px] text-gray-400 font-bold uppercase">{e.startTime || 'All Day'} - {e.endTime || ''}</p>
                 </div>
               ))}
@@ -311,7 +399,7 @@ const Calendar = () => {
                   {['S','M','T','W','T','F','S'].map(d => <div key={d} className="text-[7px] font-black text-gray-300 text-center py-0.5">{d}</div>)}
                   {Array.from({ length: startOfWeek(startOfMonth(month)).getDay() }).map((_, i) => <div key={i}></div>)}
                   {monthDays.map(d => {
-                    const hasEvt = allEvents.some(e => isSameDay(parseISO(e.date), d));
+                    const hasEvt = allEvents.some(e => isDayInEvent(d, e));
                     return (
                       <div key={d.toString()} className={`text-[8px] font-bold text-center h-5 w-5 rounded-md flex items-center justify-center mx-auto ${isToday(d) ? 'bg-[#1a1b4b] text-white shadow-sm' : hasEvt ? 'bg-red-50 text-red-600 font-black' : 'text-gray-600'}`}>
                          {format(d, 'd')}
@@ -341,6 +429,13 @@ const Calendar = () => {
               </div>
 
               <div className="space-y-5">
+                 {isAdmin && (
+                   <div className="flex bg-gray-50 p-1 rounded-xl border border-gray-100">
+                      <button type="button" onClick={() => setNewEvent({...newEvent, type: 'Personal'})} className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${newEvent.type === 'Personal' ? 'bg-white text-[#1a1b4b] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>Personal Event</button>
+                      <button type="button" onClick={() => setNewEvent({...newEvent, type: 'Public'})} className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${newEvent.type === 'Public' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>Public Event</button>
+                   </div>
+                 )}
+
                  <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Event Title</label>
                     <input 
@@ -352,23 +447,50 @@ const Calendar = () => {
                       className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300"
                     />
                  </div>
+
+                 {newEvent.type === 'Public' && isAdmin && (
+                   <div>
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Target Audience</label>
+                       <select 
+                         value={newEvent.targetAudience}
+                         onChange={(e) => setNewEvent({...newEvent, targetAudience: e.target.value})}
+                         className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100"
+                       >
+                         <option value="both">Both (Student & Faculty)</option>
+                         <option value="student">Students Only</option>
+                         <option value="faculty">Faculty Only</option>
+                       </select>
+                   </div>
+                 )}
+
                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Target Date</label>
-                        <input 
-                          type="date" 
-                          value={newEvent.date}
-                          onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
-                          className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs font-bold text-[#1a1b4b]"
-                        />
+                    <div className="grid grid-cols-2 gap-2">
+                       <div>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Start Date</label>
+                          <input 
+                            type="date" 
+                            value={newEvent.startDate}
+                            onChange={(e) => setNewEvent({...newEvent, startDate: e.target.value})}
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold text-[#1a1b4b]"
+                          />
+                       </div>
+                       <div>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">End Date</label>
+                          <input 
+                            type="date" 
+                            value={newEvent.endDate}
+                            onChange={(e) => setNewEvent({...newEvent, endDate: e.target.value})}
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold text-[#1a1b4b]"
+                          />
+                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                        <div>
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Start</label>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Start Time</label>
                           <input type="time" value={newEvent.startTime} onChange={(e) => setNewEvent({...newEvent, startTime: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold" />
                        </div>
                        <div>
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">End</label>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">End Time</label>
                           <input type="time" value={newEvent.endTime} onChange={(e) => setNewEvent({...newEvent, endTime: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold" />
                        </div>
                     </div>
@@ -428,7 +550,7 @@ const Calendar = () => {
                 onClick={() => setIsModalOpen(true)}
                 className="w-full mt-6 py-3.5 bg-[#1a1b4b] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
               >
-                 <Plus size={14} strokeWidth={4} /> Add Personal Event
+                 <Plus size={14} strokeWidth={4} /> {isAdmin ? 'Add Event' : 'Add Personal Event'}
               </button>
            </div>
 
@@ -460,6 +582,10 @@ const Calendar = () => {
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Personal Event</span>
+              </div>
+              <div className="flex items-center gap-2">
+                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                 <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Public Event</span>
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-[#1a1b4b] rounded-full"></div>

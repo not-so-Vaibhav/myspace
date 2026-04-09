@@ -22,6 +22,7 @@ const getNavItems = (role) => {
   if (role === 'admin') {
     return [
       { to: '/admin-dashboard', icon: Home, label: 'Admin Dashboard' },
+      { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/users', icon: FileText, label: 'Users' },
       { to: '/roles', icon: FileText, label: 'Roles' },
