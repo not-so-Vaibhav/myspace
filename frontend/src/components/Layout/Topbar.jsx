@@ -4,6 +4,17 @@ import { Search, Bell, Menu, Youtube, Instagram, Facebook, Twitter, Linkedin } f
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 
+const XLogo = ({ size = 14 }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="currentColor"
+  >
+    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.901 1.153ZM17.61 20.644h2.039L6.486 3.24H4.298L17.61 20.644Z" />
+  </svg>
+);
+
 const Topbar = ({ onMenuClick }) => {
   const { profile } = useAuth();
   const navigate = useNavigate();
@@ -94,14 +105,20 @@ const Topbar = ({ onMenuClick }) => {
         <div className="flex items-center gap-4 pl-2">
           <div className="hidden lg:flex items-center gap-2 mr-2">
             {[
-              { Icon: Youtube },
-              { Icon: Instagram },
-              { Icon: Facebook },
-              { Icon: Twitter },
-              { Icon: Linkedin }
-            ].map(({ Icon }, i) => (
-              <a key={i} href="#" className={`w-8 h-8 rounded-full bg-[#f4f6fa] flex items-center justify-center transition-all hover:bg-[#1a1b4b] hover:text-white text-[#1a1b4b] shadow-sm border border-transparent active:scale-90`}>
-                <Icon size={14} strokeWidth={2.5} />
+              { Icon: Youtube, href: 'https://www.youtube.com/c/MITADTUniversityPune' },
+              { Icon: Instagram, href: 'https://www.instagram.com/mitadtuniversity/?hl=en' },
+              { Icon: Facebook, href: 'https://www.facebook.com/mitadtuniversity/' },
+              { Icon: XLogo, href: 'https://x.com/mitadtpune' },
+              { Icon: Linkedin, href: 'https://www.linkedin.com/school/mit-adtuniversity/posts/?feedView=all' }
+            ].map(({ Icon, href }, i) => (
+              <a 
+                key={i} 
+                href={href} 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-8 h-8 rounded-full bg-[#f4f6fa] flex items-center justify-center transition-all hover:bg-[#1a1b4b] hover:text-white text-[#1a1b4b] shadow-sm border border-transparent active:scale-90"
+              >
+                <Icon size={14} />
               </a>
             ))}
           </div>
