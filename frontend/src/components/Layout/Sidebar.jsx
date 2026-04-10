@@ -71,7 +71,7 @@ const getNavItems = (role) => {
       { to: '/request-letter', icon: FileText, label: 'Requisitions' },
       { to: '/proposals', icon: FileText, label: 'Proposals' },
       { to: '/lor', icon: FileText, label: 'LOR' },
-      { to: '/payment', icon: CreditCard, label: 'Salary Slip' },
+      { to: '/salary-slip', icon: CreditCard, label: 'Salary Slip' },
     ];
   }
 

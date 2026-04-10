@@ -32,6 +32,7 @@ import FacultyAttendance from './pages/FacultyAttendance';
 import UserManagement from './pages/UserManagement';
 import Schedule from './pages/Schedule';
 import Announcements from './pages/Announcements';
+import SalarySlip from './pages/SalarySlip';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -220,6 +221,7 @@ function App() {
             <Route path="/meetings" element={<AllMeetings />} />
             <Route path="/approvals" element={<Approvals />} />
             <Route path="/faculty" element={<FacultyList />} />
+            <Route path="/salary-slip" element={<RoleRoute allowedRoles={['faculty', 'admin', 'hod']}><SalarySlip /></RoleRoute>} />
 
             {/* Fallback Catch-All Route to prevent white screens on invalid URLs */}
             <Route path="*" element={<Navigate to="/" replace />} />
