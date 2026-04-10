@@ -34,6 +34,7 @@ import Schedule from './pages/Schedule';
 import Announcements from './pages/Announcements';
 import SalarySlip from './pages/SalarySlip';
 import Library from './pages/Library';
+import Results from './pages/Results';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -211,7 +212,7 @@ function App() {
             <Route path="/library" element={<Library />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/schedule" element={<Schedule />} />
-            <Route path="/results" element={<Placeholder />} />
+            <Route path="/results" element={<Results />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/request-letter" element={<Placeholder />} />
             <Route path="/attendance" element={<Attendance />} />

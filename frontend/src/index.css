@@ -66,3 +66,43 @@ body {
 .card-hover:hover {
   box-shadow: var(--shadow-card);
 }
+
+/* Global Print Styles */
+@media print {
+  aside, 
+  header, 
+  nav, 
+  button, 
+  .print-hidden {
+    display: none !important;
+  }
+
+  main {
+    padding-left: 0 !important;
+    padding-top: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  body, #root {
+    background-color: white !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .bg-[#fcfdfe] {
+    background-color: white !important;
+  }
+
+  /* Force colors to show for backgrounds and text */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Fix for Grade Card to take full page width */
+  .lg\:max-w-5xl {
+    max-width: 100% !important;
+    border: none !important;
+  }
+}
