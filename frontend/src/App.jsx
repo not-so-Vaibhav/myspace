@@ -33,6 +33,7 @@ import UserManagement from './pages/UserManagement';
 import Schedule from './pages/Schedule';
 import Announcements from './pages/Announcements';
 import SalarySlip from './pages/SalarySlip';
+import Library from './pages/Library';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -207,7 +208,7 @@ function App() {
             <Route path="/users" element={<RoleRoute allowedRoles={['admin']}><UserManagement /></RoleRoute>} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/assignments" element={<StudentAssignments />} />
-            <Route path="/library" element={<Placeholder />} />
+            <Route path="/library" element={<Library />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/results" element={<Placeholder />} />
