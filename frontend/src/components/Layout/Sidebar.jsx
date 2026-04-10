@@ -22,6 +22,7 @@ const getNavItems = (role) => {
   if (role === 'admin') {
     return [
       { to: '/admin-dashboard', icon: Home, label: 'Admin Dashboard' },
+      { to: '/announcements', icon: Megaphone, label: 'Announcement' },
       { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/users', icon: FileText, label: 'Users' },
@@ -61,6 +62,7 @@ const getNavItems = (role) => {
   if (role === 'faculty') {
     return [
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
+      { to: '/announcements', icon: Megaphone, label: 'Announcement' },
       { to: '/faculty-courses', icon: BookOpen, label: 'My Courses' },
       { to: '/faculty-assignments', icon: CheckSquare, label: 'Assignments' },
       { to: '/faculty-resources', icon: FolderOpen, label: 'Resources' },
