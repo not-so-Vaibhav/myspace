@@ -13,7 +13,8 @@ import {
   FolderOpen,
   LogOut,
   BookOpen,
-  CheckSquare
+  CheckSquare,
+  Briefcase
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -27,6 +28,7 @@ const getNavItems = (role) => {
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/users', icon: FileText, label: 'Users' },
       { to: '/student-letter-requests', icon: Mail, label: 'Letter Requests' },
+      { to: '/faculty-requisitions', icon: Briefcase, label: 'Faculty Requisitions' },
       { to: '/roles', icon: FileText, label: 'Roles' },
       { to: '/system-logs', icon: FileText, label: 'Logs' },
     ];
@@ -47,7 +49,8 @@ const getNavItems = (role) => {
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/faculty-dashboard', icon: Home, label: 'Instructor View' },
       { to: '/faculty', icon: FileText, label: 'Faculty List' },
-      { to: '/approvals', icon: FileText, label: 'Approvals' },
+      { to: '/approvals', icon: FileText, label: 'Leave Approvals' },
+      { to: '/faculty-requisitions', icon: Briefcase, label: 'Requisitions' },
     ];
   }
 
