@@ -26,6 +26,7 @@ const getNavItems = (role) => {
       { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/users', icon: FileText, label: 'Users' },
+      { to: '/student-letter-requests', icon: Mail, label: 'Letter Requests' },
       { to: '/roles', icon: FileText, label: 'Roles' },
       { to: '/system-logs', icon: FileText, label: 'Logs' },
     ];
