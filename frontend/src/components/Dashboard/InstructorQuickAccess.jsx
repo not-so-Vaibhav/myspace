@@ -31,7 +31,7 @@ const cards = [
     subtitle: 'Apply & Status',
     icon: CalendarOff,
     iconBg: 'bg-amber-50',
-    to: '/request-letter',
+    to: '/leave-application',
     accent: '#f59e0b',
   },
   {

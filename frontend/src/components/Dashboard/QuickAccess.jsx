@@ -2,7 +2,7 @@ import { CalendarCheck, FileText, Calendar, Folder } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const cards = [
-    { name: 'Attendance', icon: CalendarCheck, stats: '85% Present', to: '/attendance', accent: '#1a1b4b', bg: 'bg-indigo-50' },
+    { name: 'Attendance', icon: CalendarCheck, stats: '85% Present', to: '/leave-application', accent: '#1a1b4b', bg: 'bg-indigo-50' },
     { name: 'Assignments', icon: FileText, stats: '4 Pending', to: '/assignments', accent: '#ef4444', bg: 'bg-red-50' },
     { name: 'Schedule', icon: Calendar, stats: '2 Classes Today', to: '/schedule', accent: '#f59e0b', bg: 'bg-amber-50' },
     { name: 'Resources', icon: Folder, stats: '15 Files', to: '/resources', accent: '#10b981', bg: 'bg-emerald-50' },

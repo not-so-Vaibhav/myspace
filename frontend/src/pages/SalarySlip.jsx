@@ -72,8 +72,8 @@ const SalarySlip = () => {
                                 <span className="text-sm font-bold text-[#1a1b4b]">{profile?.role?.toUpperCase() || 'ASSISTANT PROFESSOR'}</span>
                             </div>
                             <div className="flex justify-between border-b border-gray-50 pb-2">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Location</span>
-                                <span className="text-sm font-bold text-[#1a1b4b]">Pune, Maharashtra</span>
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Working Days</span>
+                                <span className="text-sm font-bold text-[#1a1b4b]">24</span>
                             </div>
                         </div>
                         <div className="space-y-4">
@@ -174,10 +174,6 @@ const SalarySlip = () => {
                                 <div className="flex justify-between items-center">
                                     <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Net Salary</span>
                                     <span className="text-2xl font-black text-white">₹{netSalary.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                                    <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Total Working Days</span>
-                                    <span className="text-base font-black text-[#ef4444]">31</span>
                                 </div>
                             </div>
                         </div>

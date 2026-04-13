@@ -29,6 +29,7 @@ const getNavItems = (role) => {
       { to: '/users', icon: FileText, label: 'Users' },
       { to: '/student-letter-requests', icon: Mail, label: 'Letter Requests' },
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Faculty Requisitions' },
+      { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
       { to: '/roles', icon: FileText, label: 'Roles' },
       { to: '/system-logs', icon: FileText, label: 'Logs' },
     ];
@@ -90,7 +91,7 @@ const getNavItems = (role) => {
     { to: '/results', icon: Award, label: 'Result' },
     { to: '/payment', icon: CreditCard, label: 'Payment' },
     { to: '/request-letter', icon: Mail, label: 'Request Letter' },
-    { to: '/attendance', icon: Clock, label: 'Attendance' },
+    { to: '/leave-application', icon: Clock, label: 'Leave Application' },
     { to: '/resources', icon: FolderOpen, label: 'Resources' },
   ];
   return base;
