@@ -38,6 +38,7 @@ import Results from './pages/Results';
 import RequestLetter from './pages/RequestLetter';
 import StudentLetterRequests from './pages/StudentLetterRequests';
 import FacultyRequisitions from './pages/FacultyRequisitions';
+import LOR from './pages/LOR';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -223,7 +224,7 @@ function App() {
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/proposals" element={<Placeholder />} />
-            <Route path="/lor" element={<Placeholder />} />
+            <Route path="/lor" element={<LOR />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/meetings" element={<AllMeetings />} />
             <Route path="/approvals" element={<Approvals />} />
