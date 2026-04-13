@@ -40,6 +40,7 @@ import StudentLetterRequests from './pages/StudentLetterRequests';
 import FacultyRequisitions from './pages/FacultyRequisitions';
 import LOR from './pages/LOR';
 import LeaveApplication from './pages/LeaveApplication';
+import Proposals from './pages/Proposals';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -225,7 +226,7 @@ function App() {
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/leave-application" element={<LeaveApplication />} />
             <Route path="/resources" element={<Resources />} />
-            <Route path="/proposals" element={<Placeholder />} />
+            <Route path="/proposals" element={<Proposals />} />
             <Route path="/lor" element={<LOR />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/meetings" element={<AllMeetings />} />
