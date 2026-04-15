@@ -29,6 +29,7 @@ const getNavItems = (role) => {
       { to: '/users', icon: FileText, label: 'Users' },
       { to: '/student-letter-requests', icon: Mail, label: 'Letter Requests' },
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Faculty Requisitions' },
+      { to: '/faculty-proposals', icon: Briefcase, label: 'Faculty Proposals' },
       { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
       { to: '/roles', icon: FileText, label: 'Roles' },
       { to: '/system-logs', icon: FileText, label: 'Logs' },
@@ -51,6 +52,7 @@ const getNavItems = (role) => {
       { to: '/faculty-dashboard', icon: Home, label: 'Instructor View' },
       { to: '/faculty', icon: FileText, label: 'Faculty List' },
       { to: '/approvals', icon: FileText, label: 'Leave Approvals' },
+      { to: '/faculty-proposals', icon: Briefcase, label: 'Faculty Proposals' },
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Requisitions' },
     ];
   }
@@ -91,7 +93,8 @@ const getNavItems = (role) => {
     { to: '/results', icon: Award, label: 'Result' },
     { to: '/payment', icon: CreditCard, label: 'Payment' },
     { to: '/request-letter', icon: Mail, label: 'Request Letter' },
-    { to: '/leave-application', icon: Clock, label: 'Leave Application' },
+    { to: '/leave-application', icon: FileText, label: 'Leave Application' },
+    { to: '/attendance', icon: Clock, label: 'Attendance' },
     { to: '/resources', icon: FolderOpen, label: 'Resources' },
   ];
   return base;

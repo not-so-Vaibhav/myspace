@@ -1,51 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FileUser, Clock, Plus, X, ArrowRight, Check, Ban } from 'lucide-react';
+import { FileUser, Clock, Plus, X, ArrowRight, Check, Ban, Loader2, AlertCircle } from 'lucide-react';
 import { MeetingCard, statusColors } from '../components/Dashboard/MeetingSection';
 import { Link } from 'react-router-dom';
-
-// Initial leave requests
-const initialLeaveRequests = [
-    { id: 1, name: 'Dr. Jane Smith', type: 'Sick Leave', duration: '2 Days', status: 'pending' },
-    { id: 2, name: 'Prof. Mark Lee', type: 'Conference', duration: '1 Week', status: 'pending' },
-    { id: 3, name: 'Dr. Priya Patel', type: 'Personal Leave', duration: '3 Days', status: 'pending' },
-    { id: 4, name: 'Prof. Amit Sharma', type: 'Medical', duration: '5 Days', status: 'pending' },
-    { id: 5, name: 'Dr. Kavita Nair', type: 'Workshop', duration: '2 Days', status: 'pending' },
-    { id: 6, name: 'Prof. Rahul Verma', type: 'Sick Leave', duration: '1 Day', status: 'pending' },
-    { id: 7, name: 'Dr. Neha Gupta', type: 'Conference', duration: '4 Days', status: 'pending' },
-    { id: 8, name: 'Prof. Suresh Kumar', type: 'Personal Leave', duration: '2 Days', status: 'pending' },
-];
-
-// Initial meetings
-const initialMeetings = [
-    {
-        id: 1,
-        date: 'Monday, 31 Mar 2026',
-        timing: '10:00 AM – 11:30 AM',
-        agenda: 'Mid-Semester Review & Academic Progress Discussion',
-        location: 'Conference Room 3, Admin Block',
-        organizedBy: 'Dr. Meera Joshi (HoD, Computer Dept.)',
-        status: 'upcoming',
-    },
-    {
-        id: 2,
-        date: 'Wednesday, 2 Apr 2026',
-        timing: '02:00 PM – 03:00 PM',
-        agenda: 'Research Paper Submission Deadline Briefing',
-        location: 'Seminar Hall – B, 2nd Floor',
-        organizedBy: 'Prof. Rakesh Sharma (Research Cell)',
-        status: 'upcoming',
-    },
-    {
-        id: 3,
-        date: 'Friday, 4 Apr 2026',
-        timing: '11:00 AM – 12:00 PM',
-        agenda: 'Internal Quality Assurance Cell (IQAC) Monthly Meet',
-        location: 'Board Room, Admin Block',
-        organizedBy: 'Dr. Sunil Patil (IQAC Coordinator)',
-        status: 'upcoming',
-    },
-];
+import { supabase } from '../lib/supabase';
 
 // Toast notification component
 const Toast = ({ message, type, onClose }) => {
@@ -54,322 +12,332 @@ const Toast = ({ message, type, onClose }) => {
         return () => clearTimeout(timer);
     }, [onClose]);
 
-    const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+    const bgColor = type === 'success' ? 'bg-[#1a1b4b]' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
     const icon = type === 'success' ? <Check size={16} strokeWidth={3} /> : <Ban size={16} strokeWidth={3} />;
 
     return (
-        <div className={`fixed top-20 right-6 z-[100] ${bgColor} text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in`}>
-            <span className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">{icon}</span>
-            <span className="text-sm font-bold">{message}</span>
+        <div className={`fixed top-24 right-8 z-[150] ${bgColor} text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-in fade-in slide-in-from-right-10 border border-white/10`}>
+            <span className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">{icon}</span>
+            <span className="text-xs font-black uppercase tracking-widest">{message}</span>
         </div>
     );
 };
 
 const HODDashboard = () => {
-    const { profile } = useAuth();
+    const { profile, user } = useAuth();
     const [showModal, setShowModal] = useState(false);
-    const [leaveRequests, setLeaveRequests] = useState(initialLeaveRequests);
-    const [meetingsList, setMeetingsList] = useState(initialMeetings);
+    const [leaveRequests, setLeaveRequests] = useState([]);
+    const [meetingsList, setMeetingsList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [facultyStats, setFacultyStats] = useState({ active: 0, total: 0 });
     const [toast, setToast] = useState(null);
     const [processingId, setProcessingId] = useState(null);
     const [newMeet, setNewMeet] = useState({
         date: '', startTime: '', endTime: '', agenda: '', location: '', organizedBy: ''
     });
 
-    const totalFaculty = 45;
-    const activeFaculty = 42;
-    const pendingCount = leaveRequests.filter(r => r.status === 'pending').length;
+    useEffect(() => {
+        if (user) {
+            fetchInitialData();
+        }
+    }, [user]);
 
-    const showToast = (message, type = 'success') => {
-        setToast({ message, type });
+    const fetchInitialData = async () => {
+        setLoading(true);
+        try {
+            // Fetch Pending Leaves
+            const { data: leaves, error: leavesError } = await supabase
+                .from('leave_requests')
+                .select('*')
+                .eq('status', 'pending')
+                .order('created_at', { ascending: false });
+
+            // Fetch Faculty Stats
+            const { data: profiles, error: profilesError } = await supabase
+                .from('profiles')
+                .select('id, role');
+
+            // Fetch Meetings
+            const { data: meetings, error: meetingsError } = await supabase
+                .from('meetings')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (!leavesError) setLeaveRequests(leaves);
+            if (!profilesError) {
+                const total = profiles.length;
+                const faculty = profiles.filter(p => p.role === 'faculty' || p.role === 'hod').length;
+                setFacultyStats({ active: faculty, total: total });
+            }
+            if (!meetingsError) setMeetingsList(meetings || []);
+
+        } catch (err) {
+            console.error('Core sync failed:', err);
+        }
+        setLoading(false);
     };
 
-    const handleApprove = (id) => {
+    const handleAction = async (id, status) => {
         setProcessingId(id);
-        // Simulate a brief processing delay
-        setTimeout(() => {
-            setLeaveRequests(prev => prev.map(r =>
-                r.id === id ? { ...r, status: 'approved' } : r
-            ));
-            const req = leaveRequests.find(r => r.id === id);
-            showToast(`${req.name}'s leave approved ✓`, 'success');
-            setProcessingId(null);
-            // Remove from visible list after animation
-            setTimeout(() => {
-                setLeaveRequests(prev => prev.filter(r => r.id !== id));
-            }, 500);
-        }, 600);
-    };
+        const { error } = await supabase
+            .from('leave_requests')
+            .update({ status })
+            .eq('id', id);
 
-    const handleReject = (id) => {
-        setProcessingId(id);
-        setTimeout(() => {
-            setLeaveRequests(prev => prev.map(r =>
-                r.id === id ? { ...r, status: 'rejected' } : r
-            ));
-            const req = leaveRequests.find(r => r.id === id);
-            showToast(`${req.name}'s leave rejected`, 'error');
-            setProcessingId(null);
-            setTimeout(() => {
-                setLeaveRequests(prev => prev.filter(r => r.id !== id));
-            }, 500);
-        }, 600);
+        if (error) {
+            setToast({ message: 'Security protocol error', type: 'error' });
+        } else {
+            setToast({ 
+                message: `Application ${status === 'approved' ? 'Approved' : 'Rejected'}`, 
+                type: status === 'approved' ? 'success' : 'error' 
+            });
+            // Remove from local list to reflect approval
+            setLeaveRequests(prev => prev.filter(r => r.id !== id));
+        }
+        setProcessingId(null);
     };
 
     const handleChange = (e) => setNewMeet({ ...newMeet, [e.target.name]: e.target.value });
 
-    const formatDate = (dateStr) => {
-        const d = new Date(dateStr);
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-    };
-
-    const formatTime = (time) => {
-        const [h, m] = time.split(':');
-        const hour = parseInt(h);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour % 12 || 12;
-        return `${displayHour}:${m} ${ampm}`;
-    };
-
-    const handleCreate = (e) => {
+    const handleCreateMeet = async (e) => {
         e.preventDefault();
-        const newMeeting = {
-            id: meetingsList.length + 1,
-            date: formatDate(newMeet.date),
-            timing: `${formatTime(newMeet.startTime)} – ${formatTime(newMeet.endTime)}`,
-            agenda: newMeet.agenda,
-            location: newMeet.location,
-            organizedBy: newMeet.organizedBy,
-            status: 'upcoming',
-        };
-        setMeetingsList(prev => [newMeeting, ...prev]);
-        setShowModal(false);
-        setNewMeet({ date: '', startTime: '', endTime: '', agenda: '', location: '', organizedBy: '' });
-        showToast('New meeting created successfully!', 'success');
+        const { data, error } = await supabase
+            .from('meetings')
+            .insert([{
+                ...newMeet,
+                created_by: user.id,
+                status: 'upcoming'
+            }])
+            .select();
+
+        if (error) {
+            setToast({ message: 'Meeting protocol failed', type: 'error' });
+        } else {
+            setMeetingsList([data[0], ...meetingsList]);
+            setShowModal(false);
+            setNewMeet({ date: '', startTime: '', endTime: '', agenda: '', location: '', organizedBy: '' });
+            setToast({ message: 'Meeting scheduled successfully', type: 'success' });
+        }
     };
 
-    const pendingLeaves = leaveRequests.filter(r => r.status === 'pending');
-    const next = meetingsList[0];
+    const pendingCount = leaveRequests.length;
+    const nextMeeting = meetingsList[0];
 
     return (
-        <div className="p-8 sm:p-12 space-y-10">
+        <div className="p-8 sm:p-12 space-y-10 bg-[#fcfdfe] min-h-screen">
             {/* Toast Notification */}
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-            <div className="mb-4">
-                <h1 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tighter">
-                    HOD Dashboard
-                </h1>
-                <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">
-                    Department Operations
-                </p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
+                <div>
+                    <h1 className="text-4xl font-black text-[#1a1b4b] uppercase tracking-tighter">
+                        HOD Command Center
+                    </h1>
+                    <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1 italic">
+                        Real-Time Department Operations Review
+                    </p>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Side: Stats + Leave Approvals */}
-                <div className="space-y-8">
-                    {/* Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {[
-                            { label: 'Active Faculty', value: `${activeFaculty}/${totalFaculty}`, icon: FileUser, color: 'text-indigo-500', linkTo: '/faculty' },
-                            { label: 'Pending Approvals', value: String(pendingCount), icon: Clock, color: 'text-amber-500', linkTo: '/approvals' },
-                        ].map((stat, i) => (
-                            <Link key={i} to={stat.linkTo} className="bg-white p-6 rounded-2xl border border-[var(--color-border-light)] hover:shadow-lg transition-all cursor-pointer group">
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className="text-sm font-bold text-gray-500 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors">{stat.label}</span>
-                                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                                </div>
-                                <div className="text-3xl font-black text-[#1a1b4b]">{stat.value}</div>
-                            </Link>
-                        ))}
-                    </div>
-
-                    {/* Leave Approvals */}
-                    <div className="bg-white rounded-3xl p-8 border border-[var(--color-border-light)] shadow-sm">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight">Leave Approvals</h2>
-                            <Link to="/approvals" className="text-xs font-bold text-blue-600 uppercase tracking-widest hover:underline">View All</Link>
-                        </div>
-                        <div className="space-y-4">
-                            {pendingLeaves.length === 0 ? (
-                                <div className="text-center py-8">
-                                    <div className="w-14 h-14 rounded-2xl bg-green-50 flex items-center justify-center mx-auto mb-3">
-                                        <Check size={24} className="text-green-500" strokeWidth={2.5} />
-                                    </div>
-                                    <p className="text-sm font-bold text-gray-400">All caught up!</p>
-                                    <p className="text-xs text-gray-300 mt-1">No pending leave requests</p>
-                                </div>
-                            ) : (
-                                pendingLeaves.slice(0, 3).map((req) => (
-                                    <div
-                                        key={req.id}
-                                        className={`flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100 transition-all duration-500 ${
-                                            req.status === 'approved' ? 'bg-green-50 border-green-200 opacity-50 scale-95' :
-                                            req.status === 'rejected' ? 'bg-red-50 border-red-200 opacity-50 scale-95' : ''
-                                        }`}
-                                    >
-                                        <div>
-                                            <p className="font-bold text-[#1a1b4b]">{req.name}</p>
-                                            <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">{req.type} • {req.duration}</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            {req.status === 'pending' ? (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleReject(req.id)}
-                                                        disabled={processingId === req.id}
-                                                        className="px-4 py-2 bg-[#ef4444] text-white text-xs font-bold rounded-lg uppercase tracking-wider hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    >
-                                                        {processingId === req.id ? '...' : 'Reject'}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleApprove(req.id)}
-                                                        disabled={processingId === req.id}
-                                                        className="px-4 py-2 bg-green-500 text-white text-xs font-bold rounded-lg uppercase tracking-wider hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    >
-                                                        {processingId === req.id ? '...' : 'Approve'}
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <span className={`text-xs font-black uppercase tracking-widest ${
-                                                    req.status === 'approved' ? 'text-green-500' : 'text-red-500'
-                                                }`}>
-                                                    {req.status === 'approved' ? '✓ Approved' : '✗ Rejected'}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                            {pendingLeaves.length > 3 && (
-                                <Link to="/approvals" className="block text-center text-xs font-bold text-blue-600 uppercase tracking-widest hover:underline pt-2">
-                                    +{pendingLeaves.length - 3} more pending
-                                </Link>
-                            )}
-                        </div>
-                    </div>
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-40 gap-4">
+                    <Loader2 className="w-12 h-12 text-[#1a1b4b] animate-spin" />
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Syncing with Central Vault...</p>
                 </div>
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    {/* Left Side: Stats + Leave Approvals */}
+                    <div className="space-y-8">
+                        {/* Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <Link to="/faculty" className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 hover:border-[#1a1b4b]/20 hover:shadow-2xl hover:shadow-[#1a1b4b]/5 transition-all cursor-pointer group relative overflow-hidden">
+                                <FileUser className="absolute -right-4 -top-4 w-24 h-24 text-indigo-500 opacity-5 rotate-12" />
+                                <div className="flex justify-between items-start mb-6">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors leading-none">Total Faculty</span>
+                                    <FileUser className="w-6 h-6 text-indigo-500" />
+                                </div>
+                                <div className="text-4xl font-black text-[#1a1b4b] tracking-tighter">{facultyStats.active}</div>
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Across Department</p>
+                            </Link>
 
-                {/* Right Side: Upcoming Meetings */}
-                <div className="bg-white rounded-3xl p-8 border border-[var(--color-border-light)] shadow-sm h-full flex flex-col">
-                    <div className="flex items-center justify-between mb-5">
-                        <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight">Upcoming Meetings</h2>
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => setShowModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1a1b4b] text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-[#2a2b6b] transition-colors"
-                            >
-                                <Plus size={13} strokeWidth={3} /> New Meet
-                            </button>
-                            <Link
-                                to="/meetings"
-                                className="inline-flex items-center gap-1.5 text-[11px] font-black text-[#1a1b4b] uppercase tracking-widest hover:opacity-70 transition-opacity"
-                            >
-                                See All <ArrowRight size={13} strokeWidth={3} />
+                            <Link to="/approvals" className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 hover:border-[#ef4444]/20 hover:shadow-2xl hover:shadow-[#ef4444]/5 transition-all cursor-pointer group relative overflow-hidden">
+                                <Clock className="absolute -right-4 -top-4 w-24 h-24 text-amber-500 opacity-5 rotate-12" />
+                                <div className="flex justify-between items-start mb-6">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors leading-none">Pending Approvals</span>
+                                    <Clock className="w-6 h-6 text-amber-500" />
+                                </div>
+                                <div className="text-4xl font-black text-[#1a1b4b] tracking-tighter">{pendingCount}</div>
+                                <p className="text-[9px] font-bold text-amber-600 uppercase tracking-widest mt-1">Action Required</p>
                             </Link>
                         </div>
-                    </div>
-                    {next ? (
-                        <div className="flex-1 flex flex-col">
-                            <MeetingCard m={next} className="flex-1" />
+
+                        {/* Leave Approvals List */}
+                        <div className="bg-white rounded-[3rem] p-10 border-2 border-slate-100 shadow-sm relative overflow-hidden">
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter">Live Queue</h2>
+                                <Link to="/approvals" className="text-[10px] font-black text-[#ef4444] uppercase tracking-widest hover:underline flex items-center gap-2 transition-all">
+                                    Explore Vault <ArrowRight size={14} />
+                                </Link>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                {leaveRequests.length === 0 ? (
+                                    <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-[2rem]">
+                                        <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
+                                            <Check size={28} className="text-emerald-500" strokeWidth={3} />
+                                        </div>
+                                        <p className="text-xs font-black text-[#1a1b4b] uppercase tracking-tighter">Zero Pendency</p>
+                                        <p className="text-[9px] text-gray-300 font-bold uppercase tracking-widest mt-1">All applications processed</p>
+                                    </div>
+                                ) : (
+                                    leaveRequests.slice(0, 4).map((req) => (
+                                        <div key={req.id} className="flex justify-between items-center p-6 bg-slate-50/50 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-[#1a1b4b]/5 transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-xl bg-[#1a1b4b] text-white flex items-center justify-center font-black text-lg">
+                                                    {req.full_name?.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-[#1a1b4b] uppercase tracking-tighter text-sm">{req.full_name}</p>
+                                                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{req.leave_type} • {new Date(req.start_date).toLocaleDateString()}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleAction(req.id, 'rejected')}
+                                                    disabled={processingId === req.id}
+                                                    className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                                >
+                                                    <Ban size={16} strokeWidth={3} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleAction(req.id, 'approved')}
+                                                    disabled={processingId === req.id}
+                                                    className="px-5 bg-[#1a1b4b] text-white text-[10px] font-black rounded-xl uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-lg active:scale-95"
+                                                >
+                                                    Approve
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                                {leaveRequests.length > 4 && (
+                                    <Link to="/approvals" className="block text-center text-[9px] font-black text-blue-500 uppercase tracking-widest hover:underline pt-4">
+                                        + See {leaveRequests.length - 4} more pending requests
+                                    </Link>
+                                )}
+                            </div>
                         </div>
-                    ) : (
-                        <div className="flex-1 flex items-center justify-center">
-                            <div className="text-center">
-                                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
-                                    <Clock size={24} className="text-blue-400" strokeWidth={2.5} />
-                                </div>
-                                <p className="text-sm font-bold text-gray-400">No upcoming meetings</p>
+                    </div>
+
+                    {/* Right Side: Upcoming Meetings */}
+                    <div className="bg-white rounded-[3rem] p-10 border-2 border-slate-100 shadow-sm h-full flex flex-col relative overflow-hidden">
+                        <div className="absolute -right-20 -top-20 w-64 h-64 bg-[#1a1b4b]/5 rounded-full blur-3xl" />
+                        
+                        <div className="flex items-center justify-between mb-8 relative z-10">
+                            <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter leading-none">Institutional Multi-Meet</h2>
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setShowModal(true)}
-                                    className="text-xs font-bold text-blue-600 uppercase tracking-widest hover:underline mt-2"
+                                    className="p-3 bg-[#1a1b4b] text-white rounded-xl hover:bg-[#ef4444] transition-all shadow-lg active:scale-95"
                                 >
-                                    Schedule one now
+                                    <Plus size={18} strokeWidth={3} />
                                 </button>
                             </div>
                         </div>
-                    )}
-                    {meetingsList.length > 1 && (
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-4 text-center">
-                            {meetingsList.length - 1} more meeting{meetingsList.length - 1 !== 1 ? 's' : ''} scheduled
-                        </p>
-                    )}
+
+                        {nextMeeting ? (
+                            <div className="space-y-6 flex-1">
+                                <div className="bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100 relative group">
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex flex-col items-center justify-center border border-slate-100">
+                                            <p className="text-[10px] font-black text-red-500 uppercase leading-none">
+                                                {new Date(nextMeeting.date).toLocaleString('default', { month: 'short' })}
+                                            </p>
+                                            <p className="text-2xl font-black text-[#1a1b4b] leading-tight">
+                                                {new Date(nextMeeting.date).getDate()}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming Agenda</p>
+                                            <h3 className="text-lg font-black text-[#1a1b4b] leading-tight">{nextMeeting.agenda}</h3>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                            <Clock size={14} className="text-[#ef4444]" /> {nextMeeting.startTime}
+                                        </div>
+                                        <div className="flex items-center justify-end">
+                                            <Link to="/meetings" className="text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest hover:underline">View All Briefings</Link>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex-1 flex items-center justify-center opacity-30 italic text-xs font-bold text-gray-400">
+                                    - End of Briefing Stream -
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
+                                <Clock size={60} className="text-slate-100 mb-4" />
+                                <p className="text-sm font-black text-gray-300 uppercase tracking-widest">No meetings scheduled</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Create Meeting Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowModal(false)}>
-                    <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl border border-gray-100 relative animate-scale-in" onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setShowModal(false)} className="absolute top-5 right-5 text-gray-400 hover:text-[#1a1b4b] transition-colors">
-                            <X size={20} strokeWidth={2.5} />
-                        </button>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-[#1a1b4b]/40 backdrop-blur-sm" onClick={() => setShowModal(false)}>
+                    <div className="bg-white rounded-[3rem] p-10 w-full max-w-lg shadow-2xl border border-white/20 animate-in zoom-in-95" onClick={e => e.stopPropagation()}>
+                         <div className="flex justify-between items-start mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-[#1a1b4b]/10 flex items-center justify-center text-[#1a1b4b]">
+                                    <Plus size={24} strokeWidth={3} />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">New Briefing</h2>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Schedule Department Meet</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+                                <X size={24} className="text-gray-400" />
+                            </button>
+                        </div>
 
-                        <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight mb-1">Create New Meeting</h2>
-                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-6">Fill in the details below</p>
-
-                        <form onSubmit={handleCreate} className="space-y-4">
+                        <form onSubmit={handleCreateMeet} className="space-y-5">
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Date</label>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Event Date</label>
                                 <input type="date" name="date" value={newMeet.date} onChange={handleChange} required
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] focus:outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 focus:border-[#1a1b4b]/40 transition-all" />
+                                    className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Start Time</label>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Starts At</label>
                                     <input type="time" name="startTime" value={newMeet.startTime} onChange={handleChange} required
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] focus:outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 focus:border-[#1a1b4b]/40 transition-all" />
+                                        className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">End Time</label>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Ends At</label>
                                     <input type="time" name="endTime" value={newMeet.endTime} onChange={handleChange} required
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] focus:outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 focus:border-[#1a1b4b]/40 transition-all" />
+                                        className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Agenda</label>
-                                <input type="text" name="agenda" value={newMeet.agenda} onChange={handleChange} required placeholder="e.g. Mid-Semester Review"
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 focus:border-[#1a1b4b]/40 transition-all" />
-                            </div>
-
-                            <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Location</label>
-                                <input type="text" name="location" value={newMeet.location} onChange={handleChange} required placeholder="e.g. Conference Room 3"
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 focus:border-[#1a1b4b]/40 transition-all" />
-                            </div>
-
-                            <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Organized By</label>
-                                <input type="text" name="organizedBy" value={newMeet.organizedBy} onChange={handleChange} required placeholder="e.g. Dr. Meera Joshi"
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 focus:border-[#1a1b4b]/40 transition-all" />
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Briefing Agenda</label>
+                                <input type="text" name="agenda" value={newMeet.agenda} onChange={handleChange} required placeholder="e.g. Academic Review"
+                                    className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                             </div>
 
                             <button type="submit"
-                                className="w-full mt-2 py-3 bg-[#1a1b4b] text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#2a2b6b] transition-colors">
-                                Create Meeting
+                                className="w-full py-4 bg-[#1a1b4b] text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-[#ef4444] transition-all shadow-xl shadow-[#1a1b4b]/20 flex items-center justify-center gap-2 mt-4">
+                                <Check size={16} strokeWidth={3} /> Authorize Meeting
                             </button>
                         </form>
                     </div>
                 </div>
             )}
-
-            {/* CSS Animations */}
-            <style>{`
-                @keyframes slideIn {
-                    from { transform: translateX(100px); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes scaleIn {
-                    from { transform: scale(0.9); opacity: 0; }
-                    to { transform: scale(1); opacity: 1; }
-                }
-                .animate-slide-in { animation: slideIn 0.3s ease-out; }
-                .animate-scale-in { animation: scaleIn 0.2s ease-out; }
-            `}</style>
         </div>
     );
 };
