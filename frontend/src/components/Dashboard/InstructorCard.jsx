@@ -15,12 +15,12 @@ const InstructorCard = ({ id, name, description = 'Design Course.', coursesCount
         </div>
         <div className="min-w-0">
           <h4 className="font-black text-[#1a1b4b] truncate tracking-tight">{name}</h4>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{description}</p>
+          <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest truncate">{description}</p>
         </div>
       </div>
       <Link
         to={`/instructors/${id || ''}`}
-        className="px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-[#f4f6fa] text-[#1a1b4b] hover:bg-[#1a1b4b] hover:text-white transition-all shadow-sm active:scale-95 flex-shrink-0"
+        className="px-6 py-2.5 rounded-full text-[12px] font-black uppercase tracking-widest bg-[#f4f6fa] text-[#1a1b4b] hover:bg-[#1a1b4b] hover:text-white transition-all shadow-sm active:scale-95 flex-shrink-0"
       >
         View
       </Link>

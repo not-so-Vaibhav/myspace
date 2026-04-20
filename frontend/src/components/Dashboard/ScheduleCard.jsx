@@ -74,11 +74,11 @@ const ScheduleCard = () => {
             <div className="flex items-center justify-between mb-5">
                 <div>
                     <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">Today's Schedule</h2>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">
+                    <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mt-0.5">
                         {today.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                     </p>
                 </div>
-                <span className="px-4 py-1.5 rounded-full bg-[#1a1b4b]/5 text-[10px] font-black text-[#1a1b4b] uppercase tracking-widest">
+                <span className="px-4 py-1.5 rounded-full bg-[#1a1b4b]/5 text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest">
                     {displayDay}
                 </span>
             </div>
@@ -87,11 +87,11 @@ const ScheduleCard = () => {
             <div className="flex gap-4 items-stretch">
                 {/* Day pill */}
                 <div className="w-20 flex-shrink-0 flex flex-col items-center justify-center bg-[#1a1b4b] rounded-2xl px-3 py-5 shadow-md">
-                    <span className="text-[11px] font-black text-white uppercase tracking-tight text-center leading-tight">
+                    <span className="text-[13px] font-black text-white uppercase tracking-tight text-center leading-tight">
                         {displayDay}
                     </span>
                     {dayData.tag && (
-                        <span className={`mt-2 text-[9px] font-black text-white rounded-full px-2.5 py-0.5 ${dayData.tagColor}`}>
+                        <span className={`mt-2 text-[12px] font-black text-white rounded-full px-2.5 py-0.5 ${dayData.tagColor}`}>
                             {dayData.tag}
                         </span>
                     )}
@@ -108,10 +108,10 @@ const ScheduleCard = () => {
                             <div className="flex flex-wrap gap-2">
                                 {slots.map((slot, j) => (
                                     <div key={j} className="flex flex-col min-w-[80px] flex-1">
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{slot.time}</span>
+                                        <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1">{slot.time}</span>
                                         <div className={`flex-1 rounded-2xl px-3 py-3 flex items-center justify-center text-center min-h-[56px]
                       ${slot.green ? 'bg-green-400' : slot.highlight ? 'bg-yellow-100' : 'bg-[#f4f6fa]'}`}>
-                                            <span className={`text-[11px] font-bold leading-tight whitespace-pre-line
+                                            <span className={`text-[13px] font-bold leading-tight whitespace-pre-line
                         ${slot.green ? 'text-white' : 'text-[#1a1b4b]'}`}>
                                                 {slot.subject}
                                             </span>

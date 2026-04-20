@@ -48,7 +48,7 @@ const FacultyTimetable = () => {
           <h2 className="text-[#1a1b4b] text-xl font-black uppercase tracking-tight mb-0.5">
             TODAY'S SCHEDULE
           </h2>
-          <p className="text-gray-400 font-bold text-[11px] tracking-widest uppercase">
+          <p className="text-gray-400 font-bold text-[13px] tracking-widest uppercase">
             {displayDateStr}
           </p>
         </div>
@@ -86,7 +86,7 @@ const FacultyTimetable = () => {
 
               return (
                 <div key={index} className="flex flex-col gap-2">
-                  <span className="text-gray-400 font-bold text-[11px] tracking-wider pl-1 font-[Inter]">
+                  <span className="text-gray-400 font-bold text-[13px] tracking-wider pl-1 font-[Inter]">
                     {slot.time}
                   </span>
                   <div className={`rounded-2xl p-4 min-h-[80px] h-full flex items-center justify-center transition-all hover:-translate-y-1 ${blockClasses}`}>

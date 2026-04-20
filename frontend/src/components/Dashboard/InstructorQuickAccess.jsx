@@ -86,7 +86,7 @@ const InstructorQuickAccess = () => {
               <h3 className="font-black text-xl tracking-tight leading-none mb-1 text-[#1a1b4b]">
                 {card.name}
               </h3>
-              <div className="flex justify-between items-center text-[10px] font-black text-gray-400 tracking-widest uppercase mt-1">
+              <div className="flex justify-between items-center text-[12px] font-black text-gray-400 tracking-widest uppercase mt-1">
                 <span>{card.subtitle}</span>
                 <span
                   className="w-2.5 h-2.5 rounded-full opacity-60"

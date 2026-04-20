@@ -8,7 +8,7 @@ const StatsCards = ({ items }) => {
           key={label}
           className="bg-[var(--color-surface)] p-8 rounded-[var(--radius-card)] border border-[var(--color-border-light)] shadow-[var(--shadow-card)] transition-all hover:-translate-y-2"
         >
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{label}</p>
+          <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">{label}</p>
           <div className="flex items-center justify-between">
             <span className="text-3xl sm:text-4xl font-black text-[#1a1b4b] tracking-tighter">{value}</span>
             {Icon && (

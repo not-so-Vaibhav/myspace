@@ -75,7 +75,7 @@ const SectionCard = ({ title, icon: Icon, color, fields, data, onSave }) => {
                 ))}
             </div>
             <div className="px-5 pb-3 flex justify-end">
-                <span className="text-[10px] font-black text-[#1a1b4b]/30 uppercase tracking-widest flex items-center gap-1 cursor-pointer hover:text-[#1a1b4b]/60 transition-all">
+                <span className="text-[12px] font-black text-[#1a1b4b]/30 uppercase tracking-widest flex items-center gap-1 cursor-pointer hover:text-[#1a1b4b]/60 transition-all">
                     More Info <ChevronRight size={10} />
                 </span>
             </div>
@@ -151,7 +151,7 @@ const QualificationsTab = ({ data, setData }) => {
                     <div key={ri} className="contents">
                         {row.map(f => (
                             <div key={f.name} className="flex flex-col p-4 border-b border-r border-gray-100">
-                                <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}</span>
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}</span>
                                 {editing ? (
                                     f.options ? (
                                         <select name={f.name} value={local[f.name] || ''} onChange={handleChange}
@@ -223,7 +223,7 @@ const ExamDetailsTab = ({ data, setData }) => {
                     <div key={ri} className="contents">
                         {row.map(f => (
                             <div key={f.name} className="flex flex-col p-4 border-b border-r border-gray-100">
-                                <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}</span>
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}</span>
                                 {editing ? (
                                     <input type={f.type || 'text'} name={f.name} value={local[f.name] || ''} onChange={handleChange}
                                         className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none" />
@@ -280,7 +280,7 @@ const CourseWareTab = ({ data, setData }) => {
                     <div key={ri} className="contents relative">
                         {row.map(f => (
                             <div key={f.name} className="flex flex-col p-4 border-r border-gray-100 last:border-r-0">
-                                <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}</span>
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}</span>
                                 {editing ? (
                                     <input type={f.type || 'text'} name={f.name} value={local[f.name] || ''} onChange={handleChange}
                                         className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none" />
@@ -482,7 +482,7 @@ const StudentProfile = () => {
                         </div>
                     )}
 
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Student</span>
+                    <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">Student</span>
                 </div>
 
                 {/* Academic */}

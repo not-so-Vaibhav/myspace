@@ -171,7 +171,7 @@ const FacultyAssignments = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Assignment Title</label>
+              <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Assignment Title</label>
               <input
                 type="text"
                 value={form.title}
@@ -182,7 +182,7 @@ const FacultyAssignments = () => {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Target Course / Batch</label>
+              <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Target Course / Batch</label>
               <select
                 value={form.allocation_id}
                 onChange={e => setForm(f => ({ ...f, allocation_id: e.target.value }))}
@@ -200,7 +200,7 @@ const FacultyAssignments = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Deadline</label>
+              <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Deadline</label>
               <input
                 type="datetime-local"
                 value={form.deadline}
@@ -209,7 +209,7 @@ const FacultyAssignments = () => {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Attach Briefing</label>
+              <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Attach Briefing</label>
               <input
                 type="file"
                 onChange={e => setForm(f => ({ ...f, file: e.target.files[0] }))}
@@ -252,17 +252,17 @@ const FacultyAssignments = () => {
                     <div>
                       <p className="text-sm font-black text-[#1a1b4b]">{mat.title}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[9px] font-black bg-indigo-50 text-[#1a1b4b] px-2 py-0.5 rounded-md uppercase tracking-widest border border-indigo-100">
+                        <span className="text-[12px] font-black bg-indigo-50 text-[#1a1b4b] px-2 py-0.5 rounded-md uppercase tracking-widest border border-indigo-100">
                           {mat.allocation?.batch?.name}
                         </span>
-                        {mat.deadline && <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${status.cls}`}>{status.label}</span>}
+                        {mat.deadline && <span className={`text-[12px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${status.cls}`}>{status.label}</span>}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                      <div className="text-right hidden sm:block">
                         <div className="text-xs font-black text-[#1a1b4b] uppercase tracking-widest">{subs.length} Uploads</div>
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Received</p>
+                        <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest">Received</p>
                      </div>
                      {isExpanded ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
                   </div>
@@ -275,8 +275,8 @@ const FacultyAssignments = () => {
                           <Users size={14} className="text-indigo-500" /> Student Submissions
                        </h3>
                        <div className="flex gap-2">
-                          {mat.file_url && <a href={mat.file_url} target="_blank" rel="noreferrer" className="text-[9px] font-black uppercase tracking-widest text-[#1a1b4b] bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-gray-100 transition-colors"><ExternalLink size={12} /> Brief</a>}
-                          <button onClick={(e) => { e.stopPropagation(); handleDelete(mat.id); }} className="text-[9px] font-black uppercase tracking-widest text-red-500 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-1.5"><Trash2 size={12} /> Wipe Task</button>
+                          {mat.file_url && <a href={mat.file_url} target="_blank" rel="noreferrer" className="text-[12px] font-black uppercase tracking-widest text-[#1a1b4b] bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-gray-100 transition-colors"><ExternalLink size={12} /> Brief</a>}
+                          <button onClick={(e) => { e.stopPropagation(); handleDelete(mat.id); }} className="text-[12px] font-black uppercase tracking-widest text-red-500 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-1.5"><Trash2 size={12} /> Wipe Task</button>
                        </div>
                     </div>
 
@@ -284,19 +284,19 @@ const FacultyAssignments = () => {
                         <div className="py-8 flex justify-center"><Loader2 size={18} className="animate-spin text-gray-300" /></div>
                     ) : subs.length === 0 ? (
                         <div className="py-8 p-6 bg-gray-50 rounded-2xl text-center border border-dashed border-gray-100">
-                           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">No student has submitted work yet.</p>
+                           <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">No student has submitted work yet.</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
                            {subs.map(sub => (
                               <div key={sub.id} className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-transparent hover:border-indigo-100 group transition-all">
                                  <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 text-[10px] font-black text-[#1a1b4b]">
+                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 text-[12px] font-black text-[#1a1b4b]">
                                        {sub.student?.full_name?.charAt(0)}
                                     </div>
                                     <div>
                                        <p className="text-sm font-black text-[#1a1b4b] tracking-tight">{sub.student?.full_name}</p>
-                                       <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                       <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">
                                           ID: {sub.student?.id?.substring(0,8)} · Linked at {new Date(sub.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                        </p>
                                     </div>
@@ -305,7 +305,7 @@ const FacultyAssignments = () => {
                                    href={sub.file_url} 
                                    target="_blank" 
                                    rel="noreferrer" 
-                                   className="px-4 py-2 bg-white border border-gray-200 text-[#1a1b4b] text-[10px] font-black uppercase tracking-widest rounded-xl hover:border-indigo-500 transition-all opacity-0 group-hover:opacity-100"
+                                   className="px-4 py-2 bg-white border border-gray-200 text-[#1a1b4b] text-[12px] font-black uppercase tracking-widest rounded-xl hover:border-indigo-500 transition-all opacity-0 group-hover:opacity-100"
                                  >
                                     Review File
                                  </a>

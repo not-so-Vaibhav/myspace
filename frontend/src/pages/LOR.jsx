@@ -80,7 +80,7 @@ const LOR = () => {
                            <Award size={18} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Status</p>
+                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Status</p>
                             <p className="text-sm font-black text-[#1a1b4b] tracking-tight">System Ready</p>
                         </div>
                     </div>
@@ -114,7 +114,7 @@ const LOR = () => {
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{student.role}</p>
                                 <div className="flex gap-2 pt-2">
                                     {student.achievements.map((ach, i) => (
-                                        <span key={i} className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-md text-[8px] font-black uppercase text-gray-400 tracking-widest">
+                                        <span key={i} className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-md text-[12px] font-black uppercase text-gray-400 tracking-widest">
                                             {ach}
                                         </span>
                                     ))}
@@ -124,17 +124,17 @@ const LOR = () => {
 
                         <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-slate-50">
                             <div className="space-y-1">
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Academic CGPA</p>
+                                <p className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em]">Academic CGPA</p>
                                 <p className="text-lg font-black text-[#1a1b4b]">{student.stats.cgpa}</p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Attendance</p>
+                                <p className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em]">Attendance</p>
                                 <p className="text-lg font-black text-emerald-500">{student.stats.attendance}</p>
                             </div>
                         </div>
 
                         <div className="mt-8 flex items-center justify-between text-[#1a1b4b]">
-                            <span className="text-[10px] font-black uppercase tracking-widest group-hover:translate-x-2 transition-transform duration-300">Produce Recommendation</span>
+                            <span className="text-[12px] font-black uppercase tracking-widest group-hover:translate-x-2 transition-transform duration-300">Produce Recommendation</span>
                             <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </div>
                     </div>
@@ -168,7 +168,7 @@ const LOR = () => {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">
+                                <div className="flex items-center gap-2 text-[12px] font-black text-gray-400 uppercase tracking-widest ml-2">
                                     <Sparkles size={14} className="text-[#ef4444]" /> Compose professional endorsement
                                 </div>
                                 <div className="relative">
@@ -193,14 +193,14 @@ const LOR = () => {
                             <div className="flex gap-4">
                                 <button 
                                     onClick={() => setSelectedStudent(null)}
-                                    className="px-8 py-5 bg-slate-50 text-slate-400 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
+                                    className="px-8 py-5 bg-slate-50 text-slate-400 rounded-[1.5rem] text-[12px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
                                 >
                                     Discard
                                 </button>
                                 <button 
                                     onClick={handleSubmit}
                                     disabled={!recommendation.trim() || submitting}
-                                    className="flex-1 px-8 py-5 bg-[#1a1b4b] text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-xl shadow-[#1a1b4b]/10 flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale group"
+                                    className="flex-1 px-8 py-5 bg-[#1a1b4b] text-white rounded-[1.5rem] text-[12px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-xl shadow-[#1a1b4b]/10 flex items-center justify-center gap-3 disabled:opacity-30 disabled:grayscale group"
                                 >
                                     {submitting ? (
                                         <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>

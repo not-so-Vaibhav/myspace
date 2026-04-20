@@ -29,7 +29,6 @@ import StudentAssignments from './pages/StudentAssignments';
 import FacultyResources from './pages/FacultyResources';
 import StudentCourses from './pages/StudentCourses';
 import FacultyAttendance from './pages/FacultyAttendance';
-import Discussions from './pages/Discussions';
 import UserManagement from './pages/UserManagement';
 import Schedule from './pages/Schedule';
 import Announcements from './pages/Announcements';
@@ -214,7 +213,6 @@ function App() {
             <Route path="/faculty-resources" element={<FacultyResources />} />
             <Route path="/student-courses" element={<StudentCourses />} />
             <Route path="/faculty-attendance" element={<FacultyAttendance />} />
-            <Route path="/discussions" element={<Discussions />} />
             <Route path="/users" element={<RoleRoute allowedRoles={['admin']}><UserManagement /></RoleRoute>} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/assignments" element={<StudentAssignments />} />

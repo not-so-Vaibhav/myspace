@@ -212,13 +212,13 @@ const RequestLetter = () => {
                             </div>
                             <div>
                                 <h3 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">{activeRequest.title}</h3>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Provide Details & Documentation</p>
+                                <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Provide Details & Documentation</p>
                             </div>
                         </div>
                         
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                <label className="text-[12px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                                     <MessageSquare size={12} className="text-[#ef4444]" /> 
                                     Justification / Description
                                 </label>
@@ -231,7 +231,7 @@ const RequestLetter = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                <label className="text-[12px] font-black text-gray-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                                     <Paperclip size={12} className="text-[#ef4444]" /> 
                                     Attachments (Optional)
                                 </label>
@@ -242,7 +242,7 @@ const RequestLetter = () => {
                                         className="w-full h-24 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-slate-50 hover:border-[#1a1b4b]/20 transition-all group"
                                     >
                                         <FileUp size={24} className="text-slate-300 group-hover:text-[#1a1b4b] group-hover:-translate-y-1 transition-all" />
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Click to upload documents</p>
+                                        <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Click to upload documents</p>
                                     </button>
                                 ) : (
                                     <div className="flex items-center justify-between bg-slate-50 border border-slate-100 p-4 rounded-2xl">
@@ -251,8 +251,8 @@ const RequestLetter = () => {
                                                 <FileBox size={16} />
                                             </div>
                                             <div className="max-w-[150px]">
-                                                <p className="text-[11px] font-black text-[#1a1b4b] truncate">{selectedFile.name}</p>
-                                                <p className="text-[9px] font-bold text-gray-400 uppercase">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                <p className="text-[13px] font-black text-[#1a1b4b] truncate">{selectedFile.name}</p>
+                                                <p className="text-[12px] font-bold text-gray-400 uppercase">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                                             </div>
                                         </div>
                                         <button 
@@ -274,14 +274,14 @@ const RequestLetter = () => {
                             <div className="flex gap-3 pt-2">
                                 <button 
                                     onClick={resetForm}
-                                    className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
+                                    className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     onClick={() => handleSendRequest(activeRequest)}
                                     disabled={!description || submitting}
-                                    className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-lg shadow-[#1a1b4b]/10 disabled:opacity-30 flex items-center justify-center gap-2"
+                                    className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-lg shadow-[#1a1b4b]/10 disabled:opacity-30 flex items-center justify-center gap-2"
                                 >
                                     {submitting ? (
                                         <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -315,7 +315,7 @@ const RequestLetter = () => {
                             {isFaculty ? 'Submit Requisition' : 'Request Documents'}
                         </h1>
                     </div>
-                    <p className="text-gray-400 font-bold text-[10px] tracking-[0.2em] uppercase ml-12">
+                    <p className="text-gray-400 font-bold text-[12px] tracking-[0.2em] uppercase ml-12">
                         {isFaculty ? 'Resources & Funds Service Portal' : 'Institutional Service Portal'}
                     </p>
                 </div>
@@ -324,7 +324,7 @@ const RequestLetter = () => {
                     <div className="bg-white px-5 py-3 rounded-2xl border-2 border-slate-100 shadow-sm flex items-center gap-4">
                         <History className="text-[#ef4444]" size={16} />
                         <div>
-                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Status</p>
+                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Status</p>
                             <p className="text-sm font-black text-[#1a1b4b] tracking-tight">
                                 {loading ? '...' : requests.filter(r => r.status === 'pending').length} Active
                             </p>
@@ -351,19 +351,19 @@ const RequestLetter = () => {
                             <div className="flex-1 min-h-[60px] flex flex-col justify-center items-center px-4">
                                 <h3 className="text-sm font-black text-[#1a1b4b] tracking-tight leading-tight text-center">{item.title}</h3>
                                 {isFaculty && item.category === 'fund' && (
-                                    <span className="mt-1 px-2 py-0.5 bg-blue-50 text-blue-500 text-[8px] font-black uppercase rounded tracking-widest">Institutional Grant</span>
+                                    <span className="mt-1 px-2 py-0.5 bg-blue-50 text-blue-500 text-[12px] font-black uppercase rounded tracking-widest">Institutional Grant</span>
                                 )}
                             </div>
                             
                             <div className="mt-2 text-center w-full px-2">
-                                <p className="text-[8px] font-black text-gray-300 uppercase tracking-widest mb-1 italic">
+                                <p className="text-[12px] font-black text-gray-300 uppercase tracking-widest mb-1 italic">
                                     {isFaculty ? (isPending ? 'Approval in Progress' : 'Available for Submission') : (isPending ? 'Pending Approval' : 'Ready to Request')}
                                 </p>
                                 <div className="relative group/tip">
-                                    <button className="flex items-center gap-1 mx-auto text-[9px] font-black text-cyan-500 uppercase tracking-widest hover:text-[#ef4444] transition-colors mb-5">
+                                    <button className="flex items-center gap-1 mx-auto text-[12px] font-black text-cyan-500 uppercase tracking-widest hover:text-[#ef4444] transition-colors mb-5">
                                         Requirements <ChevronDown size={12} />
                                     </button>
-                                    <div className="hidden group-hover/tip:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-[#1a1b4b] text-white text-[9px] font-bold rounded-xl w-40 z-20 shadow-xl leading-relaxed">
+                                    <div className="hidden group-hover/tip:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-[#1a1b4b] text-white text-[12px] font-bold rounded-xl w-40 z-20 shadow-xl leading-relaxed">
                                         {item.description}
                                     </div>
                                 </div>
@@ -373,7 +373,7 @@ const RequestLetter = () => {
                                 <button 
                                     onClick={() => handleSendRequest(item)}
                                     disabled={submitting || isPending}
-                                    className={`py-3.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 ${
+                                    className={`py-3.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 ${
                                         isPending 
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                                         : 'bg-[#1a1b4b] text-white hover:bg-[#ef4444] shadow-[#1a1b4b]/10'
@@ -381,7 +381,7 @@ const RequestLetter = () => {
                                 >
                                     <Send size={10} /> {isPending ? 'Sent' : (isFaculty ? 'Submit' : 'Send')}
                                 </button>
-                                <button className="bg-slate-50 text-slate-400 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100">
+                                <button className="bg-slate-50 text-slate-400 py-3.5 rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100">
                                     Cancel
                                 </button>
                             </div>
@@ -401,17 +401,17 @@ const RequestLetter = () => {
                     <table className="w-full">
                         <thead>
                             <tr className="bg-white">
-                                <th className="px-8 py-4 text-left text-[8px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{isFaculty ? 'Type & Details' : 'Document Requested'}</th>
-                                <th className="px-8 py-4 text-left text-[8px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Date</th>
-                                <th className="px-8 py-4 text-left text-[8px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Status</th>
-                                <th className="px-8 py-4 text-right text-[8px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Action</th>
+                                <th className="px-8 py-4 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">{isFaculty ? 'Type & Details' : 'Document Requested'}</th>
+                                <th className="px-8 py-4 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Date</th>
+                                <th className="px-8 py-4 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Status</th>
+                                <th className="px-8 py-4 text-right text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {loading ? (
-                                <tr><td colSpan={4} className="px-8 py-10 text-center text-[10px] font-bold text-gray-400">Loading history...</td></tr>
+                                <tr><td colSpan={4} className="px-8 py-10 text-center text-[12px] font-bold text-gray-400">Loading history...</td></tr>
                             ) : requests.length === 0 ? (
-                                <tr><td colSpan={4} className="px-8 py-10 text-center text-[10px] font-bold text-gray-400">No records found</td></tr>
+                                <tr><td colSpan={4} className="px-8 py-10 text-center text-[12px] font-bold text-gray-400">No records found</td></tr>
                             ) : (
                                 requests.map((req) => (
                                     <tr key={req.id} className="hover:bg-slate-50/50 transition-colors group">
@@ -424,15 +424,15 @@ const RequestLetter = () => {
                                                     )}
                                                 </div>
                                                 {req.description && (
-                                                    <p className="text-[9px] text-gray-400 font-bold truncate max-w-sm">{req.description}</p>
+                                                    <p className="text-[12px] text-gray-400 font-bold truncate max-w-sm">{req.description}</p>
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase">
+                                        <td className="px-8 py-5 text-[12px] font-bold text-gray-400 uppercase">
                                             {new Date(req.request_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </td>
                                         <td className="px-8 py-5">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-black uppercase tracking-widest ${
                                                 req.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : 
                                                 req.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'
                                             }`}>
@@ -461,12 +461,12 @@ const RequestLetter = () => {
                                                         const { error } = await supabase.from('letter_requests').delete().eq('id', req.id);
                                                         if (!error) setRequests(requests.filter(r => r.id !== req.id));
                                                     }}
-                                                    className="text-[8px] font-black text-gray-300 uppercase hover:text-red-500"
+                                                    className="text-[12px] font-black text-gray-300 uppercase hover:text-red-500"
                                                 >
                                                     Cancel
                                                 </button>
                                             ) : (
-                                                <button className="text-[8px] font-black text-gray-300 uppercase italic">Archived</button>
+                                                <button className="text-[12px] font-black text-gray-300 uppercase italic">Archived</button>
                                             )}
                                         </td>
                                     </tr>

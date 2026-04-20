@@ -95,14 +95,14 @@ const StudentLetterRequests = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
                 <div className="space-y-4">
-                    <Link to="/admin-dashboard" className="inline-flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors">
+                    <Link to="/admin-dashboard" className="inline-flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors">
                         <ArrowLeft size={12} strokeWidth={3} /> Back to Dashboard
                     </Link>
                     <div>
                         <h1 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tighter flex items-center gap-3">
                             <FileText className="text-[#ef4444]" /> Student Letter Requests
                         </h1>
-                        <p className="text-gray-400 font-bold text-[10px] tracking-[0.2em] uppercase mt-1">
+                        <p className="text-gray-400 font-bold text-[12px] tracking-[0.2em] uppercase mt-1">
                             Document Approval Control Center
                         </p>
                     </div>
@@ -113,7 +113,7 @@ const StudentLetterRequests = () => {
                         <button
                             key={s}
                             onClick={() => setFilter(s)}
-                            className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                            className={`px-5 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all ${
                                 filter === s
                                     ? 'bg-[#1a1b4b] text-white shadow-lg shadow-[#1a1b4b]/10'
                                     : 'text-gray-400 hover:text-[#1a1b4b]'
@@ -132,7 +132,7 @@ const StudentLetterRequests = () => {
                         <FileText size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Total</p>
+                        <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Total</p>
                         <p className="text-2xl font-black text-[#1a1b4b] tracking-tighter">{stats.total}</p>
                     </div>
                 </div>
@@ -141,7 +141,7 @@ const StudentLetterRequests = () => {
                         <Clock size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Pending</p>
+                        <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Pending</p>
                         <p className="text-2xl font-black text-amber-600 tracking-tighter">{stats.pending}</p>
                     </div>
                 </div>
@@ -150,7 +150,7 @@ const StudentLetterRequests = () => {
                         <CheckCircle2 size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Approved</p>
+                        <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Approved</p>
                         <p className="text-2xl font-black text-emerald-600 tracking-tighter">{stats.approved}</p>
                     </div>
                 </div>
@@ -159,7 +159,7 @@ const StudentLetterRequests = () => {
                         <Ban size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Rejected</p>
+                        <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Rejected</p>
                         <p className="text-2xl font-black text-red-600 tracking-tighter">{stats.rejected}</p>
                     </div>
                 </div>
@@ -184,11 +184,11 @@ const StudentLetterRequests = () => {
                     <table className="w-full">
                         <thead>
                             <tr className="bg-white">
-                                <th className="px-8 py-5 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Student Details</th>
-                                <th className="px-8 py-5 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Document Type</th>
-                                <th className="px-8 py-5 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Request Date</th>
-                                <th className="px-8 py-5 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Status</th>
-                                <th className="px-8 py-5 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Actions</th>
+                                <th className="px-8 py-5 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Student Details</th>
+                                <th className="px-8 py-5 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Document Type</th>
+                                <th className="px-8 py-5 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Request Date</th>
+                                <th className="px-8 py-5 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Status</th>
+                                <th className="px-8 py-5 text-right text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-slate-50">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -206,7 +206,7 @@ const StudentLetterRequests = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-black text-[#1a1b4b] tracking-tight">{req.student_name}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">B.Tech Sem IV</p>
+                                                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">B.Tech Sem IV</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -216,11 +216,11 @@ const StudentLetterRequests = () => {
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold text-gray-500">{new Date(req.request_date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                                                <span className="text-[10px] text-gray-300 font-bold">{new Date(req.request_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span className="text-[12px] text-gray-300 font-bold">{new Date(req.request_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <div className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                            <div className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-widest ${
                                                 req.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : 
                                                 req.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'
                                             }`}>
@@ -242,19 +242,19 @@ const StudentLetterRequests = () => {
                                                     </button>
                                                     <button 
                                                         onClick={() => handleAction(req.id, 'approved')}
-                                                        className="px-5 py-2.5 bg-[#1a1b4b] text-white text-[9px] font-black rounded-xl uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-lg shadow-[#1a1b4b]/10 flex items-center gap-2"
+                                                        className="px-5 py-2.5 bg-[#1a1b4b] text-white text-[12px] font-black rounded-xl uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-lg shadow-[#1a1b4b]/10 flex items-center gap-2"
                                                     >
                                                         <Check size={14} strokeWidth={3} /> Approve
                                                     </button>
                                                 </div>
                                             ) : req.status === 'approved' ? (
-                                                <button className="text-[9px] font-black text-gray-400 uppercase flex items-center gap-1 ml-auto">
+                                                <button className="text-[12px] font-black text-gray-400 uppercase flex items-center gap-1 ml-auto">
                                                     <Download size={14} /> Issued
                                                 </button>
                                             ) : (
                                                 <button 
                                                     onClick={() => handleAction(req.id, 'pending')}
-                                                    className="text-[9px] font-black text-blue-500 uppercase hover:underline"
+                                                    className="text-[12px] font-black text-blue-500 uppercase hover:underline"
                                                 >
                                                     Reconsider
                                                 </button>

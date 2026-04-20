@@ -65,7 +65,7 @@ const AttendanceChart = () => {
                             <span className="text-4xl font-black text-[var(--color-text)] tracking-tighter">{overallPct}%</span>
                             <span className="text-xs font-black text-[var(--color-text-muted)] uppercase tracking-widest mt-1 opacity-50">Overall Rate</span>
                         </div>
-                        <div className="absolute bottom-2 flex gap-8 text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest">
+                        <div className="absolute bottom-2 flex gap-8 text-[12px] font-black text-[var(--color-text-muted)] uppercase tracking-widest">
                             {chartData.map((entry, i) => (
                                 <div key={i} className="flex items-center gap-2">
                                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }}></span>
@@ -80,7 +80,7 @@ const AttendanceChart = () => {
             {/* Link to Detailed Subject Breakdown Page */}
             <div className="mt-8 border-t border-[var(--color-border-light)] pt-6 flex justify-center">
                 <Link to="/attendance" className="inline-flex items-center gap-2 group hover:opacity-70 transition-all cursor-pointer">
-                    <span className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-widest bg-gray-50 border border-gray-100 px-4 py-2 rounded-full shadow-sm pr-8 relative">
+                    <span className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest bg-gray-50 border border-gray-100 px-4 py-2 rounded-full shadow-sm pr-8 relative">
                         View Detailed Subject Breakdown
                         <span className="text-[#ef4444] font-black absolute right-4 top-1/2 -translate-y-1/2 transform group-hover:translate-x-1 transition-transform">→</span>
                     </span>

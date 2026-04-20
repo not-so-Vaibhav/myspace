@@ -91,7 +91,7 @@ const Approvals = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
                 <div>
-                    <Link to="/hod-dashboard" className="inline-flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-4">
+                    <Link to="/hod-dashboard" className="inline-flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-4">
                         <ArrowLeft size={13} strokeWidth={3} /> Back to Dashboard
                     </Link>
                     <h1 className="text-4xl font-black text-[#1a1b4b] uppercase tracking-tighter flex items-center gap-3">
@@ -107,7 +107,7 @@ const Approvals = () => {
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                            className={`px-5 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all ${
                                 filter === f
                                     ? 'bg-[#1a1b4b] text-white shadow-lg shadow-[#1a1b4b]/10 scale-105'
                                     : 'text-gray-400 hover:text-[#1a1b4b]'
@@ -146,8 +146,8 @@ const Approvals = () => {
                                         <div>
                                             <p className="text-xl font-black text-[#1a1b4b] tracking-tighter">{req.full_name}</p>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-2 py-0.5 bg-slate-100 rounded text-[8px] font-black uppercase tracking-widest text-gray-500">Applicant</span>
-                                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+                                                <span className="px-2 py-0.5 bg-slate-100 rounded text-[12px] font-black uppercase tracking-widest text-gray-500">Applicant</span>
+                                                <span className={`px-2 py-0.5 rounded text-[12px] font-black uppercase tracking-widest ${
                                                     req.leave_type === 'sick' ? 'bg-red-50 text-red-600' :
                                                     req.leave_type === 'on-duty' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
                                                 }`}>
@@ -159,7 +159,7 @@ const Approvals = () => {
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 flex-1">
                                         <div className="space-y-1">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                                 <Calendar size={12} className="text-[#ef4444]" /> Period
                                             </p>
                                             <p className="text-sm font-black text-[#1a1b4b]">
@@ -167,7 +167,7 @@ const Approvals = () => {
                                             </p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                                 <Clock size={12} className="text-[#ef4444]" /> Duration
                                             </p>
                                             <p className="text-sm font-black text-[#1a1b4b]">
@@ -175,7 +175,7 @@ const Approvals = () => {
                                             </p>
                                         </div>
                                         <div className="space-y-1 sm:col-span-2 lg:col-span-1">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                                 <MessageSquare size={12} className="text-[#ef4444]" /> Case Justification
                                             </p>
                                             <p className="text-xs font-bold text-slate-500 leading-relaxed italic line-clamp-1 group-hover:line-clamp-none transition-all duration-300">
@@ -186,7 +186,7 @@ const Approvals = () => {
                                 </div>
                                 
                                 <div className="flex flex-col sm:flex-row items-center gap-4 mt-8 lg:mt-0 w-full lg:w-auto pt-6 lg:pt-0 border-t lg:border-0 border-slate-50">
-                                    <span className={`inline-flex items-center gap-2 px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${s.bg} ${s.text}`}>
+                                    <span className={`inline-flex items-center gap-2 px-5 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest shadow-sm ${s.bg} ${s.text}`}>
                                         <span className={`w-2 h-2 rounded-full ${s.dot} shadow-inner`} />
                                         {s.label}
                                     </span>
@@ -201,7 +201,7 @@ const Approvals = () => {
                                             </button>
                                             <button 
                                                 onClick={() => handleAction(req.id, 'approved')}
-                                                className="flex-[2] sm:flex-none px-8 h-12 bg-[#1a1b4b] text-white text-[10px] font-black rounded-2xl uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-[#1a1b4b]/10 active:scale-95 flex items-center justify-center gap-2"
+                                                className="flex-[2] sm:flex-none px-8 h-12 bg-[#1a1b4b] text-white text-[12px] font-black rounded-2xl uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-[#1a1b4b]/10 active:scale-95 flex items-center justify-center gap-2"
                                             >
                                                 <Check size={16} strokeWidth={3} /> Authorize Leave
                                             </button>

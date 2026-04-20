@@ -142,7 +142,7 @@ const HODDashboard = () => {
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-40 gap-4">
                     <Loader2 className="w-12 h-12 text-[#1a1b4b] animate-spin" />
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Syncing with Central Vault...</p>
+                    <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Syncing with Central Vault...</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -153,21 +153,21 @@ const HODDashboard = () => {
                             <Link to="/faculty" className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 hover:border-[#1a1b4b]/20 hover:shadow-2xl hover:shadow-[#1a1b4b]/5 transition-all cursor-pointer group relative overflow-hidden">
                                 <FileUser className="absolute -right-4 -top-4 w-24 h-24 text-indigo-500 opacity-5 rotate-12" />
                                 <div className="flex justify-between items-start mb-6">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors leading-none">Total Faculty</span>
+                                    <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors leading-none">Total Faculty</span>
                                     <FileUser className="w-6 h-6 text-indigo-500" />
                                 </div>
                                 <div className="text-4xl font-black text-[#1a1b4b] tracking-tighter">{facultyStats.active}</div>
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Across Department</p>
+                                <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">Across Department</p>
                             </Link>
 
                             <Link to="/approvals" className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 hover:border-[#ef4444]/20 hover:shadow-2xl hover:shadow-[#ef4444]/5 transition-all cursor-pointer group relative overflow-hidden">
                                 <Clock className="absolute -right-4 -top-4 w-24 h-24 text-amber-500 opacity-5 rotate-12" />
                                 <div className="flex justify-between items-start mb-6">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors leading-none">Pending Approvals</span>
+                                    <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors leading-none">Pending Approvals</span>
                                     <Clock className="w-6 h-6 text-amber-500" />
                                 </div>
                                 <div className="text-4xl font-black text-[#1a1b4b] tracking-tighter">{pendingCount}</div>
-                                <p className="text-[9px] font-bold text-amber-600 uppercase tracking-widest mt-1">Action Required</p>
+                                <p className="text-[12px] font-bold text-amber-600 uppercase tracking-widest mt-1">Action Required</p>
                             </Link>
                         </div>
 
@@ -175,7 +175,7 @@ const HODDashboard = () => {
                         <div className="bg-white rounded-[3rem] p-10 border-2 border-slate-100 shadow-sm relative overflow-hidden">
                             <div className="flex justify-between items-center mb-8">
                                 <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter">Live Queue</h2>
-                                <Link to="/approvals" className="text-[10px] font-black text-[#ef4444] uppercase tracking-widest hover:underline flex items-center gap-2 transition-all">
+                                <Link to="/approvals" className="text-[12px] font-black text-[#ef4444] uppercase tracking-widest hover:underline flex items-center gap-2 transition-all">
                                     Explore Vault <ArrowRight size={14} />
                                 </Link>
                             </div>
@@ -187,7 +187,7 @@ const HODDashboard = () => {
                                             <Check size={28} className="text-emerald-500" strokeWidth={3} />
                                         </div>
                                         <p className="text-xs font-black text-[#1a1b4b] uppercase tracking-tighter">Zero Pendency</p>
-                                        <p className="text-[9px] text-gray-300 font-bold uppercase tracking-widest mt-1">All applications processed</p>
+                                        <p className="text-[12px] text-gray-300 font-bold uppercase tracking-widest mt-1">All applications processed</p>
                                     </div>
                                 ) : (
                                     leaveRequests.slice(0, 4).map((req) => (
@@ -198,7 +198,7 @@ const HODDashboard = () => {
                                                 </div>
                                                 <div>
                                                     <p className="font-black text-[#1a1b4b] uppercase tracking-tighter text-sm">{req.full_name}</p>
-                                                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{req.leave_type} • {new Date(req.start_date).toLocaleDateString()}</p>
+                                                    <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{req.leave_type} • {new Date(req.start_date).toLocaleDateString()}</p>
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
@@ -212,7 +212,7 @@ const HODDashboard = () => {
                                                 <button
                                                     onClick={() => handleAction(req.id, 'approved')}
                                                     disabled={processingId === req.id}
-                                                    className="px-5 bg-[#1a1b4b] text-white text-[10px] font-black rounded-xl uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-lg active:scale-95"
+                                                    className="px-5 bg-[#1a1b4b] text-white text-[12px] font-black rounded-xl uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-lg active:scale-95"
                                                 >
                                                     Approve
                                                 </button>
@@ -221,7 +221,7 @@ const HODDashboard = () => {
                                     ))
                                 )}
                                 {leaveRequests.length > 4 && (
-                                    <Link to="/approvals" className="block text-center text-[9px] font-black text-blue-500 uppercase tracking-widest hover:underline pt-4">
+                                    <Link to="/approvals" className="block text-center text-[12px] font-black text-blue-500 uppercase tracking-widest hover:underline pt-4">
                                         + See {leaveRequests.length - 4} more pending requests
                                     </Link>
                                 )}
@@ -250,7 +250,7 @@ const HODDashboard = () => {
                                 <div className="bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100 relative group">
                                     <div className="flex items-center gap-4 mb-4">
                                         <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex flex-col items-center justify-center border border-slate-100">
-                                            <p className="text-[10px] font-black text-red-500 uppercase leading-none">
+                                            <p className="text-[12px] font-black text-red-500 uppercase leading-none">
                                                 {new Date(nextMeeting.date).toLocaleString('default', { month: 'short' })}
                                             </p>
                                             <p className="text-2xl font-black text-[#1a1b4b] leading-tight">
@@ -258,16 +258,16 @@ const HODDashboard = () => {
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming Agenda</p>
+                                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1">Upcoming Agenda</p>
                                             <h3 className="text-lg font-black text-[#1a1b4b] leading-tight">{nextMeeting.agenda}</h3>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                        <div className="flex items-center gap-2 text-[12px] font-bold text-slate-500 uppercase tracking-widest">
                                             <Clock size={14} className="text-[#ef4444]" /> {nextMeeting.startTime}
                                         </div>
                                         <div className="flex items-center justify-end">
-                                            <Link to="/meetings" className="text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest hover:underline">View All Briefings</Link>
+                                            <Link to="/meetings" className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest hover:underline">View All Briefings</Link>
                                         </div>
                                     </div>
                                 </div>
@@ -296,7 +296,7 @@ const HODDashboard = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">New Briefing</h2>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Schedule Department Meet</p>
+                                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Schedule Department Meet</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
@@ -306,32 +306,32 @@ const HODDashboard = () => {
 
                         <form onSubmit={handleCreateMeet} className="space-y-5">
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Event Date</label>
+                                <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Event Date</label>
                                 <input type="date" name="date" value={newMeet.date} onChange={handleChange} required
                                     className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Starts At</label>
+                                    <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Starts At</label>
                                     <input type="time" name="startTime" value={newMeet.startTime} onChange={handleChange} required
                                         className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Ends At</label>
+                                    <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Ends At</label>
                                     <input type="time" name="endTime" value={newMeet.endTime} onChange={handleChange} required
                                         className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Briefing Agenda</label>
+                                <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Briefing Agenda</label>
                                 <input type="text" name="agenda" value={newMeet.agenda} onChange={handleChange} required placeholder="e.g. Academic Review"
                                     className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                             </div>
 
                             <button type="submit"
-                                className="w-full py-4 bg-[#1a1b4b] text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-[#ef4444] transition-all shadow-xl shadow-[#1a1b4b]/20 flex items-center justify-center gap-2 mt-4">
+                                className="w-full py-4 bg-[#1a1b4b] text-white text-[13px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-[#ef4444] transition-all shadow-xl shadow-[#1a1b4b]/20 flex items-center justify-center gap-2 mt-4">
                                 <Check size={16} strokeWidth={3} /> Authorize Meeting
                             </button>
                         </form>

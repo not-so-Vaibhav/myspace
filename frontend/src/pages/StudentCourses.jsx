@@ -225,7 +225,7 @@ const StudentCourses = () => {
 
         <form onSubmit={handleSearch} className="flex items-end gap-4">
           <div className="flex-1 max-w-md">
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Subject Code</label>
+            <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Subject Code</label>
             <div className="relative">
               <input
                 type="text"
@@ -250,7 +250,7 @@ const StudentCourses = () => {
         {/* Search Results */}
         {searchResult && (
           <div className="mt-6 border-t border-gray-100 pt-6">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
+            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-4">
               Found: [{searchResult.subject.code}] {searchResult.subject.name} · {searchResult.subject.credits} Credits
             </p>
             {searchResult.allocations.length === 0 ? (
@@ -269,14 +269,14 @@ const StudentCourses = () => {
                         <p className="text-sm font-black text-[#1a1b4b]">
                           [{alloc.subject?.code}] {alloc.subject?.name}
                         </p>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                        <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                           Batch: <span className="text-[#ef4444]">{alloc.batch?.name}</span> · Sem {alloc.semester?.term_number} · Faculty: {alloc.faculty?.full_name}
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={() => handleEnroll(alloc.id)}
-                      className="px-5 py-2 bg-[#1a1b4b] text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-[#2d3a8c] transition-colors"
+                      className="px-5 py-2 bg-[#1a1b4b] text-white text-[12px] font-black uppercase tracking-widest rounded-lg hover:bg-[#2d3a8c] transition-colors"
                     >
                       Enroll
                     </button>
@@ -332,7 +332,7 @@ const StudentCourses = () => {
                         </span>
                       </div>
                       <h3 className="text-base font-black text-[#1a1b4b] tracking-tight leading-none">{alloc?.subject?.name}</h3>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                      <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                         Batch: <span className="text-[#ef4444]">{alloc?.batch?.name}</span> · Faculty: {alloc?.faculty?.full_name} · {alloc?.subject?.credits} CR
                       </p>
                     </div>
@@ -359,7 +359,7 @@ const StudentCourses = () => {
                         { label: 'Resources', count: resources.length, color: 'text-emerald-600 bg-emerald-50' },
                         { label: 'Assignments', count: assignments.length, color: 'text-amber-600 bg-amber-50' },
                       ].map(s => (
-                        <div key={s.label} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${s.color}`}>
+                        <div key={s.label} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest ${s.color}`}>
                           {s.count} {s.label}
                         </div>
                       ))}
@@ -386,9 +386,9 @@ const StudentCourses = () => {
                                 <div>
                                   <p className="text-sm font-bold text-[#1a1b4b]">{mat.title}</p>
                                   <div className="flex items-center gap-2 mt-0.5">
-                                    <span className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${ts.bg} ${ts.text}`}>{mat.type}</span>
+                                    <span className={`text-[12px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${ts.bg} ${ts.text}`}>{mat.type}</span>
                                     {mat.deadline && (
-                                      <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                                      <span className={`inline-flex items-center gap-1 text-[12px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                                         <Clock size={9} />
                                         {isOverdue ? 'Overdue' : `Due: ${new Date(mat.deadline).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
                                       </span>
