@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Users, Calendar as CalendarIcon, Clock, Save, ArrowLeft, Loader2, CheckCircle2, XCircle, CalendarCheck, History, Edit2 } from 'lucide-react';
+import { Users, Calendar as CalendarIcon, Clock, Save, ArrowLeft, Loader2, CheckCircle2, XCircle, CalendarCheck, History, Edit2, Download, Filter, FileText } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 const FacultyAttendance = () => {
@@ -24,6 +24,11 @@ const FacultyAttendance = () => {
   const [mode, setMode] = useState('create'); // 'create' | 'history' | 'edit'
   const [pastSessions, setPastSessions] = useState([]);
   const [editingSessionId, setEditingSessionId] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  
+  // Monthly Filter
+  const [filterMonth, setFilterMonth] = useState(new Date().getMonth() + 1);
+  const [filterYear, setFilterYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     fetchAllocations();
@@ -128,9 +133,159 @@ const FacultyAttendance = () => {
       console.error("Error fetching history:", err.message);
     }
   };
+  
+  const handleDownloadSession = async (session, format = 'csv') => {
+    setDownloading(true);
+    try {
+      const { data, error } = await supabase
+        .from('attendance_records')
+        .select(`status, profiles:profiles!student_id(full_name)`)
+        .eq('session_id', session.id);
+      
+      if (error) throw error;
+      
+      const rows = [
+        ['Student Name', 'Status'],
+        ...data.map(r => [r.profiles.full_name, r.status.toUpperCase()])
+      ];
+
+      if (format === 'pdf') {
+        const printWindow = window.open('', '_blank');
+        const html = `
+          <html>
+            <head>
+              <title>Attendance Report - ${selectedAllocationData?.subject?.name}</title>
+              <style>
+                body { font-family: sans-serif; padding: 40px; color: #1a1b4b; }
+                header { border-bottom: 2px solid #1a1b4b; margin-bottom: 20px; padding-bottom: 10px; }
+                h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+                .meta { color: #666; font-size: 12px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #eee; padding: 12px; text-align: left; font-size: 14px; }
+                th { background: #f8fafc; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+                .present { color: #10b981; font-weight: bold; }
+                .absent { color: #ef4444; font-weight: bold; }
+              </style>
+            </head>
+            <body>
+              <header>
+                <h1>Attendance Session Report</h1>
+                <div class="meta">Subject: ${selectedAllocationData?.subject?.name} (${selectedAllocationData?.subject?.code})</div>
+                <div class="meta">Batch: ${selectedAllocationData?.batch?.name} · Session: ${session.topic}</div>
+                <div class="meta">Date: ${new Date(session.session_date).toLocaleDateString()} · Time: ${session.session_time}</div>
+              </header>
+              <table>
+                <thead><tr><th>Student Name</th><th>Attendance Status</th></tr></thead>
+                <tbody>
+                  ${data.map(r => `<tr><td>${r.profiles.full_name}</td><td class="${r.status}">${r.status.toUpperCase()}</td></tr>`).join('')}
+                </tbody>
+              </table>
+              <footer style="margin-top: 40px; font-size: 10px; color: #ccc; text-align: center;">Verified Academic Ledger · Generated via MySpace EMS</footer>
+            </body>
+          </html>
+        `;
+        printWindow.document.write(html);
+        printWindow.document.close();
+        setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+      } else {
+        const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+        const link = document.createElement("a");
+        link.href = encodeURI(csvContent);
+        link.download = `Attendance_${session.topic.replace(/\s+/g, '_')}.csv`;
+        link.click();
+      }
+    } catch (err) { alert("Download failed: " + err.message); }
+    setDownloading(false);
+  };
+
+  const handleDownloadMonthlyReport = async (format = 'csv') => {
+    setDownloading(true);
+    try {
+      const startDate = new Date(filterYear, filterMonth - 1, 1).toISOString();
+      const endDate = new Date(filterYear, filterMonth, 0, 23, 59, 59).toISOString();
+
+      const { data, error } = await supabase
+        .from('attendance_sessions')
+        .select(`
+          id, topic, session_date,
+          records:attendance_records(student_id, status, profiles:profiles!student_id(full_name))
+        `)
+        .eq('allocation_id', selectedAllocation)
+        .gte('session_date', startDate)
+        .lte('session_date', endDate);
+
+      if (error) throw error;
+      if (data.length === 0) throw new Error("No data found for the selected period.");
+
+      // Pivot data: Rows = Students, Cols = Sessions
+      const studentMap = {}; // id -> { name, attendance: { sessionId: status } }
+      const sessions = data.sort((a, b) => new Date(a.session_date) - new Date(b.session_date));
+
+      sessions.forEach(s => {
+        s.records.forEach(r => {
+          if (!studentMap[r.student_id]) {
+            studentMap[r.student_id] = { name: r.profiles.full_name, attendance: {} };
+          }
+          studentMap[r.student_id].attendance[s.id] = r.status.charAt(0).toUpperCase();
+        });
+      });
+
+      const header = ['Student Name', ...sessions.map(s => new Date(s.session_date).toLocaleDateString())];
+      const rows = Object.values(studentMap).map(s => [
+        s.name,
+        ...sessions.map(sess => s.attendance[sess.id] || '-')
+      ]);
+
+      if (format === 'pdf') {
+        const printWindow = window.open('', '_blank');
+        const html = `
+          <html>
+            <head>
+              <title>Monthly Report - ${filterMonth}/${filterYear}</title>
+              <style>
+                body { font-family: sans-serif; padding: 20px; color: #1a1b4b; }
+                header { border-bottom: 2px solid #1a1b4b; margin-bottom: 20px; padding-bottom: 10px; }
+                h1 { margin: 0; font-size: 20px; text-transform: uppercase; }
+                .meta { color: #666; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
+                th, td { border: 1px solid #eee; padding: 8px; text-align: left; font-size: 10px; overflow: hidden; text-overflow: ellipsis; }
+                th { background: #f8fafc; font-weight: bold; }
+                .P { color: #10b981; font-weight: bold; }
+                .A { color: #ef4444; font-weight: bold; }
+              </style>
+            </head>
+            <body>
+              <header>
+                <h1>Monthly Compliance Ledger</h1>
+                <div class="meta">Subject: ${selectedAllocationData?.subject?.name} · Period: ${filterMonth}/${filterYear}</div>
+                <div class="meta">Batch: ${selectedAllocationData?.batch?.name}</div>
+              </header>
+              <table>
+                <thead><tr><th>Student Name</th>${sessions.map(s => `<th>${new Date(s.session_date).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' })}</th>`).join('')}</tr></thead>
+                <tbody>
+                  ${Object.values(studentMap).map(s => `<tr><td>${s.name}</td>${sessions.map(sess => `<td class="${s.attendance[sess.id]}">${s.attendance[sess.id] || '-'}</td>`).join('')}</tr>`).join('')}
+                </tbody>
+              </table>
+            </body>
+          </html>
+        `;
+        printWindow.document.write(html);
+        printWindow.document.close();
+        setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+      } else {
+        const csvContent = "data:text/csv;charset=utf-8," + [header, ...rows].map(e => e.join(",")).join("\n");
+        const link = document.createElement("a");
+        link.href = encodeURI(csvContent);
+        link.download = `Monthly_Attendance_${filterMonth}_${filterYear}.csv`;
+        link.click();
+      }
+    } catch (err) { alert(err.message); }
+    setDownloading(false);
+  };
+
+  const selectedAllocationData = allocations.find(a => a.id === selectedAllocation);
 
   const handleEditSession = async (session) => {
-    setMode('edit');
     setEditingSessionId(session.id);
     setSessionTopic(session.topic || '');
     setSaveSuccess(false);
@@ -348,38 +503,114 @@ const FacultyAttendance = () => {
 
               {/* View: HISTORY LIST */}
               {mode === 'history' ? (
-                  <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
-                     <h3 className="text-sm font-black text-[#1a1b4b] uppercase tracking-widest mb-6 flex items-center gap-2">
-                        <History size={16} /> Past Class Sessions
-                     </h3>
-                     {pastSessions.length === 0 ? (
-                        <div className="text-center p-8 bg-gray-50/50 rounded-2xl border border-gray-100 border-dashed">
-                           <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">No past sessions found for this batch.</p>
-                        </div>
-                     ) : (
-                        <div className="space-y-4">
-                           {pastSessions.map(session => (
-                              <div key={session.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 hover:border-[#1a1b4b]/20 hover:shadow-md transition-all group">
-                                 <div>
-                                     <div className="font-black text-[#1a1b4b] text-base leading-tight mb-1">{session.topic || 'Unnamed Session'}</div>
-                                     <div className="text-[12px] text-gray-500 font-bold uppercase tracking-widest mt-1 flex flex-wrap gap-4 items-center">
-                                        <span className="flex items-center gap-1"><CalendarIcon size={12} className="-mt-0.5" />{session.session_date}</span>
-                                        <span className="flex items-center gap-1"><Clock size={12} className="-mt-0.5" />{session.session_time?.substring(0, 5)}</span>
-                                        <span className="px-2 py-0.5 bg-green-50 text-green-600 border border-green-100 rounded-md">
-                                           {session.records?.filter(r => r.status === 'present').length} Present
-                                        </span>
-                                        <span className="px-2 py-0.5 bg-red-50 text-red-600 border border-red-100 rounded-md">
-                                           {session.records?.filter(r => r.status === 'absent').length} Absent
-                                        </span>
-                                     </div>
-                                 </div>
-                                 <button onClick={() => handleEditSession(session)} className="mt-4 sm:mt-0 px-5 py-2.5 bg-white text-[#1a1b4b] font-black text-[12px] uppercase tracking-widest border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shrink-0 flex items-center gap-2 group-hover:border-[#1a1b4b]/30">
-                                     <Edit2 size={12} /> Edit Register
-                                 </button>
+                  <div className="bg-white rounded-[2.5rem] p-8 sm:p-12 border-2 border-[#f4f6fa] shadow-2xl shadow-indigo-100/20 relative overflow-hidden">
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+                          <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-[#1a1b4b] rounded-2xl flex items-center justify-center text-white shadow-lg">
+                                  <History size={24} />
                               </div>
-                           ))}
-                        </div>
-                     )}
+                              <div>
+                                  <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">Past Class Sessions</h2>
+                                  <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Academic Audit Trail</p>
+                              </div>
+                          </div>
+
+                          {/* Monthly Export Filters */}
+                          <div className="flex flex-wrap items-center gap-3 bg-gray-50 p-3 rounded-3xl border border-gray-100 shadow-inner">
+                              <div className="flex items-center gap-2 px-3">
+                                  <Filter size={14} className="text-[#1a1b4b]" />
+                                  <select 
+                                      value={filterMonth}
+                                      onChange={(e) => setFilterMonth(Number(e.target.value))}
+                                      className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                                  >
+                                      {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => (
+                                          <option key={i} value={i + 1}>{m}</option>
+                                      ))}
+                                  </select>
+                                  <input 
+                                      type="number" 
+                                      value={filterYear}
+                                      onChange={(e) => setFilterYear(Number(e.target.value))}
+                                      className="bg-transparent w-16 text-[10px] font-black uppercase tracking-widest outline-none border-l border-gray-200 pl-2"
+                                  />
+                              </div>
+                              <div className="flex items-center gap-1">
+                                  <button
+                                      disabled={downloading}
+                                      onClick={() => handleDownloadMonthlyReport('csv')}
+                                      className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-[#1a1b4b] rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all border border-indigo-100"
+                                  >
+                                      <Download size={14} /> .XLSX
+                                  </button>
+                                  <button
+                                      disabled={downloading}
+                                      onClick={() => handleDownloadMonthlyReport('pdf')}
+                                      className="flex items-center gap-2 px-4 py-2 bg-white text-[#ef4444] rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-50 transition-all border border-red-100"
+                                  >
+                                      <FileText size={14} /> PDF
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+
+                      {pastSessions.length === 0 ? (
+                          <div className="text-center p-16 bg-gray-50/50 rounded-[2rem] border border-gray-100 border-dashed">
+                             <p className="text-gray-400 text-sm font-black uppercase tracking-[0.2em]">No intelligence history recorded</p>
+                          </div>
+                      ) : (
+                          <div className="space-y-4">
+                             {pastSessions.map(session => (
+                                <div key={session.id} className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-white rounded-[2rem] border-2 border-transparent hover:border-[#1a1b4b]/10 hover:shadow-2xl hover:shadow-indigo-50 transition-all duration-300">
+                                   <div className="flex items-center gap-6">
+                                       <div className="w-16 h-16 bg-gray-50 rounded-[1.5rem] flex flex-col items-center justify-center border border-gray-100 group-hover:bg-[#1a1b4b] group-hover:text-white transition-all duration-300">
+                                            <p className="text-[10px] font-black uppercase opacity-40 leading-none mb-1">{new Date(session.session_date).toLocaleDateString('en-US', { month: 'short' })}</p>
+                                            <p className="text-2xl font-black">{new Date(session.session_date).getDate()}</p>
+                                       </div>
+                                       <div>
+                                           <div className="font-black text-[#1a1b4b] text-lg uppercase tracking-tight mb-1">{session.topic || 'General Session'}</div>
+                                           <div className="text-[10px] text-gray-400 font-black uppercase tracking-[0.1em] mt-1 flex flex-wrap gap-4 items-center">
+                                              <span className="flex items-center gap-1.5"><CalendarIcon size={12} className="text-indigo-400" />{session.session_date}</span>
+                                              <span className="flex items-center gap-1.5"><Clock size={12} className="text-indigo-400" />{session.session_time?.substring(0, 5)}</span>
+                                              <div className="flex items-center gap-3 ml-2">
+                                                <span className="px-3 py-1 bg-emerald-50 text-emerald-500 rounded-lg text-[10px] font-black border border-emerald-100">
+                                                   {session.records?.filter(r => r.status === 'present').length} Present
+                                                </span>
+                                                <span className="px-3 py-1 bg-red-50 text-red-500 rounded-lg text-[10px] font-black border border-red-100">
+                                                   {session.records?.filter(r => r.status === 'absent').length} Absent
+                                                </span>
+                                              </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                                   <div className="flex items-center gap-2 mt-6 sm:mt-0">
+                                       <div className="flex items-center bg-gray-50 rounded-xl border border-gray-100 p-1 group-hover:bg-[#1a1b4b]/5 transition-all">
+                                            <button 
+                                                onClick={() => handleDownloadSession(session, 'csv')}
+                                                className="p-3 text-gray-400 hover:text-[#1a1b4b] hover:bg-white rounded-lg transition-all" 
+                                                title="Download CSV"
+                                            >
+                                                <Download size={18} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDownloadSession(session, 'pdf')}
+                                                className="p-3 text-gray-400 hover:text-[#ef4444] hover:bg-white rounded-lg transition-all" 
+                                                title="Print PDF"
+                                            >
+                                                <FileText size={18} />
+                                            </button>
+                                       </div>
+                                       <button 
+                                            onClick={() => handleEditSession(session)} 
+                                            className="px-8 py-4 bg-white text-[#1a1b4b] font-black text-[10px] uppercase tracking-widest border-2 border-gray-100 rounded-2xl hover:bg-[#1a1b4b] hover:text-white transition-all shadow-md active:scale-95 flex items-center gap-2"
+                                       >
+                                           <Edit2 size={14} /> Edit Register
+                                       </button>
+                                   </div>
+                                </div>
+                             ))}
+                          </div>
+                      )}
                   </div>
               ) : (
                   /* View: CREATE / EDIT */
