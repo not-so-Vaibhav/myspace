@@ -14,7 +14,8 @@ import {
   LogOut,
   BookOpen,
   CheckSquare,
-  Briefcase
+  Briefcase,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -79,6 +80,7 @@ const getNavItems = (role) => {
       { to: '/proposals', icon: FileText, label: 'Proposals' },
       { to: '/lor', icon: FileText, label: 'LOR' },
       { to: '/salary-slip', icon: CreditCard, label: 'Salary Slip' },
+      { to: '/faculty', icon: Users, label: 'Faculty Management' },
     ];
   }
 
