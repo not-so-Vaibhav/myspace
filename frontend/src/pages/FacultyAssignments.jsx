@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { FileText, Plus, Trash2, ExternalLink, Loader2, CheckSquare, Clock, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { FileText, Plus, Trash2, ExternalLink, Loader2, CheckSquare, Clock, Users, ChevronDown, ChevronUp, Download } from 'lucide-react';
 
 const deadlineStatus = (dl) => {
   if (!dl) return null;
@@ -90,6 +90,72 @@ const FacultyAssignments = () => {
     } else {
       setExpandedId(id);
       fetchSubmissions(id);
+    }
+  };
+
+  const handleDownloadSubmissions = async (material, format = 'csv') => {
+    const subs = submissions[material.id] || [];
+    if (subs.length === 0) {
+      alert("No submissions to download.");
+      return;
+    }
+
+    if (format === 'pdf') {
+      const printWindow = window.open('', '_blank');
+      const html = `
+        <html>
+          <head>
+            <title>Submission Report - ${material.title}</title>
+            <style>
+              body { font-family: sans-serif; padding: 40px; color: #1a1b4b; }
+              header { border-bottom: 2px solid #1a1b4b; margin-bottom: 20px; padding-bottom: 10px; }
+              h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+              .meta { color: #666; font-size: 12px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #eee; padding: 12px; text-align: left; font-size: 14px; }
+              th { background: #f8fafc; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+            </style>
+          </head>
+          <body>
+            <header>
+              <h1>Submission Compliance Report</h1>
+              <div class="meta">Assignment: ${material.title}</div>
+              <div class="meta">Batch: ${material.allocation?.batch?.name}</div>
+              <div class="meta">Faculty: ${profile.full_name} · Generated: ${new Date().toLocaleString()}</div>
+            </header>
+            <table>
+              <thead><tr><th>Student Name</th><th>Student ID</th><th>Submitted At</th><th>File Link</th></tr></thead>
+              <tbody>
+                ${subs.map(s => `
+                  <tr>
+                    <td>${s.student?.full_name}</td>
+                    <td>${s.student?.id?.substring(0,8)}</td>
+                    <td>${new Date(s.submitted_at).toLocaleString()}</td>
+                    <td style="font-size: 10px; color: #4f46e5;">${s.file_url}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+            <footer style="margin-top: 40px; font-size: 10px; color: #ccc; text-align: center;">Verified Digital Submission Archive · Generated via MySpace EMS</footer>
+          </body>
+        </html>
+      `;
+      printWindow.document.write(html);
+      printWindow.document.close();
+      setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+    } else {
+      const header = ['Student Name', 'Student ID', 'Submitted At', 'File URL'];
+      const rows = subs.map(s => [
+        s.student?.full_name,
+        s.student?.id,
+        new Date(s.submitted_at).toLocaleString(),
+        s.file_url
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," + [header, ...rows].map(e => e.join(",")).join("\n");
+      const link = document.createElement("a");
+      link.href = encodeURI(csvContent);
+      link.download = `Submissions_${material.title.replace(/\s+/g, '_')}.csv`;
+      link.click();
     }
   };
 
@@ -270,13 +336,30 @@ const FacultyAssignments = () => {
 
                 {isExpanded && (
                   <div className="p-6 border-t border-gray-100 bg-white">
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                        <h3 className="text-xs font-black text-[#1a1b4b] uppercase tracking-widest flex items-center gap-2">
-                          <Users size={14} className="text-indigo-500" /> Student Submissions
+                          <Users size={14} className="text-indigo-500" /> Student Submissions ({subs.length})
                        </h3>
-                       <div className="flex gap-2">
-                          {mat.file_url && <a href={mat.file_url} target="_blank" rel="noreferrer" className="text-[12px] font-black uppercase tracking-widest text-[#1a1b4b] bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-gray-100 transition-colors"><ExternalLink size={12} /> Brief</a>}
-                          <button onClick={(e) => { e.stopPropagation(); handleDelete(mat.id); }} className="text-[12px] font-black uppercase tracking-widest text-red-500 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-1.5"><Trash2 size={12} /> Wipe Task</button>
+                       <div className="flex items-center gap-2">
+                          <div className="flex items-center bg-gray-50 rounded-xl border border-gray-100 p-1">
+                              <button 
+                                  onClick={(e) => { e.stopPropagation(); handleDownloadSubmissions(mat, 'csv'); }}
+                                  className="p-2 text-gray-400 hover:text-[#1a1b4b] hover:bg-white rounded-lg transition-all" 
+                                  title="Download Excel Record"
+                              >
+                                  <Download size={14} />
+                              </button>
+                              <button 
+                                  onClick={(e) => { e.stopPropagation(); handleDownloadSubmissions(mat, 'pdf'); }}
+                                  className="p-2 text-gray-400 hover:text-[#ef4444] hover:bg-white rounded-lg transition-all" 
+                                  title="Print PDF Report"
+                              >
+                                  <FileText size={14} />
+                              </button>
+                          </div>
+                          <div className="w-px h-6 bg-gray-100 mx-1"></div>
+                          {mat.file_url && <a href={mat.file_url} target="_blank" rel="noreferrer" className="text-[10px] font-black uppercase tracking-widest text-[#1a1b4b] bg-gray-50 border border-gray-100 px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-gray-100 transition-colors"><ExternalLink size={12} /> Brief</a>}
+                          <button onClick={(e) => { e.stopPropagation(); handleDelete(mat.id); }} className="text-[10px] font-black uppercase tracking-widest text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-1.5"><Trash2 size={12} /> Wipe</button>
                        </div>
                     </div>
 
