@@ -522,7 +522,7 @@ const FacultyAttendance = () => {
                                   <select 
                                       value={filterMonth}
                                       onChange={(e) => setFilterMonth(Number(e.target.value))}
-                                      className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                                      className="bg-transparent text-[13px] font-black uppercase tracking-widest outline-none cursor-pointer"
                                   >
                                       {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => (
                                           <option key={i} value={i + 1}>{m}</option>
@@ -532,21 +532,21 @@ const FacultyAttendance = () => {
                                       type="number" 
                                       value={filterYear}
                                       onChange={(e) => setFilterYear(Number(e.target.value))}
-                                      className="bg-transparent w-16 text-[10px] font-black uppercase tracking-widest outline-none border-l border-gray-200 pl-2"
+                                      className="bg-transparent w-16 text-[13px] font-black uppercase tracking-widest outline-none border-l border-gray-200 pl-2"
                                   />
                               </div>
                               <div className="flex items-center gap-1">
                                   <button
                                       disabled={downloading}
                                       onClick={() => handleDownloadMonthlyReport('csv')}
-                                      className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-[#1a1b4b] rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all border border-indigo-100"
+                                      className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all border border-indigo-100"
                                   >
                                       <Download size={14} /> .XLSX
                                   </button>
                                   <button
                                       disabled={downloading}
                                       onClick={() => handleDownloadMonthlyReport('pdf')}
-                                      className="flex items-center gap-2 px-4 py-2 bg-white text-[#ef4444] rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-50 transition-all border border-red-100"
+                                      className="flex items-center gap-2 px-4 py-2 bg-white text-[#ef4444] rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-red-50 transition-all border border-red-100"
                                   >
                                       <FileText size={14} /> PDF
                                   </button>
@@ -564,19 +564,19 @@ const FacultyAttendance = () => {
                                 <div key={session.id} className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-white rounded-[2rem] border-2 border-transparent hover:border-[#1a1b4b]/10 hover:shadow-2xl hover:shadow-indigo-50 transition-all duration-300">
                                    <div className="flex items-center gap-6">
                                        <div className="w-16 h-16 bg-gray-50 rounded-[1.5rem] flex flex-col items-center justify-center border border-gray-100 group-hover:bg-[#1a1b4b] group-hover:text-white transition-all duration-300">
-                                            <p className="text-[10px] font-black uppercase opacity-40 leading-none mb-1">{new Date(session.session_date).toLocaleDateString('en-US', { month: 'short' })}</p>
+                                            <p className="text-[13px] font-black uppercase opacity-40 leading-none mb-1">{new Date(session.session_date).toLocaleDateString('en-US', { month: 'short' })}</p>
                                             <p className="text-2xl font-black">{new Date(session.session_date).getDate()}</p>
                                        </div>
                                        <div>
                                            <div className="font-black text-[#1a1b4b] text-lg uppercase tracking-tight mb-1">{session.topic || 'General Session'}</div>
-                                           <div className="text-[10px] text-gray-400 font-black uppercase tracking-[0.1em] mt-1 flex flex-wrap gap-4 items-center">
+                                           <div className="text-[13px] text-gray-400 font-black uppercase tracking-[0.1em] mt-1 flex flex-wrap gap-4 items-center">
                                               <span className="flex items-center gap-1.5"><CalendarIcon size={12} className="text-indigo-400" />{session.session_date}</span>
                                               <span className="flex items-center gap-1.5"><Clock size={12} className="text-indigo-400" />{session.session_time?.substring(0, 5)}</span>
                                               <div className="flex items-center gap-3 ml-2">
-                                                <span className="px-3 py-1 bg-emerald-50 text-emerald-500 rounded-lg text-[10px] font-black border border-emerald-100">
+                                                <span className="px-3 py-1 bg-emerald-50 text-emerald-500 rounded-lg text-[13px] font-black border border-emerald-100">
                                                    {session.records?.filter(r => r.status === 'present').length} Present
                                                 </span>
-                                                <span className="px-3 py-1 bg-red-50 text-red-500 rounded-lg text-[10px] font-black border border-red-100">
+                                                <span className="px-3 py-1 bg-red-50 text-red-500 rounded-lg text-[13px] font-black border border-red-100">
                                                    {session.records?.filter(r => r.status === 'absent').length} Absent
                                                 </span>
                                               </div>
@@ -602,7 +602,7 @@ const FacultyAttendance = () => {
                                        </div>
                                        <button 
                                             onClick={() => handleEditSession(session)} 
-                                            className="px-8 py-4 bg-white text-[#1a1b4b] font-black text-[10px] uppercase tracking-widest border-2 border-gray-100 rounded-2xl hover:bg-[#1a1b4b] hover:text-white transition-all shadow-md active:scale-95 flex items-center gap-2"
+                                            className="px-8 py-4 bg-white text-[#1a1b4b] font-black text-[13px] uppercase tracking-widest border-2 border-gray-100 rounded-2xl hover:bg-[#1a1b4b] hover:text-white transition-all shadow-md active:scale-95 flex items-center gap-2"
                                        >
                                            <Edit2 size={14} /> Edit Register
                                        </button>
