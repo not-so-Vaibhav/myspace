@@ -40,10 +40,10 @@ const SalarySlip = () => {
                         <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">Monthly Payroll Statement</p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-[#1a1b4b] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm">
                             <Download size={14} /> Download PDF
                         </button>
-                        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-[#1a1b4b] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all shadow-md">
+                        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all shadow-md">
                             <Printer size={14} /> Print
                         </button>
                     </div>
@@ -56,7 +56,7 @@ const SalarySlip = () => {
                         <h2 className="text-2xl font-black text-white tracking-widest uppercase">MIT ADT UNIVERSITY</h2>
                         <div className="inline-flex items-center gap-2 mt-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/20 backdrop-blur-sm">
                             <Calendar size={12} className="text-[#ef4444]" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Salary slip for {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</span>
+                            <span className="text-[12px] font-black text-white uppercase tracking-widest">Salary slip for {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</span>
                         </div>
                     </div>
 
@@ -64,29 +64,29 @@ const SalarySlip = () => {
                     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-gray-100">
                         <div className="space-y-4">
                             <div className="flex justify-between border-b border-gray-50 pb-2">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Name</span>
+                                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Name</span>
                                 <span className="text-sm font-bold text-[#1a1b4b]">{profile?.full_name || 'Faculty Member'}</span>
                             </div>
                             <div className="flex justify-between border-b border-gray-50 pb-2">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Designation</span>
+                                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Designation</span>
                                 <span className="text-sm font-bold text-[#1a1b4b]">{profile?.role?.toUpperCase() || 'ASSISTANT PROFESSOR'}</span>
                             </div>
                             <div className="flex justify-between border-b border-gray-50 pb-2">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Working Days</span>
+                                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Total Working Days</span>
                                 <span className="text-sm font-bold text-[#1a1b4b]">24</span>
                             </div>
                         </div>
                         <div className="space-y-4">
                             <div className="flex justify-between border-b border-gray-50 pb-2">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Department</span>
+                                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Department</span>
                                 <span className="text-sm font-bold text-[#1a1b4b]">School of Engineering</span>
                             </div>
                             <div className="flex justify-between border-b border-gray-50 pb-2">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bank Name</span>
+                                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Bank Name</span>
                                 <span className="text-sm font-bold text-[#1a1b4b]">HDFC Bank</span>
                             </div>
                             <div className="flex justify-between border-b border-gray-50 pb-2">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bank Account No.</span>
+                                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Bank Account No.</span>
                                 <span className="text-sm font-bold text-[#1a1b4b]">XXXX XXXX 4920</span>
                             </div>
                         </div>
@@ -102,9 +102,9 @@ const SalarySlip = () => {
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b-2 border-gray-50">
-                                        <th className="text-left py-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Serial No.</th>
-                                        <th className="text-left py-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Salary Head</th>
-                                        <th className="text-right py-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Amount (Rs.)</th>
+                                        <th className="text-left py-3 text-[12px] font-black text-gray-400 uppercase tracking-widest">Serial No.</th>
+                                        <th className="text-left py-3 text-[12px] font-black text-gray-400 uppercase tracking-widest">Salary Head</th>
+                                        <th className="text-right py-3 text-[12px] font-black text-gray-400 uppercase tracking-widest">Amount (Rs.)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -127,9 +127,9 @@ const SalarySlip = () => {
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b-2 border-gray-50">
-                                        <th className="text-left py-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Serial No.</th>
-                                        <th className="text-left py-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Salary Head</th>
-                                        <th className="text-right py-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Amount (Rs.)</th>
+                                        <th className="text-left py-3 text-[12px] font-black text-gray-400 uppercase tracking-widest">Serial No.</th>
+                                        <th className="text-left py-3 text-[12px] font-black text-gray-400 uppercase tracking-widest">Salary Head</th>
+                                        <th className="text-right py-3 text-[12px] font-black text-gray-400 uppercase tracking-widest">Amount (Rs.)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -150,36 +150,36 @@ const SalarySlip = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Salary (Gross) / PM</span>
+                                    <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Salary (Gross) / PM</span>
                                     <span className="text-sm font-black text-[#1a1b4b]">₹{totalEarnings.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Salary (CTC) / PM</span>
+                                    <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Salary (CTC) / PM</span>
                                     <span className="text-sm font-black text-[#1a1b4b]">₹{totalEarnings.toLocaleString()}</span>
                                 </div>
                             </div>
                             
                             <div className="bg-white p-5 rounded-2xl border border-red-50 shadow-sm space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-red-400 uppercase tracking-widest">Total Deduction</span>
+                                    <span className="text-[12px] font-black text-red-400 uppercase tracking-widest">Total Deduction</span>
                                     <span className="text-sm font-black text-red-500">₹{totalDeductions.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center pt-3 border-t border-gray-50">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Reimbursement</span>
+                                    <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Reimbursement</span>
                                     <span className="text-sm font-black text-gray-400">-</span>
                                 </div>
                             </div>
 
                             <div className="bg-[#1a1b4b] p-6 rounded-2xl shadow-lg shadow-[#1a1b4b]/20 flex flex-col justify-center gap-4">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Net Salary</span>
+                                    <span className="text-[12px] font-black text-white/50 uppercase tracking-widest">Net Salary</span>
                                     <span className="text-2xl font-black text-white">₹{netSalary.toLocaleString()}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="mt-8 text-center">
-                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest italic leading-relaxed">
+                            <p className="text-[12px] font-black text-gray-300 uppercase tracking-widest italic leading-relaxed">
                                 This is a computer generated salary slip and does not require an official signature. <br />
                                 MIT ADT University, Loni Kalbhor, Pune - 412201
                             </p>

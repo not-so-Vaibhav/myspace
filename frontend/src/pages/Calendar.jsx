@@ -209,7 +209,7 @@ const Calendar = () => {
           <div className="flex bg-white/50 backdrop-blur-sm border border-gray-100 rounded-xl p-0.5 shadow-sm">
             <button 
               onClick={() => setCurrentDate(new Date())}
-              className="px-3 py-1 text-[10px] font-black text-gray-500 hover:text-[#1a1b4b] uppercase tracking-widest transition-colors"
+              className="px-3 py-1 text-[12px] font-black text-gray-500 hover:text-[#1a1b4b] uppercase tracking-widest transition-colors"
             >
               Today
             </button>
@@ -230,7 +230,7 @@ const Calendar = () => {
               <button
                 key={v}
                 onClick={() => setView(v)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-widest transition-all ${
                   view === v ? 'bg-white text-[#1a1b4b] shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
@@ -258,7 +258,7 @@ const Calendar = () => {
         <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50/50">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(d => (
             <div key={d} className="py-2.5 text-center">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{d}</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">{d}</span>
             </div>
           ))}
         </div>
@@ -269,14 +269,14 @@ const Calendar = () => {
             return (
               <div key={day.toString()} className={`p-2 border-r border-b border-gray-200 transition-all hover:bg-gray-50/20 group relative overflow-y-auto ${!isCurrMonth ? 'bg-gray-50/10 opacity-30' : ''}`}>
                  <div className="flex items-center justify-between mb-1">
-                    <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-black ${isToday(day) ? 'bg-[#1a1b4b] text-white shadow-md' : 'text-gray-500'}`}>
+                    <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[12px] font-black ${isToday(day) ? 'bg-[#1a1b4b] text-white shadow-md' : 'text-gray-500'}`}>
                       {format(day, 'd')}
                     </span>
                  </div>
                  <div className="space-y-1">
                    {dayEvents.map(e => (
                      <div key={e.id} className={`${e.type === 'Holiday' ? 'bg-red-50/60 border-red-500' : e.type === 'Public' ? 'bg-green-50/60 border-green-500' : 'bg-indigo-50/60 border-indigo-500'} border-l-2 p-1 rounded-r-md group/evt relative`}>
-                        <p className={`text-[8px] font-black truncate uppercase tracking-tighter leading-none ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
+                        <p className={`text-[12px] font-black truncate uppercase tracking-tighter leading-none ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
                         {e.type !== 'Holiday' && (e.type !== 'Public' || isAdmin) && (
                           <button onClick={(x) => { x.stopPropagation(); removeEvent(e.id, e.type); }} className="absolute -right-1 -top-1 opacity-0 group-hover/evt:opacity-100 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-all">
                             <X size={8} />
@@ -304,7 +304,7 @@ const Calendar = () => {
           <div className="grid grid-cols-7">
             {weekDays.map(day => (
               <div key={day.toString()} className="p-3 text-center border-r border-gray-200 last:border-0">
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{format(day, 'EEE')}</p>
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">{format(day, 'EEE')}</p>
                 <div className={`mt-0.5 inline-flex w-7 h-7 items-center justify-center rounded-lg text-xs font-black ${isToday(day) ? 'bg-[#1a1b4b] text-white shadow-md' : 'text-[#1a1b4b]'}`}>
                   {format(day, 'd')}
                 </div>
@@ -317,7 +317,7 @@ const Calendar = () => {
             <div className="bg-gray-50/20">
               {hours.map(h => (
                 <div key={h.toString()} className="h-16 border-b border-gray-200 flex items-start justify-center pt-1.5">
-                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">{format(h, 'h a')}</span>
+                  <span className="text-[12px] font-black text-gray-400 uppercase tracking-tighter">{format(h, 'h a')}</span>
                 </div>
               ))}
             </div>
@@ -329,7 +329,7 @@ const Calendar = () => {
                     {hours.map(h => <div key={h.toString()} className="h-16 border-b border-gray-100"></div>)}
                     {dayEvents.map(e => (
                       <div key={e.id} className={`absolute inset-x-1 p-2 border-l-3 rounded-lg shadow-sm ${e.type === 'Holiday' ? 'top-2 bg-red-50 border-red-500' : e.type === 'Public' ? 'top-10 bg-green-50 border-green-500' : 'top-20 bg-indigo-50 border-indigo-500'}`}>
-                         <p className={`text-[9px] font-black uppercase leading-tight ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
+                         <p className={`text-[12px] font-black uppercase leading-tight ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
                       </div>
                     ))}
                   </div>
@@ -352,15 +352,15 @@ const Calendar = () => {
               <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">{format(currentDate, 'EEEE')}</p>
            </div>
            <div className="flex-1 overflow-y-auto pr-2 space-y-3">
-              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 border-b border-gray-100 pb-2">Agenda</p>
+              <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 border-b border-gray-100 pb-2">Agenda</p>
               {dayEvents.map(e => (
                 <div key={e.id} className={`p-4 rounded-2xl border ${e.type === 'Holiday' ? 'bg-red-50 border-red-100' : e.type === 'Public' ? 'bg-green-50 border-green-100 shadow-sm' : 'bg-white border-indigo-100 shadow-sm'}`}>
-                   <p className={`text-[10px] font-black uppercase mb-1 ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
-                   {e.type === 'Public' && <p className="text-[8px] font-bold text-green-600 uppercase tracking-widest mb-1">Target: {e.targetAudience}</p>}
-                   <p className="text-[8px] text-gray-400 font-bold uppercase">{e.startTime || 'All Day'} - {e.endTime || ''}</p>
+                   <p className={`text-[12px] font-black uppercase mb-1 ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
+                   {e.type === 'Public' && <p className="text-[12px] font-bold text-green-600 uppercase tracking-widest mb-1">Target: {e.targetAudience}</p>}
+                   <p className="text-[12px] text-gray-400 font-bold uppercase">{e.startTime || 'All Day'} - {e.endTime || ''}</p>
                 </div>
               ))}
-              {dayEvents.length === 0 && <p className="text-[10px] text-gray-300 font-black uppercase text-center mt-12 py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">Quiet Day</p>}
+              {dayEvents.length === 0 && <p className="text-[12px] text-gray-300 font-black uppercase text-center mt-12 py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">Quiet Day</p>}
            </div>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -368,7 +368,7 @@ const Calendar = () => {
               <div className="bg-gray-50/20 border-r border-gray-200">
                  {hours.map(h => (
                    <div key={h.toString()} className="h-20 border-b border-gray-200 flex items-center justify-center">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tabular-nums tracking-widest">{format(h, 'h a')}</span>
+                      <span className="text-[12px] font-black text-gray-400 uppercase tabular-nums tracking-widest">{format(h, 'h a')}</span>
                    </div>
                  ))}
               </div>
@@ -394,14 +394,14 @@ const Calendar = () => {
           const monthDays = eachDayOfInterval({ start: startOfMonth(month), end: endOfMonth(month) });
           return (
             <div key={month.toString()} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-               <h3 className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-widest mb-3 border-b border-gray-100 pb-2">{format(month, 'MMMM')}</h3>
+               <h3 className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest mb-3 border-b border-gray-100 pb-2">{format(month, 'MMMM')}</h3>
                <div className="grid grid-cols-7 gap-0.5">
                   {['S','M','T','W','T','F','S'].map(d => <div key={d} className="text-[7px] font-black text-gray-300 text-center py-0.5">{d}</div>)}
                   {Array.from({ length: startOfWeek(startOfMonth(month)).getDay() }).map((_, i) => <div key={i}></div>)}
                   {monthDays.map(d => {
                     const hasEvt = allEvents.some(e => isDayInEvent(d, e));
                     return (
-                      <div key={d.toString()} className={`text-[8px] font-bold text-center h-5 w-5 rounded-md flex items-center justify-center mx-auto ${isToday(d) ? 'bg-[#1a1b4b] text-white shadow-sm' : hasEvt ? 'bg-red-50 text-red-600 font-black' : 'text-gray-600'}`}>
+                      <div key={d.toString()} className={`text-[12px] font-bold text-center h-5 w-5 rounded-md flex items-center justify-center mx-auto ${isToday(d) ? 'bg-[#1a1b4b] text-white shadow-sm' : hasEvt ? 'bg-red-50 text-red-600 font-black' : 'text-gray-600'}`}>
                          {format(d, 'd')}
                       </div>
                     );
@@ -431,13 +431,13 @@ const Calendar = () => {
               <div className="space-y-5">
                  {isAdmin && (
                    <div className="flex bg-gray-50 p-1 rounded-xl border border-gray-100">
-                      <button type="button" onClick={() => setNewEvent({...newEvent, type: 'Personal'})} className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${newEvent.type === 'Personal' ? 'bg-white text-[#1a1b4b] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>Personal Event</button>
-                      <button type="button" onClick={() => setNewEvent({...newEvent, type: 'Public'})} className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${newEvent.type === 'Public' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>Public Event</button>
+                      <button type="button" onClick={() => setNewEvent({...newEvent, type: 'Personal'})} className={`flex-1 py-2 text-[12px] font-black uppercase tracking-widest rounded-lg transition-all ${newEvent.type === 'Personal' ? 'bg-white text-[#1a1b4b] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>Personal Event</button>
+                      <button type="button" onClick={() => setNewEvent({...newEvent, type: 'Public'})} className={`flex-1 py-2 text-[12px] font-black uppercase tracking-widest rounded-lg transition-all ${newEvent.type === 'Public' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>Public Event</button>
                    </div>
                  )}
 
                  <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Event Title</label>
+                    <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">Event Title</label>
                     <input 
                       type="text" 
                       autoFocus
@@ -450,7 +450,7 @@ const Calendar = () => {
 
                  {newEvent.type === 'Public' && isAdmin && (
                    <div>
-                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Target Audience</label>
+                       <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">Target Audience</label>
                        <select 
                          value={newEvent.targetAudience}
                          onChange={(e) => setNewEvent({...newEvent, targetAudience: e.target.value})}
@@ -466,40 +466,40 @@ const Calendar = () => {
                  <div className="grid grid-cols-2 gap-4">
                     <div className="grid grid-cols-2 gap-2">
                        <div>
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Start Date</label>
+                          <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">Start Date</label>
                           <input 
                             type="date" 
                             value={newEvent.startDate}
                             onChange={(e) => setNewEvent({...newEvent, startDate: e.target.value})}
-                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold text-[#1a1b4b]"
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[12px] font-bold text-[#1a1b4b]"
                           />
                        </div>
                        <div>
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">End Date</label>
+                          <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">End Date</label>
                           <input 
                             type="date" 
                             value={newEvent.endDate}
                             onChange={(e) => setNewEvent({...newEvent, endDate: e.target.value})}
-                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold text-[#1a1b4b]"
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[12px] font-bold text-[#1a1b4b]"
                           />
                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                        <div>
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Start Time</label>
-                          <input type="time" value={newEvent.startTime} onChange={(e) => setNewEvent({...newEvent, startTime: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold" />
+                          <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">Start Time</label>
+                          <input type="time" value={newEvent.startTime} onChange={(e) => setNewEvent({...newEvent, startTime: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[12px] font-bold" />
                        </div>
                        <div>
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">End Time</label>
-                          <input type="time" value={newEvent.endTime} onChange={(e) => setNewEvent({...newEvent, endTime: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[10px] font-bold" />
+                          <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">End Time</label>
+                          <input type="time" value={newEvent.endTime} onChange={(e) => setNewEvent({...newEvent, endTime: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-[12px] font-bold" />
                        </div>
                     </div>
                  </div>
               </div>
 
               <div className="mt-10 flex gap-3">
-                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all">Cancel</button>
-                 <button type="submit" disabled={!newEvent.title} className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50">Log Activity</button>
+                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-gray-200 transition-all">Cancel</button>
+                 <button type="submit" disabled={!newEvent.title} className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50">Log Activity</button>
               </div>
            </form>
         </div>
@@ -514,7 +514,7 @@ const Calendar = () => {
                  <h1 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tighter flex items-center gap-2">
                    <CalendarIcon className="w-4 h-4 text-indigo-500" /> My Schedule
                  </h1>
-                 <button className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                 <button className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[12px] font-black uppercase tracking-widest flex items-center gap-1">
                     <Filter size={12} /> Filter
                  </button>
               </div>
@@ -526,21 +526,21 @@ const Calendar = () => {
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
                    placeholder="Find event..." 
-                   className="w-full pl-9 pr-4 py-2.5 bg-gray-50 rounded-2xl border border-gray-200 text-[11px] font-bold text-[#1a1b4b] outline-none transition-all placeholder:text-gray-300"
+                   className="w-full pl-9 pr-4 py-2.5 bg-gray-50 rounded-2xl border border-gray-200 text-[13px] font-bold text-[#1a1b4b] outline-none transition-all placeholder:text-gray-300"
                  />
               </div>
 
               <div className="space-y-3 h-[240px] overflow-y-auto pr-1 custom-scrollbar">
-                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-50 pb-2">Academic Registry 2026</p>
+                 <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-50 pb-2">Academic Registry 2026</p>
                  {HOLIDAYS_2026.map((h, i) => (
                    <div key={h.id} className="flex items-center gap-3 group">
                       <div className="w-7 h-7 rounded-lg bg-red-50 flex flex-col items-center justify-center border border-red-100 shadow-sm">
                          <span className="text-[7px] font-black text-red-500 leading-none uppercase">{format(parseISO(h.date), 'MMM')}</span>
-                         <span className="text-[10px] font-black text-red-700 leading-none">{format(parseISO(h.date), 'dd')}</span>
+                         <span className="text-[12px] font-black text-red-700 leading-none">{format(parseISO(h.date), 'dd')}</span>
                       </div>
                       <div className="flex-1 pb-1 border-b border-gray-50 last:border-0">
-                         <p className="text-[10px] font-black text-[#1a1b4b] truncate tracking-tight uppercase">{h.title}</p>
-                         <p className="text-[8px] text-gray-400 font-bold uppercase">{format(parseISO(h.date), 'EEEE')}</p>
+                         <p className="text-[12px] font-black text-[#1a1b4b] truncate tracking-tight uppercase">{h.title}</p>
+                         <p className="text-[12px] text-gray-400 font-bold uppercase">{format(parseISO(h.date), 'EEEE')}</p>
                       </div>
                    </div>
                  ))}
@@ -548,7 +548,7 @@ const Calendar = () => {
 
               <button 
                 onClick={() => setIsModalOpen(true)}
-                className="w-full mt-6 py-3.5 bg-[#1a1b4b] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                className="w-full mt-6 py-3.5 bg-[#1a1b4b] text-white rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
               >
                  <Plus size={14} strokeWidth={4} /> {isAdmin ? 'Add Event' : 'Add Personal Event'}
               </button>
@@ -558,7 +558,7 @@ const Calendar = () => {
               <div className="relative z-10">
                  <Bell className="text-white w-5 h-5 mb-4 opacity-70" />
                  <h3 className="text-lg font-black text-white leading-tight uppercase tracking-widest">Academic Alerts <br />Live</h3>
-                 <p className="text-white/60 text-[8px] font-bold mt-2 uppercase tracking-widest leading-relaxed">System notifications enabled for submission deadlines.</p>
+                 <p className="text-white/60 text-[12px] font-bold mt-2 uppercase tracking-widest leading-relaxed">System notifications enabled for submission deadlines.</p>
               </div>
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
            </div>
@@ -577,19 +577,19 @@ const Calendar = () => {
            <div className="mt-5 p-4 bg-white rounded-2xl border border-gray-100 flex flex-wrap gap-5 items-center justify-center sm:justify-start">
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                 <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">University Holiday</span>
+                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">University Holiday</span>
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                 <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Personal Event</span>
+                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Personal Event</span>
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                 <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Public Event</span>
+                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Public Event</span>
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-[#1a1b4b] rounded-full"></div>
-                 <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Current Active</span>
+                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Current Active</span>
               </div>
            </div>
         </div>

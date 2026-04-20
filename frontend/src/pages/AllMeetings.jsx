@@ -8,7 +8,7 @@ const AllMeetings = () => (
     <div>
       <Link
         to="/faculty-dashboard"
-        className="inline-flex items-center gap-1.5 text-[11px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-4"
+        className="inline-flex items-center gap-1.5 text-[13px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-4"
       >
         <ArrowLeft size={13} strokeWidth={3} /> Back to Dashboard
       </Link>

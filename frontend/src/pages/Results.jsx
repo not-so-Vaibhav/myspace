@@ -82,7 +82,7 @@ const Results = () => {
           <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">Grade Cards & Performance Tracking</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1b4b] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all shadow-md">
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all shadow-md">
             <Printer size={14} /> Print Result
           </button>
         </div>
@@ -94,7 +94,7 @@ const Results = () => {
           <button
             key={sem}
             onClick={() => setActiveSem(sem)}
-            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+            className={`px-6 py-3 rounded-2xl text-[12px] font-black uppercase tracking-widest transition-all ${
               activeSem === sem 
                 ? 'bg-[#1a1b4b] text-white shadow-lg shadow-[#1a1b4b]/20 scale-105' 
                 : 'bg-white border border-gray-100 text-gray-400 hover:bg-gray-50'
@@ -115,7 +115,7 @@ const Results = () => {
             <h4 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tight">Grade Card</h4>
             <p className="text-xs font-black text-[#ef4444] uppercase tracking-widest">B. Tech. (Computer Science and Engineering)</p>
           </div>
-          <div className="inline-block px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100 italic text-[10px] font-bold text-gray-500">
+          <div className="inline-block px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100 italic text-[12px] font-bold text-gray-500">
             {currentResult.exam}
           </div>
         </div>
@@ -124,21 +124,21 @@ const Results = () => {
         <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 border-b border-gray-100 bg-gray-50/30">
           <div className="space-y-4">
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Student Name</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Student Name</span>
               <span className="text-sm font-black text-[#1a1b4b] uppercase">{profile?.full_name || 'Vaibhav Bariyar'}</span>
             </div>
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Father's Name</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Father's Name</span>
               <span className="text-sm font-black text-[#1a1b4b] uppercase">Vijay Kumar Bariar</span>
             </div>
           </div>
           <div className="space-y-4">
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Enrolment Number</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Enrolment Number</span>
               <span className="text-sm font-black text-[#1a1b4b] uppercase tracking-widest">ADT24SOCB1338</span>
             </div>
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Mother's Name</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Mother's Name</span>
               <span className="text-sm font-black text-[#1a1b4b] uppercase">Sandhya Rani</span>
             </div>
           </div>
@@ -149,31 +149,31 @@ const Results = () => {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-[#1a1b4b]/5">
-                <th className="px-6 py-4 text-left text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Code</th>
-                <th className="px-6 py-4 text-left text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Course Name</th>
-                <th className="px-2 py-4 text-center text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">CR</th>
-                <th className="px-2 py-4 text-center text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">INT</th>
-                <th className="px-2 py-4 text-center text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">EXT</th>
-                <th className="px-2 py-4 text-center text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">GR</th>
-                <th className="px-4 py-4 text-center text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Result</th>
-                <th className="px-4 py-4 text-center text-[9px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Rmk</th>
+                <th className="px-6 py-4 text-left text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Code</th>
+                <th className="px-6 py-4 text-left text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Course Name</th>
+                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">CR</th>
+                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">INT</th>
+                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">EXT</th>
+                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">GR</th>
+                <th className="px-4 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Result</th>
+                <th className="px-4 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Rmk</th>
               </tr>
             </thead>
             <tbody>
               {currentResult.courses.map((course, idx) => (
                 <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-3 text-[11px] font-black text-gray-400 tracking-tight">{course.code}</td>
-                  <td className="px-6 py-3 text-[11px] font-bold text-[#1a1b4b] truncate max-w-[200px] sm:max-w-none">{course.name}</td>
-                  <td className="px-2 py-3 text-[11px] font-black text-[#1a1b4b] text-center">{course.cr}</td>
-                  <td className="px-2 py-3 text-[11px] font-black text-gray-400 text-center">{course.int}</td>
-                  <td className="px-2 py-3 text-[11px] font-black text-gray-400 text-center">{course.ext}</td>
-                  <td className="px-2 py-3 text-[11px] font-black text-emerald-600 text-center">{course.gr}</td>
+                  <td className="px-6 py-3 text-[13px] font-black text-gray-400 tracking-tight">{course.code}</td>
+                  <td className="px-6 py-3 text-[13px] font-bold text-[#1a1b4b] truncate max-w-[200px] sm:max-w-none">{course.name}</td>
+                  <td className="px-2 py-3 text-[13px] font-black text-[#1a1b4b] text-center">{course.cr}</td>
+                  <td className="px-2 py-3 text-[13px] font-black text-gray-400 text-center">{course.int}</td>
+                  <td className="px-2 py-3 text-[13px] font-black text-gray-400 text-center">{course.ext}</td>
+                  <td className="px-2 py-3 text-[13px] font-black text-emerald-600 text-center">{course.gr}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black uppercase tracking-widest border border-emerald-100">
+                    <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[12px] font-black uppercase tracking-widest border border-emerald-100">
                       {course.result}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[11px] font-black text-gray-400 text-center">{course.rmk}</td>
+                  <td className="px-4 py-3 text-[13px] font-black text-gray-400 text-center">{course.rmk}</td>
                 </tr>
               ))}
             </tbody>
@@ -191,16 +191,16 @@ const Results = () => {
         {/* Cumulative Record & Signatures */}
         <div className="p-10 bg-white flex flex-col md:flex-row gap-10">
           <div className="flex-1 space-y-6">
-            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+            <h4 className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
               <div className="w-1 h-3 bg-[#ef4444] rounded-full"></div> Cumulative Record
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-1">
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Total Credits</p>
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Total Credits</p>
                 <p className="text-xl font-black text-[#1a1b4b]">{currentResult.totalCredits} / 160</p>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-1">
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Overall CGPA</p>
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Overall CGPA</p>
                 <p className="text-xl font-black text-[#ef4444]">{currentResult.cgpa}</p>
               </div>
             </div>
@@ -210,7 +210,7 @@ const Results = () => {
                   <CheckCircle2 className="text-white" size={18} />
                 </div>
                 <div>
-                  <p className="text-[9px] font-black text-white/50 uppercase tracking-widest leading-none">Status</p>
+                  <p className="text-[12px] font-black text-white/50 uppercase tracking-widest leading-none">Status</p>
                   <p className="text-sm font-black text-white mt-1 uppercase tracking-tight">{currentResult.status}</p>
                 </div>
               </div>
@@ -220,11 +220,11 @@ const Results = () => {
 
           <div className="w-full md:w-72 flex flex-col justify-end items-center gap-4 py-4 border-l border-gray-100 border-dashed pl-10 print:border-none print:pl-0">
              <div className="text-center space-y-6 w-full mt-auto">
-                <div className="h-20 w-full border-b border-gray-200 italic text-gray-200 flex items-center justify-center text-[10px]">Digital Signature Verified</div>
+                <div className="h-20 w-full border-b border-gray-200 italic text-gray-200 flex items-center justify-center text-[12px]">Digital Signature Verified</div>
                 <div>
-                    <p className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-widest leading-tight">(Dr. Dnyandeo Neelwarna)</p>
-                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Controller of Examinations</p>
-                    <p className="text-[9px] font-bold text-gray-400 mt-4 italic">Date: 16 January 2025</p>
+                    <p className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest leading-tight">(Dr. Dnyandeo Neelwarna)</p>
+                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Controller of Examinations</p>
+                    <p className="text-[12px] font-bold text-gray-400 mt-4 italic">Date: 16 January 2025</p>
                 </div>
              </div>
           </div>
@@ -232,16 +232,16 @@ const Results = () => {
         
         {/* Abbreviations */}
         <div className="px-10 py-8 bg-gray-50/50 flex flex-wrap gap-x-8 gap-y-2">
-            <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-400 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider">
                 <div className="w-1 h-1 rounded-full bg-gray-300"></div> Remark CA: Current Attempt
             </div>
-            <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-400 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider">
                 <div className="w-1 h-1 rounded-full bg-gray-300"></div> PP: Past Performance
             </div>
-            <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-400 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider">
                 <div className="w-1 h-1 rounded-full bg-gray-300"></div> GR: Grade
             </div>
-             <div className="flex items-center gap-1.5 text-[8px] font-black text-gray-400 uppercase tracking-wider">
+             <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider">
                 <div className="w-1 h-1 rounded-full bg-gray-300"></div> CR: Credits
             </div>
         </div>
@@ -256,7 +256,7 @@ const Results = () => {
             <h3 className="text-xl font-black uppercase tracking-tight">Performance Insight</h3>
             <p className="text-sm font-bold text-white/60 mt-1">Your SGPA increased from 8.27 to 8.91 in the second semester. Keep maintaining the high standard!</p>
         </div>
-        <button className="px-8 py-3 bg-white text-[#1a1b4b] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all shadow-lg active:scale-95">
+        <button className="px-8 py-3 bg-white text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all shadow-lg active:scale-95">
             View Analytics
         </button>
       </div>

@@ -93,7 +93,7 @@ const FacultyProposals = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
                 <div>
-                    <Link to="/hod-dashboard" className="inline-flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-4">
+                    <Link to="/hod-dashboard" className="inline-flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-4">
                         <ArrowLeft size={13} strokeWidth={3} /> Back to Dashboard
                     </Link>
                     <h1 className="text-4xl font-black text-[#1a1b4b] uppercase tracking-tighter flex items-center gap-3">
@@ -109,7 +109,7 @@ const FacultyProposals = () => {
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                            className={`px-6 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all ${
                                 filter === f
                                     ? 'bg-[#1a1b4b] text-white shadow-lg shadow-[#1a1b4b]/10 scale-105'
                                     : 'text-gray-400 hover:text-[#1a1b4b]'
@@ -125,17 +125,17 @@ const FacultyProposals = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                  <div className="bg-gradient-to-br from-amber-400 to-amber-500 p-8 rounded-[2.5rem] text-white shadow-xl shadow-amber-500/20 relative overflow-hidden group">
                     <Zap className="absolute -right-4 -bottom-4 w-32 h-32 opacity-15 rotate-12 transition-transform group-hover:scale-110" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-60">Pending Review</p>
+                    <p className="text-[12px] font-black uppercase tracking-[0.2em] mb-2 opacity-60">Pending Review</p>
                     <p className="text-5xl font-black tracking-tighter">{counts.pending}</p>
                  </div>
                  <div className="bg-gradient-to-br from-emerald-400 to-emerald-500 p-8 rounded-[2.5rem] text-white shadow-xl shadow-emerald-500/20 relative overflow-hidden group">
                     <CheckCircle2 className="absolute -right-4 -bottom-4 w-32 h-32 opacity-15 rotate-12 transition-transform group-hover:scale-110" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-60">Authorized</p>
+                    <p className="text-[12px] font-black uppercase tracking-[0.2em] mb-2 opacity-60">Authorized</p>
                     <p className="text-5xl font-black tracking-tighter">{counts.approved}</p>
                  </div>
                  <div className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-sm relative overflow-hidden group">
                     <Briefcase className="absolute -right-4 -bottom-4 w-32 h-32 text-slate-100 rotate-12 transition-transform group-hover:scale-110" />
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Queue</p>
+                    <p className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Queue</p>
                     <p className="text-5xl font-black text-[#1a1b4b] tracking-tighter">{counts.all}</p>
                  </div>
             </div>
@@ -167,15 +167,15 @@ const FacultyProposals = () => {
                                         <div>
                                             <p className="text-2xl font-black text-[#1a1b4b] tracking-tighter">{p.full_name}</p>
                                             <div className="flex items-center gap-2 mt-2">
-                                                <span className="px-3 py-1 bg-[#ef4444] text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Faculty Member</span>
-                                                <span className="px-3 py-1 bg-slate-100 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-200">Ref: {p.id.slice(0, 8)}</span>
+                                                <span className="px-3 py-1 bg-[#ef4444] text-white rounded-lg text-[12px] font-black uppercase tracking-widest">Faculty Member</span>
+                                                <span className="px-3 py-1 bg-slate-100 text-gray-400 rounded-lg text-[12px] font-black uppercase tracking-widest border border-slate-200">Ref: {p.id.slice(0, 8)}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 flex-1">
                                         <div className="space-y-2">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                                 <FileText size={14} className="text-[#ef4444]" /> Proposal Title
                                             </p>
                                             <p className="text-lg font-black text-[#1a1b4b] tracking-tight group-hover:text-[#ef4444] transition-colors">
@@ -183,7 +183,7 @@ const FacultyProposals = () => {
                                             </p>
                                         </div>
                                         <div className="space-y-2 sm:col-span-2 md:col-span-1">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                                 <MessageSquare size={14} className="text-[#ef4444]" /> Brief Justification
                                             </p>
                                             <p className="text-xs font-bold text-slate-500 leading-relaxed italic line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
@@ -200,7 +200,7 @@ const FacultyProposals = () => {
                                          </a>
                                     )}
 
-                                    <span className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm border-2 ${s.bg} ${s.text}`}>
+                                    <span className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-sm border-2 ${s.bg} ${s.text}`}>
                                         <span className={`w-2 h-2 rounded-full ${s.dot} shadow-inner bg-current`} />
                                         {s.label}
                                     </span>
@@ -215,7 +215,7 @@ const FacultyProposals = () => {
                                             </button>
                                             <button 
                                                 onClick={() => handleAction(p.id, 'approved')}
-                                                className="flex-[2] sm:flex-none px-8 h-14 bg-[#1a1b4b] text-white text-[11px] font-black rounded-2xl uppercase tracking-[0.2em] hover:bg-emerald-500 transition-all shadow-xl shadow-[#1a1b4b]/10 active:scale-95 flex items-center justify-center gap-3"
+                                                className="flex-[2] sm:flex-none px-8 h-14 bg-[#1a1b4b] text-white text-[13px] font-black rounded-2xl uppercase tracking-[0.2em] hover:bg-emerald-500 transition-all shadow-xl shadow-[#1a1b4b]/10 active:scale-95 flex items-center justify-center gap-3"
                                             >
                                                 <Check size={18} strokeWidth={3} /> Authorize Project
                                             </button>

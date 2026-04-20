@@ -70,7 +70,7 @@ const AdminDashboard = () => {
         <div className="p-12 text-center bg-[#fcfdfe] min-h-screen flex items-center justify-center">
             <div className="space-y-4">
                 <div className="animate-spin w-10 h-10 border-4 border-[#1a1b4b] border-t-transparent rounded-full mx-auto"></div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Compiling System Metrics...</p>
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Compiling System Metrics...</p>
             </div>
         </div>
     );
@@ -98,7 +98,7 @@ const AdminDashboard = () => {
                     <Link key={i} to={stat.to || '#'} className={`bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm transition-all relative overflow-hidden group ${stat.to ? 'hover:shadow-xl hover:border-indigo-100' : 'cursor-default'}`}>
                         <div className="relative z-10 flex flex-col h-full justify-between">
                             <div className="flex justify-between items-start mb-6">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</span>
+                                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</span>
                                 <div className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>
                                     <stat.icon size={18} strokeWidth={3} />
                                 </div>
@@ -118,7 +118,7 @@ const AdminDashboard = () => {
                         <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight flex items-center gap-2">
                            <Clock className="text-indigo-500" size={20} /> Latest System Activity
                         </h2>
-                        <span className="text-[9px] font-black bg-indigo-50 text-indigo-500 px-3 py-1 rounded-full uppercase tracking-widest">Real-Time Sync</span>
+                        <span className="text-[12px] font-black bg-indigo-50 text-indigo-500 px-3 py-1 rounded-full uppercase tracking-widest">Real-Time Sync</span>
                     </div>
                     
                     <div className="space-y-4">
@@ -130,12 +130,12 @@ const AdminDashboard = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold text-[#1a1b4b]">Identity Update: {log.full_name}</p>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1 mt-0.5">
+                                        <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1 mt-0.5">
                                             Role: {log.role} • <span>{new Date(log.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         </p>
                                     </div>
                                 </div>
-                                <span className="text-[9px] font-black text-blue-500 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border border-blue-100 opacity-0 group-hover:opacity-100 transition-opacity">Trace</span>
+                                <span className="text-[12px] font-black text-blue-500 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border border-blue-100 opacity-0 group-hover:opacity-100 transition-opacity">Trace</span>
                             </div>
                         )) : (
                             <div className="text-center py-12">
@@ -154,7 +154,7 @@ const AdminDashboard = () => {
                         
                         <div className="mt-auto space-y-4">
                             <div className="bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
-                                <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Last Deployment</p>
+                                <p className="text-[12px] font-black text-white/50 uppercase tracking-widest mb-1">Last Deployment</p>
                                 <p className="text-sm font-bold tracking-tight">V1.4.2 - Production Core</p>
                             </div>
                         </div>

@@ -129,7 +129,7 @@ const LeaveApplication = () => {
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Submit a new absence request</p>
                     </div>
 
-                    <div className="mt-8 flex items-center gap-2 text-[#1a1b4b] font-black text-[10px] uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+                    <div className="mt-8 flex items-center gap-2 text-[#1a1b4b] font-black text-[12px] uppercase tracking-widest group-hover:translate-x-1 transition-transform">
                         Start Application <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
                     </div>
                 </div>
@@ -152,7 +152,7 @@ const LeaveApplication = () => {
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Review your presence logs</p>
                     </div>
 
-                    <div className="mt-8 flex items-center gap-2 text-[#1a1b4b] font-black text-[10px] uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+                    <div className="mt-8 flex items-center gap-2 text-[#1a1b4b] font-black text-[12px] uppercase tracking-widest group-hover:translate-x-1 transition-transform">
                         View Records <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
                     </div>
                 </Link>
@@ -165,10 +165,10 @@ const LeaveApplication = () => {
                         <History className="text-[#ef4444]" size={20} /> Application History
                     </h3>
                     <div className="hidden md:flex items-center gap-2">
-                         <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-100 rounded-lg text-[8px] font-black text-gray-400 uppercase tracking-widest">
+                         <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-100 rounded-lg text-[12px] font-black text-gray-400 uppercase tracking-widest">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Approved
                          </span>
-                         <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-100 rounded-lg text-[8px] font-black text-gray-400 uppercase tracking-widest">
+                         <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-100 rounded-lg text-[12px] font-black text-gray-400 uppercase tracking-widest">
                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Pending
                          </span>
                     </div>
@@ -179,27 +179,27 @@ const LeaveApplication = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-slate-50/50">
-                                    <th className="px-8 py-5 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Category & Type</th>
-                                    <th className="px-8 py-5 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Duration Period</th>
-                                    <th className="px-8 py-5 text-left text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Status</th>
-                                    <th className="px-8 py-5 text-right text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Reason / Remark</th>
+                                    <th className="px-8 py-5 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Category & Type</th>
+                                    <th className="px-8 py-5 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Duration Period</th>
+                                    <th className="px-8 py-5 text-left text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Status</th>
+                                    <th className="px-8 py-5 text-right text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Reason / Remark</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {fetching ? (
                                     <tr><td colSpan={4} className="px-8 py-20 text-center flex flex-col items-center gap-4">
                                         <Loader2 className="animate-spin text-[#1a1b4b]" size={24} />
-                                        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Syncing Records...</p>
+                                        <p className="text-[12px] font-black text-gray-300 uppercase tracking-widest">Syncing Records...</p>
                                     </td></tr>
                                 ) : requests.length === 0 ? (
-                                    <tr><td colSpan={4} className="px-8 py-20 text-center text-[10px] font-black text-gray-300 uppercase italic">No previous applications detected in the stream</td></tr>
+                                    <tr><td colSpan={4} className="px-8 py-20 text-center text-[12px] font-black text-gray-300 uppercase italic">No previous applications detected in the stream</td></tr>
                                 ) : (
                                     requests.map((req) => (
                                         <tr key={req.id} className="hover:bg-slate-50/30 transition-colors group">
                                             <td className="px-8 py-6">
                                                 <div>
                                                     <p className="text-sm font-black text-[#1a1b4b] uppercase tracking-tighter leading-none mb-1">{req.leave_type} Leave</p>
-                                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Ref: #{req.id.slice(0, 8)}</p>
+                                                    <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Ref: #{req.id.slice(0, 8)}</p>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
@@ -209,14 +209,14 @@ const LeaveApplication = () => {
                                                     </div>
                                                     <div>
                                                         <p className="text-xs font-black text-[#1a1b4b]">{new Date(req.start_date).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })} - {new Date(req.end_date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                                                        <p className="text-[9px] font-bold text-[#ef4444] uppercase tracking-widest">
+                                                        <p className="text-[12px] font-bold text-[#ef4444] uppercase tracking-widest">
                                                             {Math.ceil((new Date(req.end_date) - new Date(req.start_date)) / (1000 * 60 * 60 * 24)) + 1} Days
                                                         </p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl border-2 text-[9px] font-black uppercase tracking-widest ${statusStyles[req.status]}`}>
+                                                <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl border-2 text-[12px] font-black uppercase tracking-widest ${statusStyles[req.status]}`}>
                                                     <span className={`w-1.5 h-1.5 rounded-full ${
                                                         req.status === 'approved' ? 'bg-emerald-500' : req.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
                                                     }`} />
@@ -225,7 +225,7 @@ const LeaveApplication = () => {
                                             </td>
                                             <td className="px-8 py-6 text-right">
                                                 <div className="flex items-center justify-end gap-2 group-hover:-translate-x-2 transition-transform">
-                                                    <p className="text-[11px] font-bold text-slate-500 italic max-w-[200px] truncate leading-relaxed">"{req.reason}"</p>
+                                                    <p className="text-[13px] font-bold text-slate-500 italic max-w-[200px] truncate leading-relaxed">"{req.reason}"</p>
                                                     <MessageSquare size={12} className="text-slate-300" />
                                                 </div>
                                             </td>
@@ -249,7 +249,7 @@ const LeaveApplication = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">New Application</h2>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fill in leave details</p>
+                                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Fill in leave details</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowForm(false)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
@@ -259,7 +259,7 @@ const LeaveApplication = () => {
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Leave Type</label>
+                                <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Leave Type</label>
                                 <select 
                                     required
                                     value={leaveType}
@@ -276,7 +276,7 @@ const LeaveApplication = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">From Date</label>
+                                    <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">From Date</label>
                                     <input 
                                         type="date" 
                                         required
@@ -286,7 +286,7 @@ const LeaveApplication = () => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">To Date</label>
+                                    <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">To Date</label>
                                     <input 
                                         type="date" 
                                         required
@@ -298,7 +298,7 @@ const LeaveApplication = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Reason for Absence</label>
+                                <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Reason for Absence</label>
                                 <textarea 
                                     required
                                     value={reason}
@@ -312,14 +312,14 @@ const LeaveApplication = () => {
                                 <button 
                                     type="button"
                                     onClick={() => setShowForm(false)}
-                                    className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all font-black"
+                                    className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all font-black"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
                                     {loading ? 'Submitting...' : 'Send Application'} <Send size={14} />
                                 </button>

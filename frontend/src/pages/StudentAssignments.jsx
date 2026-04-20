@@ -209,7 +209,7 @@ const StudentAssignments = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-black text-[#1a1b4b] leading-tight">{assignment.title}</h3>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                      <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                         [{assignment.allocation?.subject?.code}] {assignment.allocation?.subject?.name} · Batch {assignment.allocation?.batch?.name}
                       </p>
                     </div>
@@ -217,7 +217,7 @@ const StudentAssignments = () => {
 
                   <div className="flex flex-wrap gap-4 items-center">
                     {assignment.deadline && (
-                      <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border ${status.isPast ? 'bg-red-50 border-red-100 text-red-600' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
+                      <div className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest flex items-center gap-2 border ${status.isPast ? 'bg-red-50 border-red-100 text-red-600' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
                         <Clock size={14} /> {status.label} 
                         <span className="opacity-50 ml-1">· {new Date(assignment.deadline).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</span>
                       </div>
@@ -227,7 +227,7 @@ const StudentAssignments = () => {
                           href={assignment.file_url} 
                           target="_blank" 
                           rel="noreferrer" 
-                          className="px-4 py-2 bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center gap-2 hover:bg-indigo-100 transition-colors border border-indigo-100"
+                          className="px-4 py-2 bg-indigo-50 text-indigo-700 text-[12px] font-black uppercase tracking-widest rounded-xl flex items-center gap-2 hover:bg-indigo-100 transition-colors border border-indigo-100"
                         >
                           <FileText size={14} /> Download Brief
                         </a>
@@ -242,9 +242,9 @@ const StudentAssignments = () => {
                       <div className="p-4 bg-green-50 rounded-2xl border border-green-100">
                         <div className="flex items-center gap-2 text-green-700 mb-1">
                           <CheckSquare size={16} />
-                          <span className="text-[10px] font-black uppercase tracking-widest">Submitted</span>
+                          <span className="text-[12px] font-black uppercase tracking-widest">Submitted</span>
                         </div>
-                        <p className="text-[9px] text-green-600 font-bold uppercase tracking-widest">
+                        <p className="text-[12px] text-green-600 font-bold uppercase tracking-widest">
                           {new Date(submission.submitted_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}
                         </p>
                       </div>
@@ -254,7 +254,7 @@ const StudentAssignments = () => {
                           href={submission.file_url} 
                           target="_blank" 
                           rel="noreferrer" 
-                          className="flex-1 py-3 bg-white border border-gray-200 text-[#1a1b4b] text-[10px] font-black uppercase tracking-widest rounded-xl text-center hover:bg-gray-50 transition-colors"
+                          className="flex-1 py-3 bg-white border border-gray-200 text-[#1a1b4b] text-[12px] font-black uppercase tracking-widest rounded-xl text-center hover:bg-gray-50 transition-colors"
                         >
                           View Upload
                         </a>
@@ -274,7 +274,7 @@ const StudentAssignments = () => {
                       {status?.isPast ? (
                         <div className="p-6 bg-gray-50 rounded-2xl text-center border border-dashed border-gray-200">
                           <AlertCircle size={24} className="text-gray-300 mx-auto mb-2" />
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-loose">
+                          <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest leading-loose">
                             Submission period expired
                           </p>
                         </div>
@@ -296,8 +296,8 @@ const StudentAssignments = () => {
                             ) : (
                               <>
                                 <Upload size={24} className="text-gray-300 mb-2" />
-                                <span className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-widest">Submit Work</span>
-                                <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">PDF, DOCX, ZIP</span>
+                                <span className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest">Submit Work</span>
+                                <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">PDF, DOCX, ZIP</span>
                               </>
                             )}
                           </label>

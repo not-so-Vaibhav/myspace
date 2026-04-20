@@ -152,7 +152,7 @@ const FacultyResources = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
+              <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
                 {form.type} Title
               </label>
               <input
@@ -165,7 +165,7 @@ const FacultyResources = () => {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Target Course / Batch</label>
+              <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Target Course / Batch</label>
               <select
                 value={form.allocation_id}
                 onChange={e => setForm(f => ({ ...f, allocation_id: e.target.value }))}
@@ -183,7 +183,7 @@ const FacultyResources = () => {
           </div>
 
           <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
+            <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
               Attach File (PDF, PPTX, Video — Optional)
             </label>
             <input
@@ -213,7 +213,7 @@ const FacultyResources = () => {
               <button
                 key={t}
                 onClick={() => setActiveTab(t)}
-                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`px-4 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-widest transition-all ${
                   activeTab === t
                     ? 'bg-white text-[#1a1b4b] shadow-sm'
                     : 'text-gray-400 hover:text-gray-600'
@@ -243,7 +243,7 @@ const FacultyResources = () => {
                     </div>
                     <div>
                       <p className="text-sm font-black text-[#1a1b4b]">{mat.title}</p>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                      <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                         [{mat.allocation?.subject?.code}] {mat.allocation?.subject?.name} · Batch {mat.allocation?.batch?.name}
                       </p>
                     </div>

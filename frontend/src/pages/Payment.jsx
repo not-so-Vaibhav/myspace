@@ -38,11 +38,11 @@ const Payment = () => {
                         <Wallet size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Current Session Schedule</p>
+                        <p className="text-[12px] font-black text-white/60 uppercase tracking-widest mb-1">Current Session Schedule</p>
                         <h3 className="text-3xl font-black text-white flex items-center gap-1">
                             <IndianRupee size={24} strokeWidth={3} /> 157,500
                         </h3>
-                        <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-2">*Excluding Previous Schedule</p>
+                        <p className="text-[12px] font-bold text-white/40 uppercase tracking-widest mt-2">*Excluding Previous Schedule</p>
                     </div>
                 </div>
 
@@ -51,11 +51,11 @@ const Payment = () => {
                         <CreditCard size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest mb-1">Current Session Paid</p>
+                        <p className="text-[12px] font-black text-emerald-100 uppercase tracking-widest mb-1">Current Session Paid</p>
                         <h3 className="text-3xl font-black text-white flex items-center gap-1">
                             <IndianRupee size={24} strokeWidth={3} /> 157,500
                         </h3>
-                        <p className="text-[9px] font-bold text-emerald-100/60 uppercase tracking-widest mt-2">*Excluding Previous Paid</p>
+                        <p className="text-[12px] font-bold text-emerald-100/60 uppercase tracking-widest mt-2">*Excluding Previous Paid</p>
                     </div>
                 </div>
 
@@ -64,11 +64,11 @@ const Payment = () => {
                         <Clock size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-red-100 uppercase tracking-widest mb-1">Amount Due</p>
+                        <p className="text-[12px] font-black text-red-100 uppercase tracking-widest mb-1">Amount Due</p>
                         <h3 className="text-3xl font-black text-white flex items-center gap-1">
                             <IndianRupee size={24} strokeWidth={3} /> 0
                         </h3>
-                        <p className="text-[9px] font-bold text-red-100/60 uppercase tracking-widest mt-2">*Include Previous Dues & Fine</p>
+                        <p className="text-[12px] font-bold text-red-100/60 uppercase tracking-widest mt-2">*Include Previous Dues & Fine</p>
                     </div>
                 </div>
             </div>
@@ -108,7 +108,7 @@ const Payment = () => {
             <section>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight">Previous 5 Transactions</h2>
-                    <button className="text-[10px] text-gray-500 font-black uppercase tracking-widest hover:text-[#1a1b4b] flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg transition-colors">
+                    <button className="text-[12px] text-gray-500 font-black uppercase tracking-widest hover:text-[#1a1b4b] flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg transition-colors">
                         <History size={14} /> View All
                     </button>
                 </div>
@@ -117,14 +117,14 @@ const Payment = () => {
                     <table className="w-full text-left min-w-[800px]">
                         <thead>
                             <tr className="bg-[#1a1b4b] text-white">
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap first:rounded-tl-2xl">Receipt Number</th>
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-right">Due Amount</th>
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-right">Arrear</th>
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-right">Late Fee</th>
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-right">Amount Paid/Refund</th>
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-center">Date</th>
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-center">Type</th>
-                                <th className="p-4 text-[10px] font-black uppercase tracking-widest text-center last:rounded-tr-2xl">Action</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest whitespace-nowrap first:rounded-tl-2xl">Receipt Number</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Due Amount</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Arrear</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Late Fee</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Amount Paid/Refund</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-center">Date</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-center">Type</th>
+                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-center last:rounded-tr-2xl">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -137,7 +137,7 @@ const Payment = () => {
                                     <td className="p-4 text-xs font-black text-emerald-600 text-right">{formatInr(txn.amount)}</td>
                                     <td className="p-4 text-xs font-bold text-gray-500 text-center whitespace-nowrap">{txn.date}</td>
                                     <td className="p-4 text-center">
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-700">
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[12px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-700">
                                             {txn.type}
                                         </span>
                                     </td>

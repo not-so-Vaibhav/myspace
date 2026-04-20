@@ -248,12 +248,12 @@ const FacultyAttendance = () => {
         {selectedAllocation ? (
             <button 
                 onClick={() => setSelectedAllocation('')}
-                className="inline-flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors w-max mb-2"
+                className="inline-flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors w-max mb-2"
             >
                 <ArrowLeft size={14} /> Back to Courses
             </button>
         ) : (
-            <Link to="/faculty-dashboard" className="inline-flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors w-max mb-2">
+            <Link to="/faculty-dashboard" className="inline-flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors w-max mb-2">
                 <ArrowLeft size={14} /> Back to Dashboard
             </Link>
         )}
@@ -307,10 +307,10 @@ const FacultyAttendance = () => {
                                       {alloc.subject?.code}
                                   </h3>
                                   <div className="flex items-center gap-1.5">
-                                      <span className="text-[9px] font-black text-[#1a1b4b] bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-widest border border-indigo-100">
+                                      <span className="text-[12px] font-black text-[#1a1b4b] bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-widest border border-indigo-100">
                                           {alloc.batch?.name || 'Class'}
                                       </span>
-                                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                      <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">
                                           Attendance
                                       </span>
                                   </div>
@@ -362,7 +362,7 @@ const FacultyAttendance = () => {
                               <div key={session.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 hover:border-[#1a1b4b]/20 hover:shadow-md transition-all group">
                                  <div>
                                      <div className="font-black text-[#1a1b4b] text-base leading-tight mb-1">{session.topic || 'Unnamed Session'}</div>
-                                     <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1 flex flex-wrap gap-4 items-center">
+                                     <div className="text-[12px] text-gray-500 font-bold uppercase tracking-widest mt-1 flex flex-wrap gap-4 items-center">
                                         <span className="flex items-center gap-1"><CalendarIcon size={12} className="-mt-0.5" />{session.session_date}</span>
                                         <span className="flex items-center gap-1"><Clock size={12} className="-mt-0.5" />{session.session_time?.substring(0, 5)}</span>
                                         <span className="px-2 py-0.5 bg-green-50 text-green-600 border border-green-100 rounded-md">
@@ -373,7 +373,7 @@ const FacultyAttendance = () => {
                                         </span>
                                      </div>
                                  </div>
-                                 <button onClick={() => handleEditSession(session)} className="mt-4 sm:mt-0 px-5 py-2.5 bg-white text-[#1a1b4b] font-black text-[10px] uppercase tracking-widest border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shrink-0 flex items-center gap-2 group-hover:border-[#1a1b4b]/30">
+                                 <button onClick={() => handleEditSession(session)} className="mt-4 sm:mt-0 px-5 py-2.5 bg-white text-[#1a1b4b] font-black text-[12px] uppercase tracking-widest border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shrink-0 flex items-center gap-2 group-hover:border-[#1a1b4b]/30">
                                      <Edit2 size={12} /> Edit Register
                                  </button>
                               </div>
@@ -419,10 +419,10 @@ const FacultyAttendance = () => {
                                     Class Roster ({students.length})
                                 </div>
                                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                                    <button onClick={() => handleMarkAll('present')} className="flex-1 sm:flex-none text-[10px] font-black bg-green-50 text-green-700 px-4 py-2.5 rounded-xl uppercase tracking-widest hover:bg-green-100 transition-colors border border-green-200">
+                                    <button onClick={() => handleMarkAll('present')} className="flex-1 sm:flex-none text-[12px] font-black bg-green-50 text-green-700 px-4 py-2.5 rounded-xl uppercase tracking-widest hover:bg-green-100 transition-colors border border-green-200">
                                         Mark All Present
                                     </button>
-                                    <button onClick={() => handleMarkAll('absent')} className="flex-1 sm:flex-none text-[10px] font-black bg-red-50 text-red-700 px-4 py-2.5 rounded-xl uppercase tracking-widest hover:bg-red-100 transition-colors border border-red-200">
+                                    <button onClick={() => handleMarkAll('absent')} className="flex-1 sm:flex-none text-[12px] font-black bg-red-50 text-red-700 px-4 py-2.5 rounded-xl uppercase tracking-widest hover:bg-red-100 transition-colors border border-red-200">
                                         Mark All Absent
                                     </button>
                                 </div>
@@ -434,7 +434,7 @@ const FacultyAttendance = () => {
                                 return (
                                     <div key={student.id} className="flex items-center justify-between p-4 sm:px-8 hover:bg-gray-50 transition-colors">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-8 h-8 rounded-full bg-[#1a1b4b]/5 flex items-center justify-center text-[10px] font-black text-[#1a1b4b]">
+                                        <div className="w-8 h-8 rounded-full bg-[#1a1b4b]/5 flex items-center justify-center text-[12px] font-black text-[#1a1b4b]">
                                         {idx + 1}
                                         </div>
                                         <span className="text-sm font-black text-[#1a1b4b] tracking-tight">{student.name}</span>

@@ -15,8 +15,7 @@ import {
   BookOpen,
   CheckSquare,
   Briefcase,
-  Users,
-  MessageSquare
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -73,7 +72,6 @@ const getNavItems = (role) => {
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
       { to: '/announcements', icon: Megaphone, label: 'Announcement' },
       { to: '/faculty-courses', icon: BookOpen, label: 'My Courses' },
-      { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
       { to: '/faculty-assignments', icon: CheckSquare, label: 'Assignments' },
       { to: '/faculty-resources', icon: FolderOpen, label: 'Resources' },
       { to: '/library', icon: Library, label: 'Library' },
@@ -90,7 +88,6 @@ const getNavItems = (role) => {
     { to: '/', icon: Home, label: 'Home' },
     { to: '/announcements', icon: Megaphone, label: 'Announcement' },
     { to: '/student-courses', icon: GraduationCap, label: 'Courses' },
-    { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
     { to: '/assignments', icon: FileText, label: 'Assignment' },
     { to: '/library', icon: Library, label: 'Library' },
     { to: '/calendar', icon: CalendarDays, label: 'Calender' },
@@ -166,7 +163,7 @@ const Sidebar = ({ open = false, onClose }) => {
             <p className="text-sm font-black text-white tracking-tight truncate leading-tight">
               {profile?.full_name || 'User'}
             </p>
-            <p className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
+            <p className="text-[12px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
               {profile?.role ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1) : 'Student'}
             </p>
           </div>

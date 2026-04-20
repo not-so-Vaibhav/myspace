@@ -188,7 +188,7 @@ const FacultyCourses = () => {
                         </span>
                       </div>
                       <h3 className="text-base font-black text-[#1a1b4b] tracking-tight leading-none">{alloc.subject?.name}</h3>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                      <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                         Batch: <span className="text-[#ef4444]">{alloc.batch?.name}</span> · {alloc.subject?.credits} Credits · {alloc.subject?.type}
                       </p>
                     </div>
@@ -207,7 +207,7 @@ const FacultyCourses = () => {
 
                     {/* Upload Form */}
                     <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                      <h4 className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                         <Upload size={13} /> Add Material
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -254,7 +254,7 @@ const FacultyCourses = () => {
                               <FileText size={16} className="text-gray-400 shrink-0" />
                               <div>
                                 <p className="text-sm font-bold text-[#1a1b4b]">{mat.title}</p>
-                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${typeColor(mat.type)}`}>{mat.type}</span>
+                                <span className={`text-[12px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${typeColor(mat.type)}`}>{mat.type}</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

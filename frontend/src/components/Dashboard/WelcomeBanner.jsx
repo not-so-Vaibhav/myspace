@@ -8,7 +8,7 @@ const WelcomeBanner = ({ role = 'Student', userName }) => {
           <h1 className="text-3xl sm:text-4xl font-black text-[#1a1b4b] uppercase tracking-tighter mb-2">
             Learn Effectively With <span className="text-[#ef4444]">MySpace</span>
           </h1>
-          <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-8">
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-[12px] mb-8">
             Elevate your learning experience with our premium tools.
           </p>
           <div className="flex flex-wrap gap-6">
@@ -17,7 +17,7 @@ const WelcomeBanner = ({ role = 'Student', userName }) => {
                 <GraduationCap size={24} strokeWidth={2.5} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Enrolled Students</p>
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Enrolled Students</p>
                 <p className="text-xl font-black text-[#1a1b4b] tracking-tight">75,000+</p>
               </div>
             </div>
@@ -26,7 +26,7 @@ const WelcomeBanner = ({ role = 'Student', userName }) => {
                 <Users size={24} strokeWidth={2.5} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Expert Mentors</p>
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Expert Mentors</p>
                 <p className="text-xl font-black text-[#1a1b4b] tracking-tight">200+</p>
               </div>
             </div>

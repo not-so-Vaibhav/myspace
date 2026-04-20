@@ -134,7 +134,7 @@ const Proposals = () => {
                 </div>
                 <button 
                     onClick={() => setShowModal(true)}
-                    className="group flex items-center gap-3 px-8 py-4 bg-[#1a1b4b] text-white rounded-[2rem] text-[11px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-xl shadow-[#1a1b4b]/10 active:scale-95"
+                    className="group flex items-center gap-3 px-8 py-4 bg-[#1a1b4b] text-white rounded-[2rem] text-[13px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-xl shadow-[#1a1b4b]/10 active:scale-95"
                 >
                     <FilePlus size={18} /> Create New Proposal
                 </button>
@@ -147,11 +147,11 @@ const Proposals = () => {
                     <p className="text-white/60 text-sm font-bold leading-relaxed">Submit your research initiatives, infrastructure plans, or academic collaborations directly for departmental review.</p>
                     <div className="flex gap-4 pt-4">
                         <div className="px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm border border-white/20">
-                            <p className="text-[10px] font-black uppercase text-white/50 mb-1">Active</p>
+                            <p className="text-[12px] font-black uppercase text-white/50 mb-1">Active</p>
                             <p className="text-xl font-black">{proposals.filter(p => p.status === 'pending').length}</p>
                         </div>
                         <div className="px-4 py-2 bg-white/10 rounded-xl backdrop-blur-sm border border-white/20">
-                            <p className="text-[10px] font-black uppercase text-white/50 mb-1">Approved</p>
+                            <p className="text-[12px] font-black uppercase text-white/50 mb-1">Approved</p>
                             <p className="text-xl font-black text-emerald-400">{proposals.filter(p => p.status === 'approved').length}</p>
                         </div>
                     </div>
@@ -172,17 +172,17 @@ const Proposals = () => {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="bg-slate-50/50">
-                                    <th className="px-8 py-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">Proposal Details</th>
-                                    <th className="px-8 py-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
-                                    <th className="px-8 py-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Documentation</th>
-                                    <th className="px-8 py-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Submitted On</th>
+                                    <th className="px-8 py-5 text-[12px] font-black text-gray-400 uppercase tracking-widest">Proposal Details</th>
+                                    <th className="px-8 py-5 text-[12px] font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
+                                    <th className="px-8 py-5 text-[12px] font-black text-gray-400 uppercase tracking-widest text-center">Documentation</th>
+                                    <th className="px-8 py-5 text-[12px] font-black text-gray-400 uppercase tracking-widest text-right">Submitted On</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {fetching ? (
                                     <tr><td colSpan={4} className="px-8 py-20 text-center flex flex-col items-center gap-4">
                                         <Loader2 className="animate-spin text-[#1a1b4b]" />
-                                        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Fetching Archives...</p>
+                                        <p className="text-[12px] font-black text-gray-300 uppercase tracking-widest">Fetching Archives...</p>
                                     </td></tr>
                                 ) : proposals.length === 0 ? (
                                     <tr><td colSpan={4} className="px-8 py-20 text-center text-gray-300 font-bold italic text-sm">No proposals found in your history.</td></tr>
@@ -199,7 +199,7 @@ const Proposals = () => {
                                                 </td>
                                                 <td className="px-8 py-6">
                                                     <div className="flex justify-center text-center">
-                                                        <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 border-2 ${s.bg} ${s.text}`}>
+                                                        <span className={`px-4 py-1.5 rounded-xl text-[12px] font-black uppercase tracking-widest flex items-center gap-2 border-2 ${s.bg} ${s.text}`}>
                                                             <div className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
                                                             {p.status}
                                                         </span>
@@ -210,16 +210,16 @@ const Proposals = () => {
                                                         {p.file_url ? (
                                                             <a href={p.file_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#1a1b4b] hover:text-[#ef4444] transition-colors">
                                                                 <FileText size={18} />
-                                                                <span className="text-[10px] font-black uppercase tracking-widest">View PDF</span>
+                                                                <span className="text-[12px] font-black uppercase tracking-widest">View PDF</span>
                                                             </a>
                                                         ) : (
-                                                            <span className="text-[10px] font-black text-gray-300 uppercase italic">No File</span>
+                                                            <span className="text-[12px] font-black text-gray-300 uppercase italic">No File</span>
                                                         )}
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <p className="text-xs font-black text-[#1a1b4b]">{new Date(p.created_at).toLocaleDateString()}</p>
-                                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                                 </td>
                                             </tr>
                                         );
@@ -242,7 +242,7 @@ const Proposals = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter">Draft Proposal</h2>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">New institutional initiative</p>
+                                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">New institutional initiative</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
@@ -252,7 +252,7 @@ const Proposals = () => {
 
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Proposal Title</label>
+                                <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Proposal Title</label>
                                 <input 
                                     type="text" 
                                     required
@@ -264,7 +264,7 @@ const Proposals = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Detail Justification (Text Option)</label>
+                                <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Detail Justification (Text Option)</label>
                                 <textarea 
                                     required
                                     placeholder="Explain the objectives, budget, and impact..."
@@ -275,7 +275,7 @@ const Proposals = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Supporting Document (Choose File)</label>
+                                <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Supporting Document (Choose File)</label>
                                 <div className="relative group/file">
                                     <input 
                                         type="file" 
@@ -292,13 +292,13 @@ const Proposals = () => {
                                             <div className="flex flex-col items-center animate-in fade-in slide-in-from-bottom-2">
                                                 <CheckCircle2 size={24} className="text-emerald-500 mb-2" />
                                                 <p className="text-xs font-black text-[#1a1b4b]">{file.name}</p>
-                                                <p className="text-[9px] text-gray-400 font-bold">{(file.size / 1024).toFixed(1)} KB</p>
+                                                <p className="text-[12px] text-gray-400 font-bold">{(file.size / 1024).toFixed(1)} KB</p>
                                             </div>
                                         ) : (
                                             <div className="flex flex-col items-center text-gray-400">
                                                 <Upload size={24} className="mb-2 group-hover/file:text-[#ef4444] transition-colors" />
                                                 <p className="text-xs font-black uppercase tracking-widest">Click to upload doc</p>
-                                                <p className="text-[9px] font-bold mt-1">PDF or Word (Max 5MB)</p>
+                                                <p className="text-[12px] font-bold mt-1">PDF or Word (Max 5MB)</p>
                                             </div>
                                         )}
                                     </label>
@@ -309,14 +309,14 @@ const Proposals = () => {
                                 <button 
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all shadow-sm"
+                                    className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all shadow-sm"
                                 >
                                     Discard Draft
                                 </button>
                                 <button 
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-[2] py-5 bg-[#1a1b4b] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-2xl shadow-[#1a1b4b]/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                                    className="flex-[2] py-5 bg-[#1a1b4b] text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-[#ef4444] transition-all shadow-2xl shadow-[#1a1b4b]/20 flex items-center justify-center gap-3 disabled:opacity-50"
                                 >
                                     {loading ? 'Processing...' : 'Submit to HOD'} <Send size={16} />
                                 </button>

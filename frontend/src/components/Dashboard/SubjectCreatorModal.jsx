@@ -64,7 +64,7 @@ const SubjectCreatorModal = ({ isOpen, onClose, targetDepartment, onSubjectCreat
                 <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50/50">
                     <div>
                         <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight leading-none">Register Course</h2>
-                        <p className="text-[10px] uppercase font-bold tracking-widest text-gray-400 mt-1">
+                        <p className="text-[12px] uppercase font-bold tracking-widest text-gray-400 mt-1">
                             Bind to: <span className="text-[#ef4444]">{targetDepartment?.name}</span>
                         </p>
                     </div>
@@ -89,7 +89,7 @@ const SubjectCreatorModal = ({ isOpen, onClose, targetDepartment, onSubjectCreat
                     )}
 
                     <div>
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Subject Full Name</label>
+                        <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Subject Full Name</label>
                         <input
                             type="text"
                             value={formData.name}
@@ -102,7 +102,7 @@ const SubjectCreatorModal = ({ isOpen, onClose, targetDepartment, onSubjectCreat
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Subject Code</label>
+                            <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Subject Code</label>
                             <input
                                 type="text"
                                 value={formData.code}
@@ -113,7 +113,7 @@ const SubjectCreatorModal = ({ isOpen, onClose, targetDepartment, onSubjectCreat
                             />
                         </div>
                         <div>
-                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Credit Weight</label>
+                            <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Credit Weight</label>
                             <input
                                 type="number"
                                 step="0.5"
@@ -127,7 +127,7 @@ const SubjectCreatorModal = ({ isOpen, onClose, targetDepartment, onSubjectCreat
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Format</label>
+                        <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Format</label>
                         <select
                             value={formData.type}
                             onChange={(e) => setFormData({...formData, type: e.target.value})}

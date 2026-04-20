@@ -122,9 +122,9 @@ const Resources = () => {
               : 'Your faculty have not uploaded any study materials for your enrolled courses yet.'}
           </p>
           {isFaculty ? (
-             <Link to="/faculty-resources" className="inline-flex py-3 px-6 bg-[#1a1b4b] text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all">Go to Faculty Resources</Link>
+             <Link to="/faculty-resources" className="inline-flex py-3 px-6 bg-[#1a1b4b] text-white rounded-xl font-black text-[12px] uppercase tracking-widest hover:bg-slate-800 transition-all">Go to Faculty Resources</Link>
           ) : (
-             <Link to="/student-courses" className="inline-flex py-3 px-6 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100">Browse Courses</Link>
+             <Link to="/student-courses" className="inline-flex py-3 px-6 bg-emerald-500 text-white rounded-xl font-black text-[12px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100">Browse Courses</Link>
           )}
         </div>
       ) : (
@@ -138,13 +138,13 @@ const Resources = () => {
                    </div>
                    <div>
                      <h2 className="text-lg font-black text-[#1a1b4b] tracking-tight">{course.allocation?.subject?.name}</h2>
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                     <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                         [{course.allocation?.subject?.code}] · Batch {course.allocation?.batch?.name}
                      </p>
                    </div>
                 </div>
                 {isFaculty && (
-                  <Link to={`/faculty-resources`} className="text-[10px] px-4 py-2 bg-white border border-gray-200 text-gray-500 hover:text-[#1a1b4b] rounded-lg font-black uppercase tracking-widest transition-all">
+                  <Link to={`/faculty-resources`} className="text-[12px] px-4 py-2 bg-white border border-gray-200 text-gray-500 hover:text-[#1a1b4b] rounded-lg font-black uppercase tracking-widest transition-all">
                     Manage
                   </Link>
                 )}
@@ -152,7 +152,7 @@ const Resources = () => {
               <ul className="divide-y divide-gray-100">
                 {course.resources?.length === 0 ? (
                   <li className="px-8 py-10 text-center">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">No resources uploaded for this batch</p>
+                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">No resources uploaded for this batch</p>
                   </li>
                 ) : (
                   (course.resources || []).map((r) => (
@@ -162,7 +162,7 @@ const Resources = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                          <p className="text-sm font-black text-[#1a1b4b] truncate">{r.title}</p>
-                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                         <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                             {new Date(r.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                          </p>
                       </div>

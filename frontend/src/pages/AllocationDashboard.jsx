@@ -292,7 +292,7 @@ const AllocationDashboard = () => {
                         {/* Dropdowns Column (3 spans) */}
                         <div className="col-span-1 md:col-span-3 border-r border-gray-100 pr-6 space-y-5">
                             <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">1. Department</label>
+                                <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">1. Department</label>
                                 <select
                                     value={selectedDeptId} onChange={(e) => setSelectedDeptId(e.target.value)}
                                     className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none"
@@ -303,7 +303,7 @@ const AllocationDashboard = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">2. Year</label>
+                                <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">2. Year</label>
                                 <select
                                     value={selectedYearId} onChange={(e) => setSelectedYearId(e.target.value)} disabled={!selectedDeptId}
                                     className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
@@ -314,7 +314,7 @@ const AllocationDashboard = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">3. Semester</label>
+                                <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">3. Semester</label>
                                 <select
                                     value={selectedSemesterId} onChange={(e) => setSelectedSemesterId(e.target.value)} disabled={!selectedYearId}
                                     className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none disabled:opacity-50"
@@ -329,12 +329,12 @@ const AllocationDashboard = () => {
                         {/* Batches Selector (3 spans) */}
                         <div className="col-span-1 md:col-span-3 border-r border-gray-100 pr-6">
                             <div className="flex items-center justify-between mb-2">
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">4. Target Batches</label>
+                                <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest">4. Target Batches</label>
                                 {availableBatches.length > 0 && (
                                     <button 
                                       type="button" 
                                       onClick={handleSelectAllBatches}
-                                      className="text-[9px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest"
+                                      className="text-[12px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest"
                                     >
                                         {selectedBatches.length === availableBatches.length ? 'Deselect All' : 'Select All'}
                                     </button>
@@ -342,9 +342,9 @@ const AllocationDashboard = () => {
                             </div>
                             <div className="bg-gray-50 border border-gray-200 rounded-xl p-2 h-[200px] overflow-y-auto space-y-1">
                                 {!selectedSemesterId ? (
-                                    <p className="text-[10px] p-2 font-bold text-gray-400 uppercase text-center mt-6">Select Semester First</p>
+                                    <p className="text-[12px] p-2 font-bold text-gray-400 uppercase text-center mt-6">Select Semester First</p>
                                 ) : availableBatches.length === 0 ? (
-                                    <p className="text-[10px] p-2 font-bold text-red-400 uppercase text-center mt-6">No batches exist for this sem.</p>
+                                    <p className="text-[12px] p-2 font-bold text-red-400 uppercase text-center mt-6">No batches exist for this sem.</p>
                                 ) : (
                                     availableBatches.map(b => (
                                         <label key={b.id} className="flex items-center gap-3 p-2 bg-white border border-gray-100 rounded-lg cursor-pointer hover:border-gray-300 transition-colors shadow-sm">
@@ -366,11 +366,11 @@ const AllocationDashboard = () => {
                             {/* Filtered Subjects */}
                             <div className="flex-1 flex flex-col min-h-0">
                                 <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                    <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                         <BookOpen className="w-3.5 h-3.5 text-[#1a1b4b]" /> 5. Select Course(s) to Map
                                     </label>
                                     <button type="button" onClick={() => setIsSubjectModalOpen(true)} disabled={!selectedDeptId}
-                                        className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-[#1a1b4b] rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100"
+                                        className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-[#1a1b4b] rounded-full text-[12px] font-black uppercase tracking-widest hover:bg-indigo-100"
                                     >
                                         <Plus size={12} strokeWidth={4} /> New Course
                                     </button>
@@ -378,25 +378,25 @@ const AllocationDashboard = () => {
                                 <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-3 h-[120px] overflow-y-auto space-y-2">
                                     {selectedBatches.length > 0 ? (
                                         availableSubjects.length === 0 ? (
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mt-6">All linked.</p>
+                                            <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest text-center mt-6">All linked.</p>
                                         ) : (
                                             availableSubjects.map(sub => (
                                                 <label key={sub.id} className="flex items-center gap-3 p-2 bg-white border border-gray-100 rounded-lg cursor-pointer hover:border-gray-300">
                                                     <input type="checkbox" checked={selectedSubjects.includes(sub.id)} onChange={() => toggleSubject(sub.id)} className="w-4 h-4 text-[#ef4444] rounded" />
                                                     <span className="font-bold text-[#1a1b4b] text-sm flex-1">[{sub.code}] {sub.name}</span>
-                                                    <span className="text-[10px] text-gray-400 uppercase font-bold">{sub.credits} CR</span>
+                                                    <span className="text-[12px] text-gray-400 uppercase font-bold">{sub.credits} CR</span>
                                                 </label>
                                             ))
                                         )
                                     ) : (
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mt-6">Select target batches to unlock subjects.</p>
+                                        <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest text-center mt-6">Select target batches to unlock subjects.</p>
                                     )}
                                 </div>
                             </div>
 
                             <div className="flex flex-col xl:flex-row items-end gap-3 bg-[#f4f6fa]/60 p-4 rounded-xl border border-[#1a1b4b]/5">
                                 <div className="flex-1 w-full">
-                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                    <label className="block text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                         <Users className="w-3.5 h-3.5 text-[#1a1b4b]" /> 6. Designated Instructor
                                     </label>
                                     <select
@@ -434,10 +434,10 @@ const AllocationDashboard = () => {
                      <table className="w-full text-left border-collapse min-w-[900px]">
                          <thead className="bg-[#f4f6fa]/80">
                              <tr>
-                                 <th className="p-4 pl-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Subject Code</th>
-                                 <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Full Name</th>
-                                 <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/6">Credits</th>
-                                 <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/12 text-center">Flush</th>
+                                 <th className="p-4 pl-6 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Subject Code</th>
+                                 <th className="p-4 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Full Name</th>
+                                 <th className="p-4 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/6">Credits</th>
+                                 <th className="p-4 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/12 text-center">Flush</th>
                              </tr>
                          </thead>
                          <tbody>
@@ -450,7 +450,7 @@ const AllocationDashboard = () => {
                                         <p className="text-[12px] text-gray-600 font-bold tracking-tight uppercase">{sub.name}</p>
                                      </td>
                                      <td className="p-4">
-                                         <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded shadow-[inset_0_0_0_1px_rgba(16,185,129,0.1)]">
+                                         <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[12px] font-black uppercase tracking-widest rounded shadow-[inset_0_0_0_1px_rgba(16,185,129,0.1)]">
                                              {sub.credits} CR
                                          </span>
                                      </td>
@@ -481,11 +481,11 @@ const AllocationDashboard = () => {
                     <table className="w-full text-left border-collapse min-w-[900px]">
                         <thead className="bg-[#f4f6fa]/80">
                             <tr>
-                                <th className="p-4 pl-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Subject Code</th>
-                                <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/6">Level</th>
-                                <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/6">Target Batch</th>
-                                <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/3">Assigned Faculty (Auto-Saves)</th>
-                                <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/12 text-center">Flush</th>
+                                <th className="p-4 pl-6 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/4">Subject Code</th>
+                                <th className="p-4 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/6">Level</th>
+                                <th className="p-4 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/6">Target Batch</th>
+                                <th className="p-4 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/3">Assigned Faculty (Auto-Saves)</th>
+                                <th className="p-4 text-[12px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 w-1/12 text-center">Flush</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -493,10 +493,10 @@ const AllocationDashboard = () => {
                                 <tr key={alloc.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50/80 group">
                                     <td className="p-4 pl-6">
                                         <p className="font-bold text-[#1a1b4b] text-sm tabular-nums">{alloc.subject?.code}</p>
-                                        <p className="text-[10px] text-gray-400 uppercase tracking-widest truncate max-w-[200px]" title={alloc.subject?.name}>{alloc.subject?.name}</p>
+                                        <p className="text-[12px] text-gray-400 uppercase tracking-widest truncate max-w-[200px]" title={alloc.subject?.name}>{alloc.subject?.name}</p>
                                     </td>
                                     <td className="p-4">
-                                        <span className="px-2.5 py-1 bg-blue-50/50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded shadow-[inset_0_0_0_1px_rgba(59,130,246,0.1)]">
+                                        <span className="px-2.5 py-1 bg-blue-50/50 text-blue-600 text-[12px] font-black uppercase tracking-widest rounded shadow-[inset_0_0_0_1px_rgba(59,130,246,0.1)]">
                                             Sem {alloc.semester?.term_number}
                                         </span>
                                     </td>

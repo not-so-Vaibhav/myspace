@@ -152,7 +152,7 @@ const UserManagement = () => {
 
                       <form onSubmit={handleUpdateUser} className="space-y-6">
                          <div>
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Display Name</label>
+                            <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">Display Name</label>
                             <input 
                               type="text" 
                               value={editForm.full_name}
@@ -162,7 +162,7 @@ const UserManagement = () => {
                             />
                          </div>
                          <div>
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">System Role</label>
+                            <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2">System Role</label>
                             <select 
                               value={editForm.role}
                               onChange={(e) => setEditForm({...editForm, role: e.target.value})}
@@ -177,8 +177,8 @@ const UserManagement = () => {
                             </select>
                          </div>
                          <div className="pt-4 flex gap-4">
-                            <button type="button" onClick={() => setEditingUser(null)} className="flex-1 py-4 bg-gray-100 rounded-2xl text-[10px] font-black uppercase text-gray-500 tracking-widest hover:bg-gray-200 transition-all">Cancel</button>
-                            <button type="submit" disabled={isSubmitting} className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50">Save Changes</button>
+                            <button type="button" onClick={() => setEditingUser(null)} className="flex-1 py-4 bg-gray-100 rounded-2xl text-[12px] font-black uppercase text-gray-500 tracking-widest hover:bg-gray-200 transition-all">Cancel</button>
+                            <button type="submit" disabled={isSubmitting} className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50">Save Changes</button>
                          </div>
                       </form>
                    </div>
@@ -195,7 +195,7 @@ const UserManagement = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="bg-white px-4 py-2 border border-gray-100 rounded-2xl shadow-sm min-w-[140px]">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">
                             {activeTab === 'all' ? 'Total Population' : 
                              activeTab === 'student' ? 'Student Count' :
                              activeTab === 'faculty' ? 'Staff Reach' : 'Admins'}
@@ -246,11 +246,11 @@ const UserManagement = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest pl-10">User Identity</th>
-                                <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Assigned Role</th>
-                                <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Contact Intel</th>
-                                <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                                <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Actions</th>
+                                <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest pl-10">User Identity</th>
+                                <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest">Assigned Role</th>
+                                <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest">Contact Intel</th>
+                                <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -275,12 +275,12 @@ const UserManagement = () => {
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-black text-[#1a1b4b] tracking-tight">{user.full_name}</p>
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">UID: {user.id.substring(0,8)}</p>
+                                                        <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">UID: {user.id.substring(0,8)}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="p-6">
-                                                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest ${config.bg} ${config.text} border border-transparent group-hover:border-current transition-all cursor-default`}>
+                                                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-xl text-[12px] font-black uppercase tracking-widest ${config.bg} ${config.text} border border-transparent group-hover:border-current transition-all cursor-default`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${config.dot} shadow-[0_0_8px_rgba(0,0,0,0.1)]`}></div>
                                                     {config.label}
                                                 </span>
@@ -292,7 +292,7 @@ const UserManagement = () => {
                                                 </div>
                                             </td>
                                             <td className="p-6">
-                                                <div className="inline-flex items-center gap-2 text-[10px] font-black text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border border-emerald-100">
+                                                <div className="inline-flex items-center gap-2 text-[12px] font-black text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border border-emerald-100">
                                                    Active
                                                 </div>
                                             </td>

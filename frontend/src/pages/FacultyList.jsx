@@ -37,7 +37,7 @@ const FacultyList = () => {
         <div className="p-8 sm:p-12 space-y-12 max-w-[1200px] mx-auto min-h-screen">
             {/* Header */}
             <div className="animate-in fade-in slide-in-from-top-4 duration-700">
-                <Link to={backLink} className="inline-flex items-center gap-1.5 text-[11px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-6 group">
+                <Link to={backLink} className="inline-flex items-center gap-1.5 text-[13px] font-black text-gray-400 uppercase tracking-widest hover:text-[#1a1b4b] transition-colors mb-6 group">
                     <ArrowLeft size={13} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
                 </Link>
                 <h1 className="text-4xl font-black text-[#1a1b4b] uppercase tracking-tighter">Faculty Management</h1>
@@ -52,7 +52,7 @@ const FacultyList = () => {
                     </div>
                     <div>
                         <p className="text-emerald-800 font-black text-sm uppercase tracking-tight">Deployment Success</p>
-                        <p className="text-emerald-600 text-[11px] font-bold uppercase tracking-widest mt-0.5">{successMsg}</p>
+                        <p className="text-emerald-600 text-[13px] font-bold uppercase tracking-widest mt-0.5">{successMsg}</p>
                     </div>
                 </div>
             )}
@@ -68,14 +68,14 @@ const FacultyList = () => {
                             </div>
                             <div>
                                 <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">Initiate Employment Request</h2>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Select request type from the registry below</p>
+                                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Select request type from the registry below</p>
                             </div>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-10 flex-1">
                             {/* Custom Dropdown */}
                             <div className="relative">
-                                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Type of Request</label>
+                                <label className="block text-[13px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Type of Request</label>
                                 <button
                                     type="button"
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -102,7 +102,7 @@ const FacultyList = () => {
                                                 <div className={`w-3 h-3 rounded-full ${requestType === option.id ? 'bg-[#1a1b4b]' : 'bg-gray-200'}`} />
                                                 <div>
                                                     <p className="text-sm font-black text-[#1a1b4b] uppercase tracking-tight">{option.label}</p>
-                                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{option.desc}</p>
+                                                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">{option.desc}</p>
                                                 </div>
                                             </button>
                                         ))}
@@ -111,10 +111,10 @@ const FacultyList = () => {
                             </div>
 
                             <div className="p-8 bg-indigo-50/50 rounded-3xl border border-indigo-100/50">
-                                <p className="text-[10px] font-black text-indigo-800 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                <p className="text-[12px] font-black text-indigo-800 uppercase tracking-widest mb-2 flex items-center gap-2">
                                     <Mail size={12} strokeWidth={3} /> Processing Intel
                                 </p>
-                                <p className="text-[11px] font-bold text-indigo-600/70 leading-relaxed uppercase">
+                                <p className="text-[13px] font-bold text-indigo-600/70 leading-relaxed uppercase">
                                     Requests submitted here are routed directly to the Dean and HR vector for digital verification. Expected processing timeframe: 3-5 Academic Days.
                                 </p>
                             </div>
@@ -122,7 +122,7 @@ const FacultyList = () => {
                             <button
                                 type="submit"
                                 disabled={!requestType || isSubmitting}
-                                className="w-full py-6 bg-[#1a1b4b] text-white rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-indigo-200 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-30 flex items-center justify-center gap-3 overflow-hidden group relative"
+                                className="w-full py-6 bg-[#1a1b4b] text-white rounded-[1.5rem] text-[13px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-indigo-200 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-30 flex items-center justify-center gap-3 overflow-hidden group relative"
                             >
                                 {isSubmitting ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -142,15 +142,15 @@ const FacultyList = () => {
                     <div className="bg-[#1a1b4b] rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-100 h-full flex flex-col">
                         <History className="mb-6 opacity-40 shrink-0" size={32} />
                         <h3 className="text-2xl font-black uppercase tracking-tighter leading-tight mb-4">Request <br />Archives</h3>
-                        <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-auto">
+                        <p className="text-white/40 text-[12px] font-bold uppercase tracking-widest leading-relaxed mb-auto">
                             No active employment requests found in your current vector. <br /><br />All historical loan, transfer, and separation data is securely encrypted.
                         </p>
                         
                         <div className="mt-10 p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                            <p className="text-[12px] font-black text-white/40 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> System Integrity
                             </p>
-                            <p className="text-[10px] font-black tracking-tight leading-tight uppercase">ISO/IEC 27001 Identity Protocol Active</p>
+                            <p className="text-[12px] font-black tracking-tight leading-tight uppercase">ISO/IEC 27001 Identity Protocol Active</p>
                         </div>
                     </div>
                 </div>

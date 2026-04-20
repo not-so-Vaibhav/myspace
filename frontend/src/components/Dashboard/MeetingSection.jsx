@@ -43,11 +43,11 @@ export const MeetingCard = ({ m, className = "" }) => {
     <div className={`bg-white border border-[var(--color-border-light)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col ${className}`}>
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${s.bg} ${s.text}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-black uppercase tracking-widest ${s.bg} ${s.text}`}>
           <span className={`w-1.5 h-1.5 rounded-sm ${s.dot}`} />
           {s.label}
         </span>
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
+        <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
           Meeting #{m.id}
         </span>
       </div>
@@ -59,7 +59,7 @@ export const MeetingCard = ({ m, className = "" }) => {
             <CalendarDays size={15} className="text-[#1a1b4b]" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Date</p>
+            <p className="text-[12px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Date</p>
             <p className="text-sm font-bold text-[#1a1b4b] leading-snug">{m.date}</p>
           </div>
         </div>
@@ -69,7 +69,7 @@ export const MeetingCard = ({ m, className = "" }) => {
             <Clock size={15} className="text-orange-500" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Timing</p>
+            <p className="text-[12px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Timing</p>
             <p className="text-sm font-bold text-[#1a1b4b] leading-snug">{m.timing}</p>
           </div>
         </div>
@@ -79,7 +79,7 @@ export const MeetingCard = ({ m, className = "" }) => {
             <FileText size={15} className="text-purple-500" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Agenda</p>
+            <p className="text-[12px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Agenda</p>
             <p className="text-sm font-bold text-[#1a1b4b] leading-snug">{m.agenda}</p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export const MeetingCard = ({ m, className = "" }) => {
             <MapPin size={15} className="text-green-500" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Location</p>
+            <p className="text-[12px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Location</p>
             <p className="text-sm font-bold text-[#1a1b4b] leading-snug">{m.location}</p>
           </div>
         </div>
@@ -99,7 +99,7 @@ export const MeetingCard = ({ m, className = "" }) => {
             <User size={15} className="text-pink-500" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Organized By</p>
+            <p className="text-[12px] font-black uppercase tracking-widest text-gray-400 leading-none mb-0.5">Organized By</p>
             <p className="text-sm font-bold text-[#1a1b4b] leading-snug">{m.organizedBy}</p>
           </div>
         </div>
@@ -120,7 +120,7 @@ const MeetingSection = () => {
         </h2>
         <Link
           to="/meetings"
-          className="inline-flex items-center gap-1.5 text-[11px] font-black text-[#1a1b4b] uppercase tracking-widest hover:opacity-70 transition-opacity"
+          className="inline-flex items-center gap-1.5 text-[13px] font-black text-[#1a1b4b] uppercase tracking-widest hover:opacity-70 transition-opacity"
         >
           See All <ArrowRight size={13} strokeWidth={3} />
         </Link>
