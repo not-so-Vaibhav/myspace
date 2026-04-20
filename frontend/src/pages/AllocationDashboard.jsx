@@ -283,7 +283,7 @@ const AllocationDashboard = () => {
             <div className="bg-white rounded-[2rem] p-8 border border-[var(--color-border-light)] shadow-sm">
                 <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
                     <Layers className="w-6 h-6 text-[#ef4444]" />
-                    <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight">NxM Bulk Matrix Wizard</h2>
+                    <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tight">Course Allocation</h2>
                 </div>
 
                 <form onSubmit={handleBulkAllocate} className="space-y-6">
