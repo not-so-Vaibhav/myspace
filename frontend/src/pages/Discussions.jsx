@@ -5,7 +5,7 @@ import {
     MessageSquare, Send, Paperclip, Smile, Mic, Search, 
     BookOpen, ChevronRight, FileText, Download, Loader2, X,
     Eye, Image as ImageIcon, File, ZoomIn, ZoomOut, RotateCw, ExternalLink, Trash2,
-    Mail, UserPlus, SendHorizonal
+    Mail, UserPlus, SendHorizonal, AlertCircle
 } from 'lucide-react';
 
 // ─── File Preview Modal ───────────────────────────────────────────────────────
@@ -44,8 +44,8 @@ const FilePreviewModal = ({ file, onClose }) => {
                             {isImage ? <ImageIcon size={20} className="text-[#1a1b4b]" /> : <FileText size={20} className="text-[#1a1b4b]" />}
                         </div>
                         <div>
-                            <h3 className="text-sm font-black text-[#1a1b4b] uppercase tracking-tight truncate max-w-[400px]">{file.name || 'Attachment Preview'}</h3>
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{ext?.toUpperCase()} · Academic File Viewer</p>
+                            <h3 className="text-[17px] font-black text-[#1a1b4b] uppercase tracking-tight truncate max-w-[400px]">{file.name || 'Attachment Preview'}</h3>
+                            <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">{ext?.toUpperCase()} · Academic File Viewer</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -58,7 +58,7 @@ const FilePreviewModal = ({ file, onClose }) => {
                             </>
                         )}
                         <a href={file.url} target="_blank" rel="noreferrer" className="p-2.5 hover:bg-gray-50 rounded-xl transition-colors text-gray-400 hover:text-[#1a1b4b] border border-gray-100" title="Open in new tab"><ExternalLink size={18} /></a>
-                        <button onClick={handleDownload} className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1b4b] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-100">
+                        <button onClick={handleDownload} className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1b4b] text-white rounded-xl text-[13px] font-black uppercase tracking-widest hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-100">
                             <Download size={14} strokeWidth={3} /> Download
                         </button>
                         <button onClick={onClose} className="p-2.5 hover:bg-red-50 rounded-xl transition-colors text-gray-400 hover:text-red-500 border border-gray-100 ml-1"><X size={18} /></button>
@@ -99,7 +99,7 @@ const FilePreviewModal = ({ file, onClose }) => {
                             <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mx-auto animate-pulse border-4 border-indigo-100">
                                 <Mic size={40} className="text-[#1a1b4b]" />
                             </div>
-                            <p className="text-sm font-black text-[#1a1b4b] uppercase tracking-tight">{file.name}</p>
+                            <p className="text-[17px] font-black text-[#1a1b4b] uppercase tracking-tight">{file.name}</p>
                             <audio src={file.url} controls className="w-full max-w-md" />
                         </div>
                     )}
@@ -110,10 +110,10 @@ const FilePreviewModal = ({ file, onClose }) => {
                                 <File size={40} className="text-gray-300" />
                             </div>
                             <div>
-                                <p className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight mb-2">{file.name}</p>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-8">Preview not available for this file type</p>
+                                <p className="text-[21px] font-black text-[#1a1b4b] uppercase tracking-tight mb-2">{file.name}</p>
+                                <p className="text-[15px] font-bold text-gray-400 uppercase tracking-widest mb-8">Preview not available for this file type</p>
                             </div>
-                            <button onClick={handleDownload} className="flex items-center gap-3 px-8 py-4 bg-[#1a1b4b] text-white rounded-2xl text-xs font-black uppercase tracking-widest mx-auto hover:scale-105 transition-all shadow-xl shadow-indigo-100">
+                            <button onClick={handleDownload} className="flex items-center gap-3 px-8 py-4 bg-[#1a1b4b] text-white rounded-2xl text-[15px] font-black uppercase tracking-widest mx-auto hover:scale-105 transition-all shadow-xl shadow-indigo-100">
                                 <Download size={18} strokeWidth={3} /> Download File
                             </button>
                         </div>
@@ -135,14 +135,22 @@ const MailModal = ({ isOpen, onClose, students, courseName }) => {
     const handleSend = () => {
         setSending(true);
         let targetEmails = [];
-        if (recipient === 'all') {
-            targetEmails = students.map(s => s.email).filter(Boolean);
+        if (students.role === 'student' && students.faculty?.email) {
+            targetEmails = [students.faculty.email];
+        } else if (recipient === 'all') {
+            targetEmails = students.list.map(s => s.email).filter(Boolean);
         } else {
-            const s = students.find(x => x.id === recipient);
+            const s = students.list.find(x => x.id === recipient);
             if (s?.email) targetEmails = [s.email];
         }
 
-        const mailto = `mailto:${recipient === 'all' ? '' : targetEmails[0]}?bcc=${recipient === 'all' ? targetEmails.join(',') : ''}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+        if (targetEmails.length === 0) {
+            alert('No registered email found for the selected recipient.');
+            setSending(false);
+            return;
+        }
+
+        const mailto = `mailto:${targetEmails.length === 1 ? targetEmails[0] : ''}?bcc=${targetEmails.length > 1 ? targetEmails.join(',') : ''}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
         window.open(mailto, '_blank');
 
         setTimeout(() => {
@@ -160,8 +168,8 @@ const MailModal = ({ isOpen, onClose, students, courseName }) => {
                             <Mail size={24} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tighter">Academic Dispatch</h3>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Official Communication · {courseName}</p>
+                            <h3 className="text-[21px] font-black text-[#1a1b4b] uppercase tracking-tighter">Academic Dispatch</h3>
+                            <p className="text-[13px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Official Communication · {courseName}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-400 hover:text-[#ef4444] shadow-sm"><X size={20} /></button>
@@ -169,39 +177,45 @@ const MailModal = ({ isOpen, onClose, students, courseName }) => {
 
                 <div className="p-8 space-y-6">
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Recipient Vector</label>
-                        <select 
-                            value={recipient}
-                            onChange={(e) => setRecipient(e.target.value)}
-                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all appearance-none cursor-pointer"
-                        >
-                            <option value="all">Broadcast to All Enrolled Students ({students.length})</option>
-                            <optgroup label="Individual Identities">
-                                {students.map(s => (
-                                    <option key={s.id} value={s.id}>{s.full_name} ({s.email || 'No email'})</option>
-                                ))}
-                            </optgroup>
-                        </select>
+                        <label className="block text-[13px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Recipient Vector</label>
+                        {students.role === 'student' ? (
+                            <div className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b]">
+                                Primary Faculty: {students.faculty?.full_name || 'Assigned Instructor'}
+                            </div>
+                        ) : (
+                            <select 
+                                value={recipient}
+                                onChange={(e) => setRecipient(e.target.value)}
+                                className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="all">Broadcast to All Enrolled Students ({students.list.length})</option>
+                                <optgroup label="Individual Identities">
+                                    {students.list.map(s => (
+                                        <option key={s.id} value={s.id}>{s.full_name} ({s.email || 'No email'})</option>
+                                    ))}
+                                </optgroup>
+                            </select>
+                        )}
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Subject Header</label>
+                        <label className="block text-[13px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Subject Header</label>
                         <input 
                             type="text"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
-                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
+                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
                             placeholder="Brief subject..."
                         />
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Intel Payload (Message)</label>
+                        <label className="block text-[13px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Intel Payload (Message)</label>
                         <textarea 
                             rows={5}
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all resize-none placeholder:text-gray-300"
+                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all resize-none placeholder:text-gray-300"
                             placeholder="Type your message here..."
                         />
                     </div>
@@ -209,12 +223,12 @@ const MailModal = ({ isOpen, onClose, students, courseName }) => {
                     <button 
                         onClick={handleSend}
                         disabled={sending || !message.trim()}
-                        className="w-full py-5 bg-[#1a1b4b] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                        className="w-full py-5 bg-[#1a1b4b] text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
                     >
                         {sending ? <Loader2 size={18} className="animate-spin" /> : <SendHorizonal size={18} strokeWidth={3} />}
                         Execute Dispatch via Gmail
                     </button>
-                    <p className="text-[9px] font-bold text-gray-300 text-center uppercase tracking-widest">Sent via verified registered system coordinates</p>
+                    <p className="text-[12px] font-bold text-gray-300 text-center uppercase tracking-widest">Sent via verified registered system coordinates</p>
                 </div>
             </div>
         </div>
@@ -243,7 +257,7 @@ const FileAttachment = ({ msg, isOwn, onPreview }) => {
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-xl px-3 py-1.5 flex items-center gap-2">
                                 <Eye size={14} className="text-[#1a1b4b]" />
-                                <span className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-widest">View</span>
+                                <span className="text-[13px] font-black text-[#1a1b4b] uppercase tracking-widest">View</span>
                             </div>
                         </div>
                     </div>
@@ -258,10 +272,10 @@ const FileAttachment = ({ msg, isOwn, onPreview }) => {
                                 <File     size={14} className={isOwn ? 'text-white' : 'text-gray-400'} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className={`text-[10px] font-black truncate ${isOwn ? 'text-white' : 'text-[#1a1b4b]'}`}>
+                    <p className={`text-[13px] font-black truncate ${isOwn ? 'text-white' : 'text-[#1a1b4b]'}`}>
                         {msg.file_name || 'Attached File'}
                     </p>
-                    <p className={`text-[8px] font-bold uppercase tracking-widest ${isOwn ? 'text-white/50' : 'text-gray-400'}`}>{fileTypeLabel}</p>
+                    <p className={`text-[11px] font-bold uppercase tracking-widest ${isOwn ? 'text-white/50' : 'text-gray-400'}`}>{fileTypeLabel}</p>
                 </div>
                 <div className="flex items-center gap-1">
                     <button 
@@ -298,6 +312,7 @@ const Discussions = () => {
     const [sending, setSending] = useState(false);
     const [file, setFile] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
+    const [error, setError] = useState(null);
     
     // Mail State
     const [showMailModal, setShowMailModal] = useState(false);
@@ -316,13 +331,37 @@ const Discussions = () => {
 
     useEffect(() => {
         if (selectedCourse) {
+            setError(null);
             fetchMessages(selectedCourse.id);
             const subscription = supabase
                 .channel(`discussion:${selectedCourse.id}`)
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'course_discussions', filter: `allocation_id=eq.${selectedCourse.id}` }, 
-                    (payload) => handleNewRealtimeMessage(payload.new))
-                .subscribe();
-            return () => supabase.removeChannel(subscription);
+                .on('postgres_changes', { 
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'course_discussions', 
+                    filter: `allocation_id=eq.${selectedCourse.id}` 
+                }, (payload) => {
+                    console.log('Realtime message received:', payload);
+                    handleNewRealtimeMessage(payload.new);
+                })
+                .on('postgres_changes', {
+                    event: 'DELETE',
+                    schema: 'public',
+                    table: 'course_discussions',
+                    filter: `allocation_id=eq.${selectedCourse.id}`
+                }, (payload) => {
+                    setMessages(prev => prev.filter(m => m.id !== payload.old.id));
+                })
+                .subscribe((status) => {
+                    console.log(`Subscription status for ${selectedCourse.id}:`, status);
+                    if (status === 'CHANNEL_ERROR') {
+                        setError('Real-time connection failed. Try refreshing the page.');
+                    }
+                });
+
+            return () => {
+                supabase.removeChannel(subscription);
+            };
         }
     }, [selectedCourse]);
 
@@ -338,9 +377,9 @@ const Discussions = () => {
                 if (error) throw error;
                 data = d;
             } else {
-                const { data: d, error } = await supabase.from('student_enrollments').select(`allocation:subject_allocations(id, subject:subjects(id,name,code), batch:batches(id,name), semester:semesters(id,term_number), faculty:profiles(full_name))`).eq('student_id', profile.id);
+                const { data: d, error } = await supabase.from('student_enrollments').select(`allocation:subject_allocations(id, subject:subjects(id,name,code), batch:batches(id,name), semester:semesters(id,term_number), faculty:profiles(id, full_name, email))`).eq('student_id', profile.id);
                 if (error) throw error;
-                data = d.map(x => x.allocation);
+                data = d.map(x => ({ ...x.allocation, faculty: x.faculty }));
             }
             setCourses(data || []);
             if (data?.length > 0) setSelectedCourse(data[0]);
@@ -364,8 +403,19 @@ const Discussions = () => {
 
 
     const fetchMessages = async (allocationId) => {
-        const { data, error } = await supabase.from('course_discussions').select(`*, sender:profiles(id,full_name,avatar_url,role)`).eq('allocation_id', allocationId).order('created_at', { ascending: true });
-        if (!error) setMessages(data || []);
+        try {
+            const { data, error: fetchErr } = await supabase
+                .from('course_discussions')
+                .select(`*, sender:profiles(id,full_name,avatar_url,role)`)
+                .eq('allocation_id', allocationId)
+                .order('created_at', { ascending: true });
+            
+            if (fetchErr) throw fetchErr;
+            setMessages(data || []);
+        } catch (err) {
+            console.error('Fetch messages error:', err);
+            setError('Failed to load discussion history.');
+        }
     };
 
     const handleNewRealtimeMessage = async (newMsgData) => {
@@ -391,7 +441,10 @@ const Discussions = () => {
             const { error } = await supabase.from('course_discussions').insert({ allocation_id: selectedCourse.id, sender_id: profile.id, content: newMsg.trim(), file_url: fileUrl, file_name: fileName });
             if (error) throw error;
             setNewMsg(''); setFile(null);
-        } catch (err) { console.error(err); } 
+        } catch (err) { 
+            console.error('Send failed:', err);
+            setError(err.message || 'Failed to send message.');
+        } 
         finally { setSending(false); }
     };
 
@@ -421,18 +474,32 @@ const Discussions = () => {
             <MailModal 
                 isOpen={showMailModal}
                 onClose={() => setShowMailModal(false)}
-                students={courseStudents}
+                students={{
+                    role: profile?.role?.toLowerCase(),
+                    list: courseStudents,
+                    faculty: selectedCourse?.faculty
+                }}
                 courseName={selectedCourse?.subject?.name}
             />
+
+            {error && (
+                <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[400] animate-in slide-in-from-top-4">
+                    <div className="bg-red-50 border border-red-100 text-red-600 px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+                        <AlertCircle size={18} />
+                        <p className="text-[15px] font-black uppercase tracking-widest">{error}</p>
+                        <button onClick={() => setError(null)} className="p-1 hover:bg-red-100 rounded-lg transition-colors"><X size={14} /></button>
+                    </div>
+                </div>
+            )}
 
             <div className="flex h-[calc(100vh-100px)] bg-[#f8fafc] overflow-hidden">
                 {/* ── Sidebar ─────────────────────────────────── */}
                 <div className="w-[380px] bg-white border-r border-gray-100 flex flex-col shrink-0 overflow-hidden">
                     <div className="p-6 border-b border-gray-100">
-                        <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter mb-4">Discussions</h2>
+                        <h2 className="text-[23px] font-black text-[#1a1b4b] uppercase tracking-tighter mb-4">Discussions</h2>
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                            <input type="text" placeholder="Search academic channels..." className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-xs font-bold text-[#1a1b4b] placeholder:text-gray-300 focus:ring-2 focus:ring-[#1a1b4b]/10 outline-none uppercase tracking-widest" />
+                            <input type="text" placeholder="Search academic channels..." className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-[15px] font-bold text-[#1a1b4b] placeholder:text-gray-300 focus:ring-2 focus:ring-[#1a1b4b]/10 outline-none uppercase tracking-widest" />
                         </div>
                     </div>
 
@@ -446,11 +513,11 @@ const Discussions = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between gap-2 mb-1">
-                                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg ${selectedCourse?.id === course.id ? 'bg-[#1a1b4b] text-white' : 'bg-gray-100 text-gray-400'}`}>{course.subject?.code}</span>
-                                            <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">● Live</span>
+                                            <span className={`text-[13px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg ${selectedCourse?.id === course.id ? 'bg-[#1a1b4b] text-white' : 'bg-gray-100 text-gray-400'}`}>{course.subject?.code}</span>
+                                            <span className="text-[12px] font-bold text-emerald-400 uppercase tracking-widest">● Live</span>
                                         </div>
-                                        <h3 className="text-sm font-black text-[#1a1b4b] truncate">{course.subject?.name}</h3>
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest truncate mt-0.5">Batch: {course.batch?.name} · Sem {course.semester?.term_number}</p>
+                                        <h3 className="text-[17px] font-black text-[#1a1b4b] truncate">{course.subject?.name}</h3>
+                                        <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest truncate mt-0.5">Batch: {course.batch?.name} · Sem {course.semester?.term_number}</p>
                                     </div>
                                     <ChevronRight className={`shrink-0 transition-transform ${selectedCourse?.id === course.id ? 'translate-x-1 text-[#1a1b4b]' : 'text-gray-200 opacity-0 group-hover:opacity-100'}`} size={16} />
                                 </div>
@@ -465,27 +532,25 @@ const Discussions = () => {
                         {/* Header */}
                         <div className="p-6 bg-white border-b border-gray-100 flex items-center justify-between z-10 shadow-sm">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-[#1a1b4b] rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg">
+                                <div className="w-10 h-10 bg-[#1a1b4b] rounded-xl flex items-center justify-center text-white font-black text-[21px] shadow-lg">
                                     {selectedCourse.subject?.name.charAt(0)}
                                 </div>
                                 <div>
-                                    <h2 className="text-sm font-black text-[#1a1b4b] uppercase tracking-tight">{selectedCourse.subject?.name}</h2>
-                                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <h2 className="text-[17px] font-black text-[#1a1b4b] uppercase tracking-tight">{selectedCourse.subject?.name}</h2>
+                                    <p className="text-[12px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Community Access Verified
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <button className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-400"><Search size={18} /></button>
-                                {(profile?.role === 'faculty' || profile?.role === 'hod') && (
-                                    <button 
-                                        onClick={() => setShowMailModal(true)}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 text-[#1a1b4b] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm group"
-                                    >
-                                        <Mail size={14} className="group-hover:rotate-12 transition-transform" /> 
-                                        Mail Students
-                                    </button>
-                                )}
+                                <button 
+                                    onClick={() => setShowMailModal(true)}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 text-[#1a1b4b] rounded-xl text-[13px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm group"
+                                >
+                                    <Mail size={14} className="group-hover:rotate-12 transition-transform" /> 
+                                    {profile?.role === 'student' ? 'Mail Faculty' : 'Mail Students'}
+                                </button>
                             </div>
                         </div>
 
@@ -494,7 +559,7 @@ const Discussions = () => {
                             {messages.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center opacity-30 select-none">
                                     <MessageSquare size={64} strokeWidth={1} className="text-gray-300 mb-4" />
-                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Awaiting first interaction...</p>
+                                    <p className="text-[15px] font-black text-gray-400 uppercase tracking-widest">Awaiting first interaction...</p>
                                 </div>
                             ) : messages.map(msg => {
                                 const isOwn = msg.sender_id === profile?.id;
@@ -505,13 +570,13 @@ const Discussions = () => {
                                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border-2 overflow-hidden shadow-sm ${isOwn ? 'bg-indigo-50 border-indigo-100 text-indigo-400' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
                                                 {msg.sender?.avatar_url 
                                                     ? <img src={msg.sender.avatar_url} className="w-full h-full object-cover" alt="" /> 
-                                                    : <span className="text-xs font-black">{(msg.sender?.full_name || 'U').charAt(0)}</span>}
+                                                    : <span className="text-[15px] font-black">{(msg.sender?.full_name || 'U').charAt(0)}</span>}
                                             </div>
 
                                             <div className={`space-y-1.5 flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
                                                 <div className="flex items-center gap-2">
-                                                    {!isOwn && <span className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-tight">{msg.sender?.full_name}</span>}
-                                                    <span className="text-[8px] font-bold text-gray-300 uppercase tracking-widest">
+                                                    {!isOwn && <span className="text-[13px] font-black text-[#1a1b4b] uppercase tracking-tight">{msg.sender?.full_name}</span>}
+                                                    <span className="text-[11px] font-bold text-gray-300 uppercase tracking-widest">
                                                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                     {isOwn && (
@@ -525,7 +590,7 @@ const Discussions = () => {
                                                     )}
                                                 </div>
 
-                                                <div className={`p-4 rounded-3xl text-sm font-bold shadow-sm ${isOwn ? 'bg-[#1a1b4b] text-white rounded-tr-none' : 'bg-white border border-gray-100 text-gray-600 rounded-tl-none'}`}>
+                                                <div className={`p-4 rounded-3xl text-[17px] font-bold shadow-sm ${isOwn ? 'bg-[#1a1b4b] text-white rounded-tr-none' : 'bg-white border border-gray-100 text-gray-600 rounded-tl-none'}`}>
                                                     {msg.content && <p className="leading-relaxed">{msg.content}</p>}
                                                     {msg.file_url && (
                                                         <FileAttachment 
@@ -550,8 +615,8 @@ const Discussions = () => {
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-400 shadow-sm border border-indigo-100"><Paperclip size={18} /></div>
                                         <div>
-                                            <p className="text-[10px] font-black text-[#1a1b4b] uppercase tracking-tight">{file.name}</p>
-                                            <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Ready to upload · {(file.size / 1024).toFixed(1)} KB</p>
+                                            <p className="text-[13px] font-black text-[#1a1b4b] uppercase tracking-tight">{file.name}</p>
+                                            <p className="text-[11px] font-black text-indigo-400 uppercase tracking-widest">Ready to upload · {(file.size / 1024).toFixed(1)} KB</p>
                                         </div>
                                     </div>
                                     <button onClick={() => setFile(null)} className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-red-500"><X size={16} /></button>
@@ -560,7 +625,7 @@ const Discussions = () => {
                             <form onSubmit={handleSend} className="flex items-center gap-4 bg-gray-50 p-2 rounded-[2rem] border border-gray-100 shadow-inner focus-within:ring-2 focus-within:ring-[#1a1b4b]/5 transition-all">
                                 <input type="file" hidden ref={fileInputRef} onChange={(e) => setFile(e.target.files?.[0])} />
                                 <button type="button" onClick={() => fileInputRef.current?.click()} className="p-4 hover:bg-white rounded-full transition-all text-gray-400 hover:text-[#1a1b4b] hover:rotate-12"><Paperclip size={20} /></button>
-                                <input type="text" value={newMsg} onChange={(e) => setNewMsg(e.target.value)} placeholder="Type your academic message here..." className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-[#1a1b4b] placeholder:text-gray-300 py-2" />
+                                <input type="text" value={newMsg} onChange={(e) => setNewMsg(e.target.value)} placeholder="Type your academic message here..." className="flex-1 bg-transparent border-none outline-none text-[17px] font-bold text-[#1a1b4b] placeholder:text-gray-300 py-2" />
                                 <div className="flex items-center gap-1 px-2">
                                     <button type="button" className="p-3 hover:bg-white rounded-full transition-colors text-gray-400 hover:text-amber-400"><Smile size={20} /></button>
                                     <button type="button" className="p-3 hover:bg-white rounded-full transition-colors text-gray-400 hover:text-indigo-400"><Mic size={20} /></button>
@@ -574,7 +639,7 @@ const Discussions = () => {
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center p-20 text-center opacity-20 select-none">
                         <MessageSquare size={80} strokeWidth={1} className="text-gray-300 mb-6" />
-                        <h2 className="text-4xl font-black text-[#1a1b4b] uppercase tracking-tighter mb-2">Secure Academic Vector</h2>
+                        <h2 className="text-[39px] font-black text-[#1a1b4b] uppercase tracking-tighter mb-2">Secure Academic Vector</h2>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.3em]">Initialize discussion channel to begin interaction</p>
                     </div>
                 )}
