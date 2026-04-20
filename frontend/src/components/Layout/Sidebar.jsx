@@ -15,7 +15,8 @@ import {
   BookOpen,
   CheckSquare,
   Briefcase,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -72,6 +73,7 @@ const getNavItems = (role) => {
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
       { to: '/announcements', icon: Megaphone, label: 'Announcement' },
       { to: '/faculty-courses', icon: BookOpen, label: 'My Courses' },
+      { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
       { to: '/faculty-assignments', icon: CheckSquare, label: 'Assignments' },
       { to: '/faculty-resources', icon: FolderOpen, label: 'Resources' },
       { to: '/library', icon: Library, label: 'Library' },
@@ -88,6 +90,7 @@ const getNavItems = (role) => {
     { to: '/', icon: Home, label: 'Home' },
     { to: '/announcements', icon: Megaphone, label: 'Announcement' },
     { to: '/student-courses', icon: GraduationCap, label: 'Courses' },
+    { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
     { to: '/assignments', icon: FileText, label: 'Assignment' },
     { to: '/library', icon: Library, label: 'Library' },
     { to: '/calendar', icon: CalendarDays, label: 'Calender' },
