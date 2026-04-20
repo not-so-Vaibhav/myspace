@@ -313,6 +313,9 @@ const Discussions = () => {
     const [file, setFile] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
     const [error, setError] = useState(null);
+    const [sidebarSearch, setSidebarSearch] = useState('');
+    const [messageSearch, setMessageSearch] = useState('');
+    const [isMessageSearchOpen, setIsMessageSearchOpen] = useState(false);
     
     // Mail State
     const [showMailModal, setShowMailModal] = useState(false);
@@ -366,6 +369,16 @@ const Discussions = () => {
     }, [selectedCourse]);
 
     useEffect(() => { msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+    const filteredCourses = (courses || []).filter(c => 
+        c.subject?.name?.toLowerCase().includes(sidebarSearch.toLowerCase()) ||
+        c.subject?.code?.toLowerCase().includes(sidebarSearch.toLowerCase())
+    );
+
+    const filteredMessages = (messages || []).filter(m => 
+        m.content?.toLowerCase().includes(messageSearch.toLowerCase()) ||
+        m.sender?.full_name?.toLowerCase().includes(messageSearch.toLowerCase())
+    );
 
     const fetchAccessibleCourses = async () => {
         if (!profile?.id) return;
@@ -499,12 +512,18 @@ const Discussions = () => {
                         <h2 className="text-[23px] font-black text-[#1a1b4b] uppercase tracking-tighter mb-4">Discussions</h2>
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                            <input type="text" placeholder="Search academic channels..." className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-[15px] font-bold text-[#1a1b4b] placeholder:text-gray-300 focus:ring-2 focus:ring-[#1a1b4b]/10 outline-none uppercase tracking-widest" />
+                            <input 
+                                type="text" 
+                                value={sidebarSearch}
+                                onChange={(e) => setSidebarSearch(e.target.value)}
+                                placeholder="Search academic channels..." 
+                                className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-[15px] font-bold text-[#1a1b4b] placeholder:text-gray-300 focus:ring-2 focus:ring-[#1a1b4b]/10 outline-none uppercase tracking-widest" 
+                            />
                         </div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                        {courses.map(course => (
+                        {filteredCourses.map(course => (
                             <button key={course.id} onClick={() => setSelectedCourse(course)}
                                 className={`w-full p-4 rounded-[2rem] text-left transition-all group border-2 ${selectedCourse?.id === course.id ? 'bg-indigo-50 border-indigo-100 shadow-xl shadow-indigo-100/30' : 'bg-white border-transparent hover:bg-gray-50 hover:border-gray-100'}`}>
                                 <div className="flex gap-4">
@@ -531,19 +550,43 @@ const Discussions = () => {
                     <div className="flex-1 flex flex-col bg-[#fcfdfe] relative overflow-hidden">
                         {/* Header */}
                         <div className="p-6 bg-white border-b border-gray-100 flex items-center justify-between z-10 shadow-sm">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-[#1a1b4b] rounded-xl flex items-center justify-center text-white font-black text-[21px] shadow-lg">
-                                    {selectedCourse.subject?.name.charAt(0)}
-                                </div>
-                                <div>
-                                    <h2 className="text-[17px] font-black text-[#1a1b4b] uppercase tracking-tight">{selectedCourse.subject?.name}</h2>
-                                    <p className="text-[12px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Community Access Verified
-                                    </p>
-                                </div>
+                            <div className="flex items-center gap-4 flex-1">
+                                {!isMessageSearchOpen ? (
+                                    <>
+                                        <div className="w-10 h-10 bg-[#1a1b4b] rounded-xl flex items-center justify-center text-white font-black text-[21px] shadow-lg">
+                                            {selectedCourse.subject?.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h2 className="text-[17px] font-black text-[#1a1b4b] uppercase tracking-tight">{selectedCourse.subject?.name}</h2>
+                                            <p className="text-[12px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Community Access Verified
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex-1 flex items-center gap-3 animate-in slide-in-from-left-4 duration-300">
+                                        <Search size={18} className="text-gray-400" />
+                                        <input 
+                                            type="text"
+                                            autoFocus
+                                            value={messageSearch}
+                                            onChange={(e) => setMessageSearch(e.target.value)}
+                                            placeholder="Searching intel in this thread..."
+                                            className="flex-1 bg-transparent border-none outline-none text-[15px] font-bold text-[#1a1b4b] placeholder:text-gray-300"
+                                        />
+                                        <button onClick={() => { setIsMessageSearchOpen(false); setMessageSearch(''); }} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400"><X size={16} /></button>
+                                    </div>
+                                )}
                             </div>
                             <div className="flex items-center gap-2">
-                                <button className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-400"><Search size={18} /></button>
+                                {!isMessageSearchOpen && (
+                                    <button 
+                                        onClick={() => setIsMessageSearchOpen(true)}
+                                        className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-400"
+                                    >
+                                        <Search size={18} />
+                                    </button>
+                                )}
                                 <button 
                                     onClick={() => setShowMailModal(true)}
                                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 text-[#1a1b4b] rounded-xl text-[13px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm group"
@@ -556,12 +599,14 @@ const Discussions = () => {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-8 space-y-6 scroll-smooth bg-gradient-to-b from-[#f8fafc] to-white">
-                            {messages.length === 0 ? (
+                            {filteredMessages.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center opacity-30 select-none">
                                     <MessageSquare size={64} strokeWidth={1} className="text-gray-300 mb-4" />
-                                    <p className="text-[15px] font-black text-gray-400 uppercase tracking-widest">Awaiting first interaction...</p>
+                                    <p className="text-[15px] font-black text-gray-400 uppercase tracking-widest">
+                                        {messageSearch ? 'No intelligence matching your query' : 'Awaiting first interaction...'}
+                                    </p>
                                 </div>
-                            ) : messages.map(msg => {
+                            ) : filteredMessages.map(msg => {
                                 const isOwn = msg.sender_id === profile?.id;
                                 return (
                                     <div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300 group/msg`}>
