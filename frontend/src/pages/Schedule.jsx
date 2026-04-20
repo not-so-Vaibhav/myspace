@@ -78,7 +78,10 @@ const Schedule = () => {
           {/* Header Row */}
           <div className="bg-gray-50 rounded-xl p-2 flex items-center justify-center text-[12px] font-black text-gray-400 uppercase tracking-widest">DAYS</div>
           {headers.map((h, i) => (
-            <div key={i} className={`rounded-xl p-2 text-center text-[12px] font-black uppercase tracking-widest ${h.type === 'break' ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400'}`}>
+            <div key={i} 
+                 className={`rounded-xl p-2 text-center text-[12px] font-black uppercase tracking-widest ${h.type === 'break' ? 'text-amber-600/80' : 'bg-gray-50 text-gray-400'}`}
+                 style={h.type === 'break' ? { backgroundColor: 'oklch(0.987 0.022 95.277)' } : {}}
+            >
               {h.time}
             </div>
           ))}
@@ -86,31 +89,31 @@ const Schedule = () => {
           {/* Monday Row */}
           <div className="bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-xl p-3 flex flex-col items-center justify-center text-center">
              <span className="text-[12px] font-black text-white uppercase leading-tight">MON</span>
-             <span className="text-[7px] font-black text-white/50 uppercase leading-tight">(ONL)</span>
+             <span className="text-[12px] font-black text-white/50 uppercase leading-tight">(ONL)</span>
           </div>
           <TimetableItem className="bg-gray-50/50"><span className="text-[12px] font-black text-[#1a1b4b]">SCIL</span></TimetableItem>
           <TimetableItem className="bg-gray-50/50"><span className="text-[12px] font-black text-[#1a1b4b]">CN : SJ</span></TimetableItem>
           {/* Column 4 - Break Pillar */}
-          <div className="row-span-6 bg-amber-50/50 rounded-xl flex items-center justify-center">
-            <span className="text-[12px] font-black text-amber-600 uppercase tracking-[0.3em]" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>SHORT BREAK</span>
+          <div className="row-span-6 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'oklch(0.987 0.022 95.277)' }}>
+            <span className="text-[12px] font-black text-amber-600/60 uppercase tracking-[0.3em]" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>SHORT BREAK</span>
           </div>
           <TimetableItem className="bg-gray-50/50"><span className="text-[12px] font-black text-[#1a1b4b]">OS : ATH</span></TimetableItem>
           <TimetableItem className="bg-[#1a1b4b]/5 border border-[#1a1b4b]/10 border-dashed"><span className="text-[12px] font-black text-[#1a1b4b] opacity-40 uppercase">REMEDIAL LECTURE</span></TimetableItem>
           {/* Column 7 - Lunch Pillar */}
-          <div className="row-span-6 bg-[#1a1b4b]/5 rounded-xl flex items-center justify-center">
-            <span className="text-[12px] font-black text-[#1a1b4b] opacity-40 uppercase tracking-[0.4em]" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>LUNCH BREAK</span>
+          <div className="row-span-6 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'oklch(0.987 0.022 95.277)' }}>
+            <span className="text-[12px] font-black text-amber-600/60 uppercase tracking-[0.4em]" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>LUNCH BREAK</span>
           </div>
           <TimetableItem colSpan={2} className="bg-blue-50/50 border border-blue-100"><span className="text-[12px] font-black text-blue-600 uppercase">OE : NISM/NPTEL</span></TimetableItem>
           {/* Column 10 - Break Pillar (Mon-Thu) */}
-          <div className="row-span-4 bg-amber-50/50 rounded-xl flex items-center justify-center">
-            <span className="text-[12px] font-black text-amber-600 uppercase tracking-[0.3em]" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>SHORT BREAK</span>
+          <div className="row-span-4 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'oklch(0.987 0.022 95.277)' }}>
+            <span className="text-[12px] font-black text-amber-600/60 uppercase tracking-[0.3em]" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>SHORT BREAK</span>
           </div>
           <TimetableItem className="bg-gray-50/50"><span className="text-[12px] font-black text-[#1a1b4b]">MOOC</span></TimetableItem>
 
           {/* Tuesday Row */}
           <div className="bg-gray-50 rounded-xl p-2 flex items-center justify-center text-[12px] font-black text-[#1a1b4b] uppercase">TUE</div>
-          <TimetableItem colSpan={2} className="bg-amber-100/50 border border-amber-200">
-             <div className="text-[7px] font-black text-amber-700 leading-tight space-y-0.5">
+          <TimetableItem colSpan={2} className="bg-indigo-50/60 border border-indigo-100/50">
+             <div className="text-[12px] font-black text-indigo-600 leading-tight space-y-0.5">
                 <div className="flex justify-between w-full"><span>A: WTL</span><span>N511</span></div>
                 <div className="flex justify-between w-full opacity-60"><span>B: CNL</span><span>N513</span></div>
                 <div className="flex justify-between w-full opacity-60"><span>C: WTL</span><span>N519</span></div>
@@ -121,7 +124,7 @@ const Schedule = () => {
             <span className="text-[12px] font-bold text-gray-400">N505</span>
           </TimetableItem>
           <TimetableItem className="bg-gray-50/50">
-             <div className="text-[7px] font-bold text-gray-400 uppercase leading-none text-center">
+             <div className="text-[12px] font-bold text-gray-400 uppercase leading-none text-center">
                 FAI1:N507 | TOC1:N505<br/>FCC1:N506 | CSE1:N510
              </div>
           </TimetableItem>
@@ -138,8 +141,8 @@ const Schedule = () => {
             <span className="text-[12px] font-black text-[#1a1b4b]">EE : KS</span>
             <span className="text-[12px] font-bold text-gray-400">N505</span>
           </TimetableItem>
-          <TimetableItem colSpan={2} className="bg-amber-100/50 border border-amber-200">
-             <div className="text-[7px] font-black text-amber-700 leading-tight space-y-0.5">
+          <TimetableItem colSpan={2} className="bg-indigo-50/60 border border-indigo-100/50">
+             <div className="text-[12px] font-black text-indigo-600 leading-tight space-y-0.5">
                 <div className="flex justify-between w-full"><span>A: CNL</span><span>N511</span></div>
                 <div className="flex justify-between w-full opacity-60"><span>B: WTL</span><span>N513</span></div>
                 <div className="flex justify-between w-full opacity-60"><span>C: WTL</span><span>N519</span></div>
@@ -165,8 +168,8 @@ const Schedule = () => {
             <span className="text-[12px] font-black text-[#1a1b4b]">CN : SJ</span>
             <span className="text-[12px] font-bold text-gray-400">N505</span>
           </TimetableItem>
-          <TimetableItem colSpan={2} className="bg-amber-100/50 border border-amber-200">
-             <div className="text-[7px] font-black text-amber-700 leading-tight space-y-0.5">
+          <TimetableItem colSpan={2} className="bg-indigo-50/60 border border-indigo-100/50">
+             <div className="text-[12px] font-black text-indigo-600 leading-tight space-y-0.5">
                 <div className="flex justify-between w-full"><span>A: WTL</span><span>N511</span></div>
                 <div className="flex justify-between w-full opacity-60"><span>B: WTL</span><span>N513</span></div>
                 <div className="flex justify-between w-full opacity-60"><span>C: CNL</span><span>N608</span></div>
@@ -185,7 +188,7 @@ const Schedule = () => {
           {/* Friday Row */}
           <div className="bg-gray-50 rounded-xl p-2 flex items-center justify-center text-[12px] font-black text-[#1a1b4b] uppercase">FRI</div>
           <TimetableItem colSpan={2} className="bg-gray-50/50">
-             <div className="text-[7px] font-bold text-gray-400 uppercase leading-none text-center">
+             <div className="text-[12px] font-bold text-gray-400 uppercase leading-none text-center">
                 FAI1:N507 | TOC1:N505<br/>FCC1:N506 | CSE1:N510
              </div>
           </TimetableItem>
@@ -198,14 +201,14 @@ const Schedule = () => {
           <TimetableItem colSpan={3} className="bg-emerald-500 shadow-lg shadow-emerald-500/20">
              <div className="flex flex-col items-center">
                 <span className="text-[12px] font-black text-white uppercase leading-tight text-center">SHD (SISM2) · 2:35 PM to 4:30 PM</span>
-                <span className="text-[7px] font-bold text-white opacity-50 uppercase tracking-widest mt-1">(2nd & 4th Week)</span>
+                <span className="text-[12px] font-bold text-white opacity-50 uppercase tracking-widest mt-1">(2nd & 4th Week)</span>
              </div>
           </TimetableItem>
 
           {/* Saturday Row */}
           <div className="bg-[#1a1b4b] rounded-xl p-2 flex flex-col items-center justify-center text-center">
              <span className="text-[12px] font-black text-white uppercase leading-tight">SAT</span>
-             <span className="text-[7px] font-black text-white/50 uppercase leading-none mt-0.5">(WORK)</span>
+             <span className="text-[12px] font-black text-white/50 uppercase leading-none mt-0.5">(WORK)</span>
           </div>
           <TimetableItem colSpan={2} className="bg-gray-50/50 border border-gray-100">
             <span className="text-[12px] font-black text-[#1a1b4b]">OS : ATH</span>
@@ -236,7 +239,7 @@ const Schedule = () => {
                     <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Labs / Practical</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-400"></div>
                     <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Batch Sessions</span>
                 </div>
                 <div className="flex items-center gap-2">
