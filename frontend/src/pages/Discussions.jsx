@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { 
     MessageSquare, Send, Paperclip, Smile, Mic, Search, 
     BookOpen, ChevronRight, FileText, Download, Loader2, X,
-    Eye, Image as ImageIcon, File, ZoomIn, ZoomOut, RotateCw, ExternalLink, Trash2
+    Eye, Image as ImageIcon, File, ZoomIn, ZoomOut, RotateCw, ExternalLink, Trash2,
+    Mail, UserPlus, SendHorizonal
 } from 'lucide-react';
 
 // ─── File Preview Modal ───────────────────────────────────────────────────────
@@ -122,6 +123,103 @@ const FilePreviewModal = ({ file, onClose }) => {
         </div>
     );
 };
+// ─── Mail Modal ─────────────────────────────────────────────────────────────
+const MailModal = ({ isOpen, onClose, students, courseName }) => {
+    const [recipient, setRecipient] = useState('all');
+    const [subject, setSubject] = useState(`Academic Update: ${courseName}`);
+    const [message, setMessage] = useState('');
+    const [sending, setSending] = useState(false);
+
+    if (!isOpen) return null;
+
+    const handleSend = () => {
+        setSending(true);
+        let targetEmails = [];
+        if (recipient === 'all') {
+            targetEmails = students.map(s => s.email).filter(Boolean);
+        } else {
+            const s = students.find(x => x.id === recipient);
+            if (s?.email) targetEmails = [s.email];
+        }
+
+        const mailto = `mailto:${recipient === 'all' ? '' : targetEmails[0]}?bcc=${recipient === 'all' ? targetEmails.join(',') : ''}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+        window.open(mailto, '_blank');
+
+        setTimeout(() => {
+            setSending(false);
+            onClose();
+        }, 1000);
+    };
+
+    return (
+        <div className="fixed inset-0 z-[300] bg-[#1a1b4b]/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="p-8 border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                            <Mail size={24} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tighter">Academic Dispatch</h3>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Official Communication · {courseName}</p>
+                        </div>
+                    </div>
+                    <button onClick={onClose} className="p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-400 hover:text-[#ef4444] shadow-sm"><X size={20} /></button>
+                </div>
+
+                <div className="p-8 space-y-6">
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Recipient Vector</label>
+                        <select 
+                            value={recipient}
+                            onChange={(e) => setRecipient(e.target.value)}
+                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all appearance-none cursor-pointer"
+                        >
+                            <option value="all">Broadcast to All Enrolled Students ({students.length})</option>
+                            <optgroup label="Individual Identities">
+                                {students.map(s => (
+                                    <option key={s.id} value={s.id}>{s.full_name} ({s.email || 'No email'})</option>
+                                ))}
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Subject Header</label>
+                        <input 
+                            type="text"
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
+                            placeholder="Brief subject..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Intel Payload (Message)</label>
+                        <textarea 
+                            rows={5}
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all resize-none placeholder:text-gray-300"
+                            placeholder="Type your message here..."
+                        />
+                    </div>
+
+                    <button 
+                        onClick={handleSend}
+                        disabled={sending || !message.trim()}
+                        className="w-full py-5 bg-[#1a1b4b] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                    >
+                        {sending ? <Loader2 size={18} className="animate-spin" /> : <SendHorizonal size={18} strokeWidth={3} />}
+                        Execute Dispatch via Gmail
+                    </button>
+                    <p className="text-[9px] font-bold text-gray-300 text-center uppercase tracking-widest">Sent via verified registered system coordinates</p>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 // ─── File Attachment Bubble ───────────────────────────────────────────────────
 const FileAttachment = ({ msg, isOwn, onPreview }) => {
@@ -200,10 +298,21 @@ const Discussions = () => {
     const [sending, setSending] = useState(false);
     const [file, setFile] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
+    
+    // Mail State
+    const [showMailModal, setShowMailModal] = useState(false);
+    const [courseStudents, setCourseStudents] = useState([]);
+
     const msgEndRef = useRef(null);
     const fileInputRef = useRef(null);
 
     useEffect(() => { fetchAccessibleCourses(); }, [profile?.id]);
+
+    useEffect(() => {
+        if (selectedCourse && (profile?.role === 'faculty' || profile?.role === 'hod')) {
+            fetchCourseStudents(selectedCourse.id);
+        }
+    }, [selectedCourse, profile?.role]);
 
     useEffect(() => {
         if (selectedCourse) {
@@ -238,6 +347,21 @@ const Discussions = () => {
         } catch (err) { console.error(err); } 
         finally { setLoading(false); }
     };
+
+    const fetchCourseStudents = async (allocationId) => {
+        try {
+            const { data, error } = await supabase
+                .from('student_enrollments')
+                .select('student:profiles(id, full_name, email, avatar_url)')
+                .eq('allocation_id', allocationId);
+            
+            if (error) throw error;
+            setCourseStudents(data?.map(d => d.student) || []);
+        } catch (err) {
+            console.error('Students fetch error:', err);
+        }
+    };
+
 
     const fetchMessages = async (allocationId) => {
         const { data, error } = await supabase.from('course_discussions').select(`*, sender:profiles(id,full_name,avatar_url,role)`).eq('allocation_id', allocationId).order('created_at', { ascending: true });
@@ -293,6 +417,14 @@ const Discussions = () => {
             {/* File Preview Modal */}
             {previewFile && <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />}
 
+            {/* Mail Modal */}
+            <MailModal 
+                isOpen={showMailModal}
+                onClose={() => setShowMailModal(false)}
+                students={courseStudents}
+                courseName={selectedCourse?.subject?.name}
+            />
+
             <div className="flex h-[calc(100vh-100px)] bg-[#f8fafc] overflow-hidden">
                 {/* ── Sidebar ─────────────────────────────────── */}
                 <div className="w-[380px] bg-white border-r border-gray-100 flex flex-col shrink-0 overflow-hidden">
@@ -345,6 +477,15 @@ const Discussions = () => {
                             </div>
                             <div className="flex items-center gap-2">
                                 <button className="p-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-400"><Search size={18} /></button>
+                                {(profile?.role === 'faculty' || profile?.role === 'hod') && (
+                                    <button 
+                                        onClick={() => setShowMailModal(true)}
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 text-[#1a1b4b] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm group"
+                                    >
+                                        <Mail size={14} className="group-hover:rotate-12 transition-transform" /> 
+                                        Mail Students
+                                    </button>
+                                )}
                             </div>
                         </div>
 
