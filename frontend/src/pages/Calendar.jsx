@@ -73,6 +73,7 @@ const Calendar = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [publicEvents, setPublicEvents] = useState([]);
+  const [assignmentDeadlines, setAssignmentDeadlines] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', startDate: format(new Date(), 'yyyy-MM-dd'), endDate: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal', targetAudience: 'both' });
 
@@ -94,8 +95,40 @@ const Calendar = () => {
 
   useEffect(() => {
     fetchPublicEvents();
-  }, []);
+    if (profile?.id && role === 'student') {
+      fetchAssignmentDeadlines();
+    }
+  }, [profile?.id, role]);
 
+  const fetchAssignmentDeadlines = async () => {
+    try {
+      const { data: enrollments } = await supabase
+        .from('student_enrollments')
+        .select('allocation_id');
+      
+      const allocIds = enrollments?.map(e => e.allocation_id) || [];
+      if (allocIds.length === 0) return;
+
+      const { data: assignments } = await supabase
+        .from('course_materials')
+        .select('*, allocation:subject_allocations(subject:subjects(name,code))')
+        .in('allocation_id', allocIds)
+        .eq('type', 'Assignment');
+
+      if (assignments) {
+        setAssignmentDeadlines(assignments.map(a => ({
+          id: `asgn-${a.id}`,
+          title: `Assignment: ${a.title}`,
+          startDate: a.deadline,
+          endDate: a.deadline,
+          type: 'Deadline',
+          subject: a.allocation?.subject?.code
+        })));
+      }
+    } catch (err) {
+      console.error('Error fetching assignments for calendar:', err);
+    }
+  };
   const fetchPublicEvents = async () => {
     try {
       const { data, error } = await supabase.from('public_events').select('*');
@@ -197,7 +230,12 @@ const Calendar = () => {
     }
   };
 
-  const allEvents = useMemo(() => [...HOLIDAYS_2026, ...personalEvents, ...publicEvents], [personalEvents, publicEvents]);
+  const allEvents = useMemo(() => [
+    ...HOLIDAYS_2026, 
+    ...personalEvents, 
+    ...publicEvents, 
+    ...assignmentDeadlines
+  ], [personalEvents, publicEvents, assignmentDeadlines]);
 
   const renderHeader = () => {
     return (
@@ -274,16 +312,26 @@ const Calendar = () => {
                     </span>
                  </div>
                  <div className="space-y-1">
-                   {dayEvents.map(e => (
-                     <div key={e.id} className={`${e.type === 'Holiday' ? 'bg-red-50/60 border-red-500' : e.type === 'Public' ? 'bg-green-50/60 border-green-500' : 'bg-indigo-50/60 border-indigo-500'} border-l-2 p-1 rounded-r-md group/evt relative`}>
-                        <p className={`text-[12px] font-black truncate uppercase tracking-tighter leading-none ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
-                        {e.type !== 'Holiday' && (e.type !== 'Public' || isAdmin) && (
-                          <button onClick={(x) => { x.stopPropagation(); removeEvent(e.id, e.type); }} className="absolute -right-1 -top-1 opacity-0 group-hover/evt:opacity-100 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-all">
-                            <X size={8} />
-                          </button>
-                        )}
-                     </div>
-                   ))}
+                    {dayEvents.map(e => (
+                      <div key={e.id} className={`${
+                        e.type === 'Holiday' ? 'bg-red-50/60 border-red-500' : 
+                        e.type === 'Public' ? 'bg-green-50/60 border-green-500' : 
+                        e.type === 'Deadline' ? 'bg-amber-50/60 border-amber-500' :
+                        'bg-indigo-50/60 border-indigo-500'
+                      } border-l-2 p-1 rounded-r-md group/evt relative`}>
+                         <p className={`text-[12px] font-black truncate uppercase tracking-tighter leading-none ${
+                           e.type === 'Holiday' ? 'text-red-700' : 
+                           e.type === 'Public' ? 'text-green-700' : 
+                           e.type === 'Deadline' ? 'text-amber-700' :
+                           'text-indigo-700'
+                         }`}>{e.title}</p>
+                         {e.type !== 'Holiday' && e.type !== 'Deadline' && (e.type !== 'Public' || isAdmin) && (
+                           <button onClick={(x) => { x.stopPropagation(); removeEvent(e.id, e.type); }} className="absolute -right-1 -top-1 opacity-0 group-hover/evt:opacity-100 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-all">
+                             <X size={8} />
+                           </button>
+                         )}
+                      </div>
+                    ))}
                  </div>
               </div>
             );
@@ -328,8 +376,18 @@ const Calendar = () => {
                   <div key={day.toString()} className="h-full relative group hover:bg-gray-50/10">
                     {hours.map(h => <div key={h.toString()} className="h-16 border-b border-gray-100"></div>)}
                     {dayEvents.map(e => (
-                      <div key={e.id} className={`absolute inset-x-1 p-2 border-l-3 rounded-lg shadow-sm ${e.type === 'Holiday' ? 'top-2 bg-red-50 border-red-500' : e.type === 'Public' ? 'top-10 bg-green-50 border-green-500' : 'top-20 bg-indigo-50 border-indigo-500'}`}>
-                         <p className={`text-[12px] font-black uppercase leading-tight ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
+                      <div key={e.id} className={`absolute inset-x-1 p-2 border-l-3 rounded-lg shadow-sm ${
+                        e.type === 'Holiday' ? 'top-2 bg-red-50 border-red-500' : 
+                        e.type === 'Public' ? 'top-10 bg-green-50 border-green-500' : 
+                        e.type === 'Deadline' ? 'top-16 bg-amber-50 border-amber-500' :
+                        'top-20 bg-indigo-50 border-indigo-500'
+                      }`}>
+                         <p className={`text-[12px] font-black uppercase leading-tight ${
+                           e.type === 'Holiday' ? 'text-red-700' : 
+                           e.type === 'Public' ? 'text-green-700' : 
+                           e.type === 'Deadline' ? 'text-amber-700' :
+                           'text-indigo-700'
+                         }`}>{e.title}</p>
                       </div>
                     ))}
                   </div>
@@ -353,13 +411,24 @@ const Calendar = () => {
            </div>
            <div className="flex-1 overflow-y-auto pr-2 space-y-3">
               <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 border-b border-gray-100 pb-2">Agenda</p>
-              {dayEvents.map(e => (
-                <div key={e.id} className={`p-4 rounded-2xl border ${e.type === 'Holiday' ? 'bg-red-50 border-red-100' : e.type === 'Public' ? 'bg-green-50 border-green-100 shadow-sm' : 'bg-white border-indigo-100 shadow-sm'}`}>
-                   <p className={`text-[12px] font-black uppercase mb-1 ${e.type === 'Holiday' ? 'text-red-700' : e.type === 'Public' ? 'text-green-700' : 'text-indigo-700'}`}>{e.title}</p>
-                   {e.type === 'Public' && <p className="text-[12px] font-bold text-green-600 uppercase tracking-widest mb-1">Target: {e.targetAudience}</p>}
-                   <p className="text-[12px] text-gray-400 font-bold uppercase">{e.startTime || 'All Day'} - {e.endTime || ''}</p>
-                </div>
-              ))}
+               {dayEvents.map(e => (
+                 <div key={e.id} className={`p-4 rounded-2xl border ${
+                   e.type === 'Holiday' ? 'bg-red-50 border-red-100' : 
+                   e.type === 'Public' ? 'bg-green-50 border-green-100 shadow-sm' : 
+                   e.type === 'Deadline' ? 'bg-amber-50 border-amber-100 shadow-sm' :
+                   'bg-white border-indigo-100 shadow-sm'
+                 }`}>
+                    <p className={`text-[12px] font-black uppercase mb-1 ${
+                      e.type === 'Holiday' ? 'text-red-700' : 
+                      e.type === 'Public' ? 'text-green-700' : 
+                      e.type === 'Deadline' ? 'text-amber-700' :
+                      'text-indigo-700'
+                    }`}>{e.title}</p>
+                    {e.type === 'Public' && <p className="text-[12px] font-bold text-green-600 uppercase tracking-widest mb-1">Target: {e.targetAudience}</p>}
+                    {e.type === 'Deadline' && <p className="text-[12px] font-bold text-amber-600 uppercase tracking-widest mb-1">Code: {e.subject}</p>}
+                    <p className="text-[12px] text-gray-400 font-bold uppercase">{e.startTime || 'All Day'} - {e.endTime || ''}</p>
+                 </div>
+               ))}
               {dayEvents.length === 0 && <p className="text-[12px] text-gray-300 font-black uppercase text-center mt-12 py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">Quiet Day</p>}
            </div>
         </div>
@@ -586,6 +655,10 @@ const Calendar = () => {
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                  <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Public Event</span>
+              </div>
+              <div className="flex items-center gap-2">
+                 <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Assignment Deadline</span>
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-[#1a1b4b] rounded-full"></div>

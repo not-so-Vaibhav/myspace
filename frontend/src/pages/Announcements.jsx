@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -28,6 +29,8 @@ const Announcements = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [likedIds, setLikedIds] = useState(new Set());
+  const [deadlineReminders, setDeadlineReminders] = useState([]);
+  const [deadlinesLoading, setDeadlinesLoading] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -51,9 +54,12 @@ const Announcements = () => {
 
   useEffect(() => {
     fetchAnnouncements();
+    if (!isAdmin && profile?.id) {
+      fetchDeadlineReminders();
+    }
     // Mark as read when page is visited
     if (profile?.id) {
-      localStorage.setItem(`last_read_announcements_${profile.id}`, new Date().toISOString());
+      localStorage.setItem(`last_read_notifications_${profile.id}`, new Date().toISOString());
     }
   }, [profile?.id]);
 
@@ -92,6 +98,52 @@ const Announcements = () => {
       setError('Failed to load: ' + err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDeadlineReminders = async () => {
+    setDeadlinesLoading(true);
+    try {
+      // 1. Get student enrollments
+      const { data: enrollments } = await supabase
+        .from('student_enrollments')
+        .select('allocation_id');
+
+      const allocIds = enrollments?.map(e => e.allocation_id) || [];
+      if (allocIds.length === 0) return;
+
+      // 2. Get assignments with deadlines in next 24 hours
+      const now = new Date();
+      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+      const { data: assignments } = await supabase
+        .from('course_materials')
+        .select('*, allocation:subject_allocations(subject:subjects(name,code))')
+        .in('allocation_id', allocIds)
+        .eq('type', 'Assignment')
+        .gte('deadline', now.toISOString())
+        .lte('deadline', tomorrow.toISOString());
+
+      if (!assignments?.length) {
+        setDeadlineReminders([]);
+        return;
+      }
+
+      // 3. Filter out submitted ones
+      const { data: submissions } = await supabase
+        .from('student_submissions')
+        .select('material_id')
+        .eq('student_id', profile.id)
+        .in('material_id', assignments.map(a => a.id));
+
+      const submittedIds = new Set(submissions?.map(s => s.material_id) || []);
+      const pendingDeadlines = assignments.filter(a => !submittedIds.has(a.id));
+
+      setDeadlineReminders(pendingDeadlines);
+    } catch (err) {
+      console.error("Error fetching deadline reminders:", err);
+    } finally {
+      setDeadlinesLoading(false);
     }
   };
 
@@ -482,6 +534,40 @@ const Announcements = () => {
       {/* Published Announcements (visible on Admin "Published" tab + for students/faculty) */}
       {(!isAdmin || tab === 'active') && (
         <>
+          {/* Deadline Reminders section for students */}
+          {!isAdmin && deadlineReminders.length > 0 && (
+            <section className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              <h2 className="text-[12px] font-black text-[#ef4444] uppercase tracking-widest flex items-center gap-2">
+                <Bell size={12} className="animate-bounce" /> Critical Deadline Alerts (Next 24h)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {deadlineReminders.map(rem => (
+                  <div key={rem.id} className="bg-red-50 border border-red-100 rounded-2xl p-5 flex items-start gap-4 shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-red-200">
+                      <Clock size={18} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-[15px] font-black text-[#1a1b4b] leading-tight uppercase tracking-tight">{rem.title}</h3>
+                      <p className="text-[11px] font-bold text-red-600 uppercase tracking-widest mt-1">
+                        Due: {format(parseISO(rem.deadline), 'MMM dd, hh:mm a')}
+                      </p>
+                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                        [{rem.allocation?.subject?.code}] {rem.allocation?.subject?.name}
+                      </p>
+                    </div>
+                    <Link 
+                      to="/assignments" 
+                      className="px-4 py-2 bg-white text-[#1a1b4b] rounded-lg text-[10px] font-black uppercase tracking-widest border border-red-200 hover:bg-[#1a1b4b] hover:text-white transition-all shadow-sm"
+                    >
+                      Submit
+                    </Link>
+                  </div>
+                ))}
+              </div>
+              <div className="h-px bg-gray-100 mt-4" />
+            </section>
+          )}
+
           {/* Saved section */}
           {!isAdmin && savedAnnouncements.length > 0 && (
             <section className="space-y-4">

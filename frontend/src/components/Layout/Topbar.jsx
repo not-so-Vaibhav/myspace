@@ -30,7 +30,7 @@ const Topbar = ({ onMenuClick }) => {
     
     const fetchNotificationCount = async () => {
       try {
-        const lastRead = localStorage.getItem(`last_read_announcements_${profile.id}`) || new Date(0).toISOString();
+        const lastRead = localStorage.getItem(`last_read_notifications_${profile.id}`) || new Date(0).toISOString();
         
         let count = 0;
 
@@ -42,7 +42,7 @@ const Topbar = ({ onMenuClick }) => {
           .gt('created_at', lastRead);
 
         if (role === 'admin') {
-          // Admin sees everything, no extra filter
+          // Admin sees everything
         } else if (['faculty', 'instructor', 'hod'].includes(role)) {
           query = query.in('target_audience', ['faculty', 'both']);
         } else if (role === 'student') {
@@ -52,7 +52,52 @@ const Topbar = ({ onMenuClick }) => {
         const { count: approvedCount, error: e1 } = await query;
         if (!e1) count += (approvedCount || 0);
 
-        // 2. If admin, check for pending approvals
+        // 2. If student, check for urgent pending assignments (next 24h)
+        if (role === 'student') {
+          const { data: enrollments } = await supabase
+            .from('student_enrollments')
+            .select('allocation_id');
+          
+          const allocIds = enrollments?.map(e => e.allocation_id) || [];
+          if (allocIds.length > 0) {
+            const now = new Date();
+            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+            const { data: assignments } = await supabase
+              .from('course_materials')
+              .select('id, deadline')
+              .in('allocation_id', allocIds)
+              .eq('type', 'Assignment')
+              .gte('deadline', now.toISOString())
+              .lte('deadline', tomorrow.toISOString());
+
+            if (assignments?.length > 0) {
+              const { data: submissions } = await supabase
+                .from('student_submissions')
+                .select('material_id')
+                .eq('student_id', profile.id)
+                .in('material_id', assignments.map(a => a.id));
+
+              const submittedIds = new Set(submissions?.map(s => s.material_id) || []);
+              
+              // Only count as "new notification" if the alert window (Deadline - 24h) 
+              // started AFTER the student last checked the bell
+              const lastReadDate = new Date(lastRead);
+              const pendingNewAlerts = assignments.filter(a => {
+                const isSubmitted = submittedIds.has(a.id);
+                if (isSubmitted) return false;
+                
+                const deadlineDate = new Date(a.deadline);
+                const alertStartTime = new Date(deadlineDate.getTime() - 24 * 60 * 60 * 1000);
+                return alertStartTime > lastReadDate;
+              });
+
+              count += pendingNewAlerts.length;
+            }
+          }
+        }
+
+        // 3. If admin, check for pending approvals
         if (role === 'admin') {
           const { count: pendingCount, error: e2 } = await supabase
             .from('announcements')
@@ -208,7 +253,11 @@ const Topbar = ({ onMenuClick }) => {
         <div className="flex items-center gap-2 pr-4 border-r border-[#f4f6fa]">
           <button 
             type="button" 
-            onClick={() => navigate('/announcements')}
+            onClick={() => {
+              localStorage.setItem(`last_read_notifications_${profile.id}`, new Date().toISOString());
+              setUnreadCount(0);
+              navigate('/announcements');
+            }}
             className="p-3 text-gray-400 hover:text-[#1a1b4b] hover:bg-[#f4f6fa] rounded-full transition-all relative" 
             aria-label="Notifications"
           >
