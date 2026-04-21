@@ -1,14 +1,122 @@
+import { useState, useEffect } from 'react';
 import { CalendarCheck, FileText, Calendar, Folder } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useStudentAttendance } from '../../hooks/useStudentAttendance';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
-const cards = [
-    { name: 'Attendance', icon: CalendarCheck, stats: '85% Present', to: '/leave-application', accent: '#1a1b4b', bg: 'bg-indigo-50' },
-    { name: 'Assignments', icon: FileText, stats: '4 Pending', to: '/assignments', accent: '#ef4444', bg: 'bg-red-50' },
-    { name: 'Schedule', icon: Calendar, stats: '2 Classes Today', to: '/schedule', accent: '#f59e0b', bg: 'bg-amber-50' },
-    { name: 'Resources', icon: Folder, stats: '15 Files', to: '/resources', accent: '#10b981', bg: 'bg-emerald-50' },
-];
+// Import schedule data to calculate "Classes Today"
+// Note: We use the structure from ScheduleCard to stay consistent
+const allSchedule = {
+    Monday: { slots: [{}, {}, {}, {}, {}, {}] },
+    Tuesday: { slots: [{}, {}, {}, {}] },
+    Wednesday: { slots: [{}, {}, {}, {}, {}, {}] },
+    Thursday: { slots: [{}, {}, {}, {}, {}, {}] },
+    Friday: { slots: [{}, {}, {}, {}, {}] },
+    Saturday: { slots: [{}, {}, {}] },
+};
 
 const QuickAccess = () => {
+    const { profile } = useAuth();
+    const { overallPct, loading: attendanceLoading } = useStudentAttendance();
+    const [counts, setCounts] = useState({
+        pendingAssignments: 0,
+        resourceFiles: 0,
+        classesToday: 0
+    });
+    const [statsLoading, setStatsLoading] = useState(true);
+
+    useEffect(() => {
+        if (!profile?.id) return;
+
+        const fetchQuickStats = async () => {
+            try {
+                // 1. Fetch Assignments Count
+                const { data: enrollments } = await supabase
+                    .from('student_enrollments')
+                    .select('allocation_id');
+
+                const allocIds = enrollments?.map(e => e.allocation_id) || [];
+
+                if (allocIds.length > 0) {
+                    // Total Assignments
+                    const { data: assignments } = await supabase
+                        .from('course_materials')
+                        .select('id')
+                        .in('allocation_id', allocIds)
+                        .eq('type', 'Assignment');
+
+                    // Total Submissions
+                    const { data: submissions } = await supabase
+                        .from('student_submissions')
+                        .select('material_id')
+                        .eq('student_id', profile.id);
+
+                    const submissionIds = new Set(submissions?.map(s => s.material_id) || []);
+                    const pendingCount = (assignments?.filter(a => !submissionIds.has(a.id)).length) || 0;
+
+                    // Resource Files (Notes, References, etc.)
+                    const { count: resourceCount } = await supabase
+                        .from('course_materials')
+                        .select('id', { count: 'exact', head: true })
+                        .in('allocation_id', allocIds)
+                        .neq('type', 'Assignment');
+
+                    // 2. Classes Today
+                    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+                    const todayClasses = allSchedule[today]?.slots?.length || 0;
+
+                    setCounts({
+                        pendingAssignments: pendingCount,
+                        resourceFiles: resourceCount || 0,
+                        classesToday: todayClasses
+                    });
+                }
+            } catch (err) {
+                console.error("Error fetching quick access stats:", err);
+            } finally {
+                setStatsLoading(false);
+            }
+        };
+
+        fetchQuickStats();
+    }, [profile?.id]);
+
+    const cards = [
+        { 
+            name: 'Attendance', 
+            icon: CalendarCheck, 
+            stats: attendanceLoading ? '--' : `${overallPct}% Present`, 
+            to: '/attendance', 
+            accent: '#1a1b4b', 
+            bg: 'bg-indigo-50' 
+        },
+        { 
+            name: 'Assignments', 
+            icon: FileText, 
+            stats: statsLoading ? '--' : `${counts.pendingAssignments} Pending`, 
+            to: '/assignments', 
+            accent: '#ef4444', 
+            bg: 'bg-red-50' 
+        },
+        { 
+            name: 'Schedule', 
+            icon: Calendar, 
+            stats: statsLoading ? '--' : `${counts.classesToday} Classes Today`, 
+            to: '/schedule', 
+            accent: '#f59e0b', 
+            bg: 'bg-amber-50' 
+        },
+        { 
+            name: 'Resources', 
+            icon: Folder, 
+            stats: statsLoading ? '--' : `${counts.resourceFiles} Files`, 
+            to: '/resources', 
+            accent: '#10b981', 
+            bg: 'bg-emerald-50' 
+        },
+    ];
+
     return (
         <section>
             <h2 className="text-[var(--color-text)] font-bold mb-5 uppercase tracking-tighter text-sm opacity-40">Quick Access</h2>
