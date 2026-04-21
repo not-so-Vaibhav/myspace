@@ -296,6 +296,538 @@ const CourseWareTab = ({ data, setData }) => {
     );
 };
 
+const FamilyDetailsTab = ({ data, setData }) => {
+    const [activeSubTab, setActiveSubTab] = useState('father');
+    const [editing, setEditing] = useState(false);
+    const [local, setLocal] = useState(data);
+
+    const handleChange = (sub, e) => {
+        setLocal(prev => ({
+            ...prev,
+            [sub]: { ...prev[sub], [e.target.name]: e.target.value }
+        }));
+    };
+
+    const handleSave = () => {
+        setData(local);
+        setEditing(false);
+    };
+
+    const tabs = [
+        { id: 'father', label: 'Father' },
+        { id: 'mother', label: 'Mother' },
+        { id: 'guardian', label: 'Guardian' },
+        { id: 'sibling', label: 'Sibling' },
+        { id: 'spouse', label: 'Spouse' },
+    ];
+
+    const standardFields = [
+        [
+            { label: 'Name', name: 'name' },
+            { label: 'Mobile Number', name: 'mobile', type: 'tel' },
+            { label: 'Landline', name: 'landline', type: 'tel' },
+        ],
+        [
+            { label: 'Email ID', name: 'email', type: 'email' },
+            { label: 'Address', name: 'address' },
+            { label: 'Age', name: 'age', type: 'number' },
+        ],
+        [
+            { label: 'Date of Birth', name: 'dob', type: 'date' },
+            { label: 'Qualification', name: 'qualification' },
+            { label: 'Organization Sector', name: 'orgSector' },
+        ],
+        [
+            { label: 'Occupation', name: 'occupation' },
+            { label: 'Designation', name: 'designation' },
+            { label: 'Income', name: 'income', type: 'number' },
+        ],
+        [
+            { label: 'Emergency', name: 'emergency', options: ['Y', 'N'] },
+        ]
+    ];
+
+    const siblingFields = [
+        [
+            { label: 'Sibling Type', name: 'type', options: ['Brother', 'Sister'] },
+            { label: 'Sibling Name', name: 'name' },
+            { label: 'Relationship', name: 'relationship' },
+        ],
+        [
+            { label: 'Organization Name', name: 'orgName' },
+            { label: 'Grade', name: 'grade' },
+            { label: 'Email ID', name: 'email', type: 'email' },
+        ],
+        [
+            { label: 'Occupation', name: 'occupation' },
+            { label: 'Designation', name: 'designation' },
+        ]
+    ];
+
+    const currentFields = activeSubTab === 'sibling' ? siblingFields : standardFields;
+    const currentData = local[activeSubTab];
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5">
+                    {tabs.map(t => (
+                        <button
+                            key={t.id}
+                            onClick={() => setActiveSubTab(t.id)}
+                            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${activeSubTab === t.id ? 'bg-[#1a1b4b] text-white shadow-md shadow-[#1a1b4b]/20 scale-105' : 'text-gray-400 hover:text-[#1a1b4b]'}`}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                {editing ? (
+                    <div className="flex gap-2">
+                        <button onClick={handleSave} className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-full transition-all">
+                            <Save size={12} /> Save
+                        </button>
+                        <button onClick={() => { setLocal(data); setEditing(false); }} className="flex items-center gap-1 text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-all">
+                            <X size={12} /> Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-bold text-[#1a1b4b]/60 hover:text-[#1a1b4b] border border-[#1a1b4b]/10 hover:border-[#1a1b4b]/30 px-4 py-2 rounded-full transition-all">
+                        <Edit2 size={12} /> Edit
+                    </button>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                {currentFields.map((row, ri) => (
+                    <div key={ri} className="contents">
+                        {row.map(f => (
+                            <div key={f.name} className="flex flex-col p-4 border-b border-r border-gray-100 last:border-r-0">
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}:</span>
+                                {editing ? (
+                                    f.options ? (
+                                        <select name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none">
+                                            <option value="">— Select —</option>
+                                            {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                                        </select>
+                                    ) : (
+                                        <input type={f.type || 'text'} name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none" />
+                                    )
+                                ) : (
+                                    <span className="text-sm font-bold text-[#1a1b4b]">{currentData[f.name] || <span className="text-gray-300 text-xs">Not filled</span>}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const RemarksTab = ({ data, setData }) => {
+    const [editing, setEditing] = useState(false);
+    const [local, setLocal] = useState(data);
+
+    const handleChange = (e) => setLocal(p => ({ ...p, [e.target.name]: e.target.value }));
+
+    const fields = [
+        [
+            { label: 'Remarks Type', name: 'type' },
+            { label: 'Remarks', name: 'text' },
+            { label: 'From Date', name: 'fromDate', type: 'date' },
+        ],
+        [
+            { label: 'To Date', name: 'toDate', type: 'date' },
+            { label: 'User Name', name: 'userName' },
+        ]
+    ];
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5">
+                    <button className="px-6 py-2.5 rounded-xl text-xs font-black bg-[#1a1b4b] text-white uppercase tracking-wider shadow-md">
+                        Remarks
+                    </button>
+                </div>
+                {editing ? (
+                    <div className="flex gap-2">
+                        <button onClick={() => { setData(local); setEditing(false); }} className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-full transition-all">
+                            <Save size={12} /> Save
+                        </button>
+                        <button onClick={() => { setLocal(data); setEditing(false); }} className="flex items-center gap-1 text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-all">
+                            <X size={12} /> Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-bold text-[#1a1b4b]/60 hover:text-[#1a1b4b] border border-[#1a1b4b]/10 hover:border-[#1a1b4b]/30 px-4 py-2 rounded-full transition-all">
+                        <Edit2 size={12} /> Edit
+                    </button>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                {fields.map((row, ri) => (
+                    <div key={ri} className="contents">
+                        {row.map(f => (
+                            <div key={f.name} className="flex flex-col p-4 border-b border-r border-gray-100 last:border-r-0">
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}:</span>
+                                {editing ? (
+                                    <input type={f.type || 'text'} name={f.name} value={local[f.name] || ''} onChange={handleChange}
+                                        className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none" />
+                                ) : (
+                                    <span className="text-sm font-bold text-[#1a1b4b]">{local[f.name] || <span className="text-gray-300 text-xs">Not filled</span>}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const HealthTab = ({ data, setData }) => {
+    const [activeSubTab, setActiveSubTab] = useState('basic');
+    const [editing, setEditing] = useState(false);
+    const [local, setLocal] = useState(data);
+
+    const handleChange = (sub, e) => {
+        setLocal(prev => ({
+            ...prev,
+            [sub]: { ...prev[sub], [e.target.name]: e.target.value }
+        }));
+    };
+
+    const handleSave = () => {
+        setData(local);
+        setEditing(false);
+    };
+
+    const tabs = [
+        { id: 'basic', label: 'Basic Health' },
+        { id: 'disease', label: 'Disease Details' },
+        { id: 'vaccination', label: 'Vaccination Details' },
+        { id: 'dental', label: 'Dental Hygiene' },
+        { id: 'vision', label: 'Vision Details' },
+        { id: 'allergy', label: 'Allergy Details' },
+    ];
+
+    const subTabFields = {
+        basic: [
+            [{ label: 'Inspection Master', name: 'inspectionMaster' }, { label: 'Inspection Date', name: 'inspectionDate', type: 'date' }, { label: 'Doctor Name', name: 'doctorName' }],
+            [{ label: 'Height', name: 'height' }, { label: 'Weight', name: 'weight' }, { label: 'BMI', name: 'bmi' }],
+            [{ label: 'Nails', name: 'nails' }, { label: 'Hair', name: 'hair' }, { label: 'Skin', name: 'skin' }],
+            [{ label: 'Anemia', name: 'anemia' }, { label: 'Ear', name: 'ear' }, { label: 'Nose', name: 'nose' }],
+            [{ label: 'Throat', name: 'throat' }, { label: 'Neck', name: 'neck' }, { label: 'B.P.', name: 'bp' }],
+            [{ label: 'Pulse', name: 'pulse' }, { label: 'Diet', name: 'diet' }, { label: 'Blood Group', name: 'bloodGroup' }],
+            [{ label: 'Remarks', name: 'remarks' }]
+        ],
+        disease: [
+            [{ label: 'Inspection Master', name: 'inspectionMaster' }, { label: 'Inspection Date', name: 'inspectionDate', type: 'date' }, { label: 'Doctor Name', name: 'doctorName' }],
+            [{ label: 'Disease', name: 'disease' }, { label: 'Year', name: 'year' }, { label: 'Is Cured', name: 'isCured', options: ['Y', 'N'] }],
+            [{ label: 'Family History', name: 'familyHistory' }, { label: 'Medicines', name: 'medicines' }, { label: 'Remarks', name: 'remarks' }]
+        ],
+        vaccination: [
+            [{ label: 'Inspection Master', name: 'inspectionMaster' }, { label: 'Inspection Date', name: 'inspectionDate', type: 'date' }, { label: 'Doctor Name', name: 'doctorName' }],
+            [{ label: 'Vaccination', name: 'vaccination' }, { label: 'Start Date', name: 'startDate', type: 'date' }, { label: 'Next Due Date', name: 'nextDueDate', type: 'date' }],
+            [{ label: 'Remarks', name: 'remarks' }]
+        ],
+        dental: [
+            [{ label: 'Inspection Master', name: 'inspectionMaster' }, { label: 'Inspection Date', name: 'inspectionDate', type: 'date' }, { label: 'Doctor Name', name: 'doctorName' }],
+            [{ label: 'Extra Oral', name: 'extraOral' }, { label: 'Intra Oral', name: 'intraOral' }, { label: 'Tooth Cavity', name: 'cavity' }],
+            [{ label: 'Plaque', name: 'plaque' }, { label: 'Gum Inflammation', name: 'gumInflammation' }, { label: 'Strains', name: 'strains' }],
+            [{ label: 'Tartar', name: 'tartar' }, { label: 'Bad Breath', name: 'badBreath' }, { label: 'Gum Bleeding', name: 'bleeding' }],
+            [{ label: 'Soft Tissue', name: 'softTissue' }, { label: 'Remarks', name: 'remarks' }]
+        ],
+        vision: [
+            [{ label: 'Inspection Master', name: 'inspectionMaster' }, { label: 'Inspection Date', name: 'inspectionDate', type: 'date' }, { label: 'Doctor Name', name: 'doctorName' }],
+            [{ label: 'Left Eye Power', name: 'leftPower' }, { label: 'Right Eye Power', name: 'rightPower' }, { label: 'Remarks', name: 'remarks' }]
+        ],
+        allergy: [
+            [{ label: 'Inspection Master', name: 'inspectionMaster' }, { label: 'Inspection Date', name: 'inspectionDate', type: 'date' }, { label: 'Doctor Name', name: 'doctorName' }],
+            [{ label: 'Allergy Name', name: 'allergyName' }, { label: 'Remarks', name: 'remarks' }]
+        ]
+    };
+
+    const currentFields = subTabFields[activeSubTab] || [];
+    const currentData = local[activeSubTab] || {};
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 overflow-x-auto max-w-full no-scrollbar">
+                    {tabs.map(t => (
+                        <button
+                            key={t.id}
+                            onClick={() => setActiveSubTab(t.id)}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${activeSubTab === t.id ? 'bg-[#1a1b4b] text-white shadow-md' : 'text-gray-400 hover:text-[#1a1b4b]'}`}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                {editing ? (
+                    <div className="flex gap-2">
+                        <button onClick={handleSave} className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-full transition-all">
+                            <Save size={12} /> Save
+                        </button>
+                        <button onClick={() => { setLocal(data); setEditing(false); }} className="flex items-center gap-1 text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-all">
+                            <X size={12} /> Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-bold text-[#1a1b4b]/60 hover:text-[#1a1b4b] border border-[#1a1b4b]/10 hover:border-[#1a1b4b]/30 px-4 py-2 rounded-full transition-all">
+                        <Edit2 size={12} /> Edit
+                    </button>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                {currentFields.map((row, ri) => (
+                    <div key={ri} className="contents">
+                        {row.map(f => (
+                            <div key={f.name} className="flex flex-col p-4 border-b border-r border-gray-100 last:border-r-0">
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}:</span>
+                                {editing ? (
+                                    f.options ? (
+                                        <select name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none focus:border-[#1a1b4b]/30">
+                                            <option value="">— Select —</option>
+                                            {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                                        </select>
+                                    ) : (
+                                        <input type={f.type || 'text'} name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none focus:border-[#1a1b4b]/30" />
+                                    )
+                                ) : (
+                                    <span className="text-sm font-bold text-[#1a1b4b]">{currentData[f.name] || <span className="text-gray-300 text-xs italic font-normal">Not filled</span>}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const AdditionalDetailsTab = ({ data, setData }) => {
+    const [activeSubTab, setActiveSubTab] = useState('hostel');
+    const [editing, setEditing] = useState(false);
+    const [local, setLocal] = useState(data);
+
+    const handleChange = (sub, e) => {
+        setLocal(prev => ({
+            ...prev,
+            [sub]: { ...prev[sub], [e.target.name]: e.target.value }
+        }));
+    };
+
+    const handleSave = () => {
+        setData(local);
+        setEditing(false);
+    };
+
+    const tabs = [
+        { id: 'hostel', label: 'Hostel Details' },
+        { id: 'transport', label: 'Transport Details' },
+    ];
+
+    const hostelFields = [
+        [
+            { label: 'Hostel Name', name: 'hostelName' },
+            { label: 'Room Number', name: 'roomNo' },
+            { label: 'Occupancy Type', name: 'occupancy', options: ['Single', 'Double', 'Triple'] },
+        ],
+        [
+            { label: 'Joining Date', name: 'joinDate', type: 'date' },
+            { label: 'Warden Name', name: 'warden' },
+            { label: 'Emergency Extension', name: 'extension' },
+        ]
+    ];
+
+    const transportFields = [
+        [
+            { label: 'Route Name', name: 'routeName' },
+            { label: 'Bus Number', name: 'busNo' },
+            { label: 'Driver Name', name: 'driver' },
+        ],
+        [
+            { label: 'Pickup Point', name: 'pickup' },
+            { label: 'Drop Point', name: 'drop' },
+            { label: 'Fee Status', name: 'feeStatus', options: ['Paid', 'Pending', 'Exempted'] },
+        ]
+    ];
+
+    const currentFields = activeSubTab === 'hostel' ? hostelFields : transportFields;
+    const currentData = local[activeSubTab] || {};
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 overflow-x-auto max-w-full no-scrollbar">
+                    {tabs.map(t => (
+                        <button
+                            key={t.id}
+                            onClick={() => setActiveSubTab(t.id)}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${activeSubTab === t.id ? 'bg-[#1a1b4b] text-white shadow-md' : 'text-gray-400 hover:text-[#1a1b4b]'}`}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                {editing ? (
+                    <div className="flex gap-2">
+                        <button onClick={handleSave} className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-full transition-all">
+                            <Save size={12} /> Save
+                        </button>
+                        <button onClick={() => { setLocal(data); setEditing(false); }} className="flex items-center gap-1 text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-all">
+                            <X size={12} /> Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-bold text-[#1a1b4b]/60 hover:text-[#1a1b4b] border border-[#1a1b4b]/10 hover:border-[#1a1b4b]/30 px-4 py-2 rounded-full transition-all">
+                        <Edit2 size={12} /> Edit
+                    </button>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                {currentFields.map((row, ri) => (
+                    <div key={ri} className="contents">
+                        {row.map(f => (
+                            <div key={f.name} className="flex flex-col p-4 border-b border-r border-gray-100 last:border-r-0">
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}:</span>
+                                {editing ? (
+                                    f.options ? (
+                                        <select name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none">
+                                            <option value="">— Select —</option>
+                                            {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                                        </select>
+                                    ) : (
+                                        <input type={f.type || 'text'} name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none" />
+                                    )
+                                ) : (
+                                    <span className="text-sm font-bold text-[#1a1b4b]">{currentData[f.name] || <span className="text-gray-300 text-xs">Not filled</span>}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const OtherInfoTab = ({ data, setData }) => {
+    const [activeSubTab, setActiveSubTab] = useState('docs');
+    const [editing, setEditing] = useState(false);
+    const [local, setLocal] = useState(data);
+
+    const handleChange = (sub, e) => {
+        setLocal(prev => ({
+            ...prev,
+            [sub]: { ...prev[sub], [e.target.name]: e.target.value }
+        }));
+    };
+
+    const handleSave = () => {
+        setData(local);
+        setEditing(false);
+    };
+
+    const tabs = [
+        { id: 'docs', label: 'Documents' },
+        { id: 'scholarship', label: 'Scholarships' },
+    ];
+
+    const docsFields = [
+        [
+            { label: 'Aadhar Number', name: 'aadhar' },
+            { label: 'PAN Card', name: 'pan' },
+            { label: 'Passport Number', name: 'passport' },
+        ],
+        [
+            { label: 'Voter ID', name: 'voterId' },
+            { label: 'Driving License', name: 'dl' },
+        ]
+    ];
+
+    const scholarshipFields = [
+        [
+            { label: 'Scholarship Name', name: 'name' },
+            { label: 'Amount Granted', name: 'amount', type: 'number' },
+            { label: 'Status', name: 'status', options: ['Applied', 'Verified', 'Disbursed'] },
+        ],
+    ];
+
+    const currentFields = activeSubTab === 'docs' ? docsFields : scholarshipFields;
+    const currentData = local[activeSubTab] || {};
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 overflow-x-auto max-w-full no-scrollbar">
+                    {tabs.map(t => (
+                        <button
+                            key={t.id}
+                            onClick={() => setActiveSubTab(t.id)}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${activeSubTab === t.id ? 'bg-[#1a1b4b] text-white shadow-md' : 'text-gray-400 hover:text-[#1a1b4b]'}`}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                {editing ? (
+                    <div className="flex gap-2">
+                        <button onClick={handleSave} className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-full transition-all">
+                            <Save size={12} /> Save
+                        </button>
+                        <button onClick={() => { setLocal(data); setEditing(false); }} className="flex items-center gap-1 text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full transition-all">
+                            <X size={12} /> Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-bold text-[#1a1b4b]/60 hover:text-[#1a1b4b] border border-[#1a1b4b]/10 hover:border-[#1a1b4b]/30 px-4 py-2 rounded-full transition-all">
+                         <Edit2 size={12} /> Edit
+                    </button>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                {currentFields.map((row, ri) => (
+                    <div key={ri} className="contents">
+                        {row.map(f => (
+                            <div key={f.name} className="flex flex-col p-4 border-b border-r border-gray-100 last:border-r-0">
+                                <span className="text-[12px] font-black uppercase tracking-wider text-gray-400 mb-1">{f.label}:</span>
+                                {editing ? (
+                                    f.options ? (
+                                        <select name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none">
+                                            <option value="">— Select —</option>
+                                            {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                                        </select>
+                                    ) : (
+                                        <input type={f.type || 'text'} name={f.name} value={currentData[f.name] || ''} onChange={(e) => handleChange(activeSubTab, e)}
+                                            className="text-sm text-[#1a1b4b] font-bold bg-[#f4f6fa] border border-[#1a1b4b]/10 rounded-lg px-2 py-1 outline-none" />
+                                    )
+                                ) : (
+                                    <span className="text-sm font-bold text-[#1a1b4b]">{currentData[f.name] || <span className="text-gray-300 text-xs">Not filled</span>}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 // ─── Main Profile Page ────────────────────────────────────────────────────────
 const StudentProfile = () => {
     const { user, profile, fetchProfile } = useAuth();
@@ -333,6 +865,41 @@ const StudentProfile = () => {
 
     const [courseWareData, setCourseWareData] = useState({
         course: '', startDate: '', endDate: ''
+    });
+
+    const [familyData, setFamilyData] = useState({
+        father: { name: 'Mr. Vijay Kumar Bariyar', mobile: '9970750697', landline: '', email: '', address: '821115', age: '', dob: '', qualification: '', orgSector: '', occupation: '', designation: '', income: '500000.00', emergency: 'Y' },
+        mother: { name: 'Mrs. Sandhya Rani', mobile: '', landline: '', email: '', address: '', age: '', dob: '', qualification: '', orgSector: '', occupation: '', designation: '', income: '', emergency: '' },
+        guardian: { name: '', mobile: '', landline: '', email: '', address: '', age: '', dob: '', qualification: '', orgSector: '', occupation: '', designation: '', income: '', emergency: '' },
+        sibling: { type: '', name: '', relationship: '', orgName: '', grade: '', email: '', occupation: '', designation: '' },
+        spouse: { name: '', mobile: '', landline: '', email: '', address: '', age: '', dob: '', qualification: '', orgSector: '', occupation: '', designation: '', income: '', emergency: '' },
+    });
+
+    const [remarksData, setRemarksData] = useState({
+        type: '', text: '', fromDate: '', toDate: '', userName: '',
+    });
+
+    const [healthData, setHealthData] = useState({
+        basic: {
+            inspectionMaster: '', inspectionDate: '', doctorName: '',
+            height: '', weight: '', bmi: '',
+            nails: '', hair: '', skin: '',
+            anemia: '', ear: '', nose: '',
+            throat: '', neck: '', bp: '',
+            pulse: '', diet: '', bloodGroup: '',
+            remarks: ''
+        },
+        disease: {}, vaccination: {}, dental: {}, vision: {}, allergy: {}
+    });
+
+    const [additionalData, setAdditionalData] = useState({
+        hostel: { hostelName: '', roomNo: '', occupancy: '', joinDate: '', warden: '', extension: '' },
+        transport: { routeName: '', busNo: '', driver: '', pickup: '', drop: '', feeStatus: '' }
+    });
+
+    const [otherData, setOtherData] = useState({
+        docs: { aadhar: '', pan: '', passport: '', voterId: '', dl: '' },
+        scholarship: { name: '', amount: '', status: '' }
     });
 
     const [editingName, setEditingName] = useState(false);
@@ -593,19 +1160,19 @@ const StudentProfile = () => {
                     )}
 
                     {activeTab === 'family' && (
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-sm text-gray-400 font-semibold">Family details section — coming soon.</div>
+                        <FamilyDetailsTab data={familyData} setData={setFamilyData} />
                     )}
                     {activeTab === 'remarks' && (
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-sm text-gray-400 font-semibold">Remarks section — coming soon.</div>
+                        <RemarksTab data={remarksData} setData={setRemarksData} />
                     )}
                     {activeTab === 'health' && (
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-sm text-gray-400 font-semibold">Health section — coming soon.</div>
+                        <HealthTab data={healthData} setData={setHealthData} />
                     )}
                     {activeTab === 'additional' && (
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-sm text-gray-400 font-semibold">Additional details section — coming soon.</div>
+                        <AdditionalDetailsTab data={additionalData} setData={setAdditionalData} />
                     )}
                     {activeTab === 'other' && (
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-sm text-gray-400 font-semibold">Other info section — coming soon.</div>
+                        <OtherInfoTab data={otherData} setData={setOtherData} />
                     )}
                 </div>
             </div>
