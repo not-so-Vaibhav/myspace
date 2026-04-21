@@ -53,12 +53,6 @@ const FacultyTimetable = () => {
           </p>
         </div>
         
-        {/* Top right pill indicator */}
-        <div className="bg-gray-50 px-5 py-2.5 rounded-full border border-gray-100 flex items-center shrink-0">
-          <span className="text-[#1a1b4b] font-black text-xs uppercase tracking-widest">
-            {activeDayName}
-          </span>
-        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-3 min-h-[140px]">

@@ -78,9 +78,6 @@ const ScheduleCard = () => {
                         {today.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                     </p>
                 </div>
-                <span className="px-4 py-1.5 rounded-full bg-[#1a1b4b]/5 text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest">
-                    {displayDay}
-                </span>
             </div>
 
             {/* Day + Slots layout */}
