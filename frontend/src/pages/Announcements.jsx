@@ -54,7 +54,7 @@ const Announcements = () => {
 
   useEffect(() => {
     fetchAnnouncements();
-    if (!isAdmin && profile?.id) {
+    if (role === 'student' && profile?.id) {
       fetchDeadlineReminders();
     }
     // Mark as read when page is visited
@@ -535,7 +535,7 @@ const Announcements = () => {
       {(!isAdmin || tab === 'active') && (
         <>
           {/* Deadline Reminders section for students */}
-          {!isAdmin && deadlineReminders.length > 0 && (
+          {role === 'student' && deadlineReminders.length > 0 && (
             <section className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
               <h2 className="text-[12px] font-black text-[#ef4444] uppercase tracking-widest flex items-center gap-2">
                 <Bell size={12} className="animate-bounce" /> Critical Deadline Alerts (Next 24h)
