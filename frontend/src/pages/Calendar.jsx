@@ -74,6 +74,7 @@ const Calendar = () => {
   });
   const [publicEvents, setPublicEvents] = useState([]);
   const [assignmentDeadlines, setAssignmentDeadlines] = useState([]);
+  const [meetings, setMeetings] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', startDate: format(new Date(), 'yyyy-MM-dd'), endDate: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal', targetAudience: 'both' });
 
@@ -98,7 +99,34 @@ const Calendar = () => {
     if (profile?.id && role === 'student') {
       fetchAssignmentDeadlines();
     }
+    if (profile?.id && (role === 'faculty' || role === 'hod' || role === 'instructor')) {
+      fetchMeetings();
+    }
   }, [profile?.id, role]);
+
+  const fetchMeetings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('meetings')
+        .select('*');
+      
+      if (error) throw error;
+      if (data) {
+        setMeetings(data.map(m => ({
+          id: `meet-${m.id}`,
+          title: `Meeting: ${m.agenda}`,
+          startDate: m.date,
+          endDate: m.date,
+          startTime: m.start_time,
+          endTime: m.end_time,
+          type: 'Meeting',
+          location: m.location
+        })));
+      }
+    } catch (err) {
+      console.error('Error fetching meetings for calendar:', err);
+    }
+  };
 
   const fetchAssignmentDeadlines = async () => {
     try {
@@ -234,8 +262,9 @@ const Calendar = () => {
     ...HOLIDAYS_2026, 
     ...personalEvents, 
     ...publicEvents, 
-    ...assignmentDeadlines
-  ], [personalEvents, publicEvents, assignmentDeadlines]);
+    ...assignmentDeadlines,
+    ...meetings
+  ], [personalEvents, publicEvents, assignmentDeadlines, meetings]);
 
   const renderHeader = () => {
     return (
@@ -317,12 +346,14 @@ const Calendar = () => {
                         e.type === 'Holiday' ? 'bg-red-50/60 border-red-500' : 
                         e.type === 'Public' ? 'bg-green-50/60 border-green-500' : 
                         e.type === 'Deadline' ? 'bg-amber-50/60 border-amber-500' :
+                        e.type === 'Meeting' ? 'bg-violet-50/60 border-violet-500' :
                         'bg-indigo-50/60 border-indigo-500'
                       } border-l-2 p-1 rounded-r-md group/evt relative`}>
                          <p className={`text-[12px] font-black truncate uppercase tracking-tighter leading-none ${
                            e.type === 'Holiday' ? 'text-red-700' : 
                            e.type === 'Public' ? 'text-green-700' : 
                            e.type === 'Deadline' ? 'text-amber-700' :
+                           e.type === 'Meeting' ? 'text-violet-700' :
                            'text-indigo-700'
                          }`}>{e.title}</p>
                          {e.type !== 'Holiday' && e.type !== 'Deadline' && (e.type !== 'Public' || isAdmin) && (
@@ -380,12 +411,14 @@ const Calendar = () => {
                         e.type === 'Holiday' ? 'top-2 bg-red-50 border-red-500' : 
                         e.type === 'Public' ? 'top-10 bg-green-50 border-green-500' : 
                         e.type === 'Deadline' ? 'top-16 bg-amber-50 border-amber-500' :
+                        e.type === 'Meeting' ? 'top-2 bg-violet-50 border-violet-500' :
                         'top-20 bg-indigo-50 border-indigo-500'
                       }`}>
                          <p className={`text-[12px] font-black uppercase leading-tight ${
                            e.type === 'Holiday' ? 'text-red-700' : 
                            e.type === 'Public' ? 'text-green-700' : 
                            e.type === 'Deadline' ? 'text-amber-700' :
+                           e.type === 'Meeting' ? 'text-violet-700' :
                            'text-indigo-700'
                          }`}>{e.title}</p>
                       </div>
@@ -412,20 +445,23 @@ const Calendar = () => {
            <div className="flex-1 overflow-y-auto pr-2 space-y-3">
               <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2 border-b border-gray-100 pb-2">Agenda</p>
                {dayEvents.map(e => (
-                 <div key={e.id} className={`p-4 rounded-2xl border ${
+                  <div key={e.id} className={`p-4 rounded-2xl border ${
                    e.type === 'Holiday' ? 'bg-red-50 border-red-100' : 
                    e.type === 'Public' ? 'bg-green-50 border-green-100 shadow-sm' : 
                    e.type === 'Deadline' ? 'bg-amber-50 border-amber-100 shadow-sm' :
+                   e.type === 'Meeting' ? 'bg-violet-50 border-violet-100 shadow-sm' :
                    'bg-white border-indigo-100 shadow-sm'
                  }`}>
                     <p className={`text-[12px] font-black uppercase mb-1 ${
                       e.type === 'Holiday' ? 'text-red-700' : 
                       e.type === 'Public' ? 'text-green-700' : 
                       e.type === 'Deadline' ? 'text-amber-700' :
+                      e.type === 'Meeting' ? 'text-violet-700' :
                       'text-indigo-700'
                     }`}>{e.title}</p>
                     {e.type === 'Public' && <p className="text-[12px] font-bold text-green-600 uppercase tracking-widest mb-1">Target: {e.targetAudience}</p>}
                     {e.type === 'Deadline' && <p className="text-[12px] font-bold text-amber-600 uppercase tracking-widest mb-1">Code: {e.subject}</p>}
+                    {e.type === 'Meeting' && <p className="text-[12px] font-bold text-violet-600 uppercase tracking-widest mb-1">Room: {e.location}</p>}
                     <p className="text-[12px] text-gray-400 font-bold uppercase">{e.startTime || 'All Day'} - {e.endTime || ''}</p>
                  </div>
                ))}
@@ -659,6 +695,10 @@ const Calendar = () => {
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                  <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Assignment Deadline</span>
+              </div>
+              <div className="flex items-center gap-2">
+                 <div className="w-2 h-2 bg-violet-500 rounded-full"></div>
+                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Departmental Meeting</span>
               </div>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-[#1a1b4b] rounded-full"></div>

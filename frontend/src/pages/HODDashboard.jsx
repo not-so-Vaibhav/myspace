@@ -33,7 +33,7 @@ const HODDashboard = () => {
     const [toast, setToast] = useState(null);
     const [processingId, setProcessingId] = useState(null);
     const [newMeet, setNewMeet] = useState({
-        date: '', startTime: '', endTime: '', agenda: '', location: '', organizedBy: ''
+        date: '', start_time: '', end_time: '', agenda: '', location: '', organized_by: ''
     });
 
     useEffect(() => {
@@ -112,10 +112,11 @@ const HODDashboard = () => {
 
         if (error) {
             setToast({ message: 'Meeting protocol failed', type: 'error' });
+            console.error('Meeting error:', error);
         } else {
             setMeetingsList([data[0], ...meetingsList]);
             setShowModal(false);
-            setNewMeet({ date: '', startTime: '', endTime: '', agenda: '', location: '', organizedBy: '' });
+            setNewMeet({ date: '', start_time: '', end_time: '', agenda: '', location: '', organized_by: '' });
             setToast({ message: 'Meeting scheduled successfully', type: 'success' });
         }
     };
@@ -264,7 +265,7 @@ const HODDashboard = () => {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
                                         <div className="flex items-center gap-2 text-[12px] font-bold text-slate-500 uppercase tracking-widest">
-                                            <Clock size={14} className="text-[#ef4444]" /> {nextMeeting.startTime}
+                                            <Clock size={14} className="text-[#ef4444]" /> {nextMeeting.start_time}
                                         </div>
                                         <div className="flex items-center justify-end">
                                             <Link to="/meetings" className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest hover:underline">View All Briefings</Link>
@@ -310,18 +311,29 @@ const HODDashboard = () => {
                                 <input type="date" name="date" value={newMeet.date} onChange={handleChange} required
                                     className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                             </div>
-
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Starts At</label>
-                                    <input type="time" name="startTime" value={newMeet.startTime} onChange={handleChange} required
+                                    <input type="time" name="start_time" value={newMeet.start_time} onChange={handleChange} required
                                         className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Ends At</label>
-                                    <input type="time" name="endTime" value={newMeet.endTime} onChange={handleChange} required
+                                    <input type="time" name="end_time" value={newMeet.end_time} onChange={handleChange} required
                                         className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Location / Venue</label>
+                                <input type="text" name="location" value={newMeet.location} onChange={handleChange} required placeholder="e.g. Conference Room 3"
+                                    className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
+                            </div>
+
+                            <div>
+                                <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Organized By</label>
+                                <input type="text" name="organized_by" value={newMeet.organized_by} onChange={handleChange} required placeholder="e.g. Dr. Meera Joshi"
+                                    className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border-2 border-slate-100 text-sm font-bold text-[#1a1b4b] focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all" />
                             </div>
 
                             <div>

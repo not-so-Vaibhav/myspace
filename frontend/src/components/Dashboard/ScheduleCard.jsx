@@ -83,12 +83,13 @@ const ScheduleCard = () => {
             {/* Day + Slots layout */}
             <div className="flex gap-4 items-stretch">
                 {/* Day pill */}
-                <div className="w-20 flex-shrink-0 flex flex-col items-center justify-center bg-[#1a1b4b] rounded-2xl px-3 py-5 shadow-md">
-                    <span className="text-[13px] font-black text-white uppercase tracking-tight text-center leading-tight">
+                <div className="w-14 flex-shrink-0 flex items-center justify-center bg-[#1a1b4b] rounded-2xl shadow-lg relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-white/5 opacity-20" />
+                    <span className="text-[12px] font-black text-white uppercase tracking-[0.2em] transform -rotate-90 whitespace-nowrap">
                         {displayDay}
                     </span>
                     {dayData.tag && (
-                        <span className={`mt-2 text-[12px] font-black text-white rounded-full px-2.5 py-0.5 ${dayData.tagColor}`}>
+                        <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[8px] font-black text-white bg-pink-500 rounded-lg px-2 py-0.5 whitespace-nowrap">
                             {dayData.tag}
                         </span>
                     )}

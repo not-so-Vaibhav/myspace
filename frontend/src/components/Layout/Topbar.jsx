@@ -79,25 +79,45 @@ const Topbar = ({ onMenuClick }) => {
                 .in('material_id', assignments.map(a => a.id));
 
               const submittedIds = new Set(submissions?.map(s => s.material_id) || []);
-              
-              // Only count as "new notification" if the alert window (Deadline - 24h) 
-              // started AFTER the student last checked the bell
               const lastReadDate = new Date(lastRead);
               const pendingNewAlerts = assignments.filter(a => {
                 const isSubmitted = submittedIds.has(a.id);
                 if (isSubmitted) return false;
-                
                 const deadlineDate = new Date(a.deadline);
                 const alertStartTime = new Date(deadlineDate.getTime() - 24 * 60 * 60 * 1000);
                 return alertStartTime > lastReadDate;
               });
-
               count += pendingNewAlerts.length;
             }
           }
         }
 
-        // 3. If admin, check for pending approvals
+        // 3. If faculty/hod, check for upcoming meetings (within 2h)
+        if (['faculty', 'hod', 'instructor'].includes(role)) {
+          const now = new Date();
+          const inTwoHours = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+          
+          const { data: urgentMeetings } = await supabase
+            .from('meetings')
+            .select('*')
+            .gte('date', now.toISOString().split('T')[0]);
+
+          if (urgentMeetings?.length > 0) {
+            const lastReadDate = new Date(lastRead);
+            const pendingMeetings = urgentMeetings.filter(m => {
+              // Construct full meeting date-time
+              // date is YYYY-MM-DD, start_time is HH:mm
+              const mDate = new Date(`${m.date}T${m.start_time}`);
+              const alertStartTime = new Date(mDate.getTime() - 2 * 60 * 60 * 1000);
+              
+              // Show if: Meeting hasn't ended, alert window has started, AND it's "new" since last check
+              return mDate > now && alertStartTime <= now && alertStartTime > lastReadDate;
+            });
+            count += pendingMeetings.length;
+          }
+        }
+
+        // 4. If admin, check for pending approvals
         if (role === 'admin') {
           const { count: pendingCount, error: e2 } = await supabase
             .from('announcements')
