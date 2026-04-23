@@ -17,6 +17,8 @@ import {
   Briefcase,
   Users,
   MessageSquare,
+  MessageCircle,
+  BarChart3,
   Package,
   ShoppingCart,
   UserPlus
@@ -38,6 +40,7 @@ const getNavItems = (role) => {
       { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
       { to: '/inventory', icon: Package, label: 'Inventory' },
       { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
+      { to: '/academic-feedback', icon: BarChart3, label: 'Academic Feedback' },
       { to: '/admissions', icon: UserPlus, label: 'Admission Requests' },
     ];
   }
@@ -50,6 +53,7 @@ const getNavItems = (role) => {
       { to: '/reports', icon: FileText, label: 'Reports' },
       { to: '/inventory', icon: Package, label: 'Inventory' },
       { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
+      { to: '/academic-feedback', icon: BarChart3, label: 'Academic Feedback' },
     ];
   }
 
@@ -108,6 +112,7 @@ const getNavItems = (role) => {
     { to: '/request-letter', icon: Mail, label: 'Request Letter' },
     { to: '/leave-application', icon: FileText, label: 'Leave Application' },
     { to: '/attendance', icon: Clock, label: 'Attendance' },
+    { to: '/feedback', icon: MessageCircle, label: 'Feedback' },
     { to: '/resources', icon: FolderOpen, label: 'Resources' },
   ];
   return base;
