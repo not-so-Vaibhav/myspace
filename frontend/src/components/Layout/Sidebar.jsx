@@ -41,6 +41,7 @@ const getNavItems = (role) => {
       { to: '/inventory', icon: Package, label: 'Inventory' },
       { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
       { to: '/academic-feedback', icon: BarChart3, label: 'Academic Feedback' },
+      { to: '/performance-appraisal', icon: Award, label: 'Performance Appraisals' },
       { to: '/admissions', icon: UserPlus, label: 'Admission Requests' },
     ];
   }
@@ -54,6 +55,7 @@ const getNavItems = (role) => {
       { to: '/inventory', icon: Package, label: 'Inventory' },
       { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
       { to: '/academic-feedback', icon: BarChart3, label: 'Academic Feedback' },
+      { to: '/performance-appraisal', icon: Award, label: 'Performance Appraisals' },
     ];
   }
 
@@ -65,8 +67,9 @@ const getNavItems = (role) => {
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/faculty-dashboard', icon: Home, label: 'Instructor View' },
       { to: '/faculty', icon: FileText, label: 'Faculty List' },
-      { to: '/approvals', icon: FileText, label: 'Leave Approvals' },
-      { to: '/faculty-proposals', icon: Briefcase, label: 'Faculty Proposals' },
+      { to: '/calendar', icon: Calendar, label: 'Calendar' },
+      { to: '/performance-appraisal', icon: Award, label: 'Performance & Appraisal' },
+      { to: '/faculty-proposals', icon: Briefcase, label: 'Proposals' },
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Requisitions' },
     ];
   }
@@ -90,6 +93,7 @@ const getNavItems = (role) => {
       { to: '/faculty-resources', icon: FolderOpen, label: 'Resources' },
       { to: '/library', icon: Library, label: 'Library' },
       { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
+      { to: '/performance-appraisal', icon: Award, label: 'Performance & Appraisal' },
       { to: '/request-letter', icon: FileText, label: 'Requisitions' },
       { to: '/proposals', icon: FileText, label: 'Proposals' },
       { to: '/lor', icon: FileText, label: 'LOR' },
