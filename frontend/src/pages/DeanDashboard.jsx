@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { TrendingUp, Users, BookOpen, Building2, Loader2, IndianRupee, Activity, GraduationCap, ChevronRight, BarChart3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -123,12 +124,12 @@ const DeanDashboard = () => {
                                 <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} transition-transform group-hover:rotate-12`}>
                                     <stat.icon size={22} strokeWidth={2.5} />
                                 </div>
-                                <span className="text-[10px] font-black bg-gray-50 text-gray-400 px-2 py-1 rounded-lg uppercase tracking-tight">{stat.trend}</span>
+                                <span className="text-[12px] font-black bg-gray-50 text-gray-400 px-2 py-1 rounded-lg uppercase tracking-tight">{stat.trend}</span>
                             </div>
                             <div className="text-4xl font-black text-[#1a1b4b] tracking-tighter mb-1 select-none">
                                 {stat.value}
                             </div>
-                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">
                                 {stat.label}
                             </p>
                         </div>
@@ -145,7 +146,7 @@ const DeanDashboard = () => {
                         <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter flex items-center gap-2">
                              <TrendingUp className="text-emerald-500" size={24} /> Enrollment Trends
                         </h2>
-                        <select className="bg-gray-50 border-none text-[11px] font-black uppercase tracking-widest px-4 py-2 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
+                        <select className="bg-gray-50 border-none text-[12px] font-black uppercase tracking-widest px-4 py-2 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
                             <option>Last 6 Months</option>
                             <option>Last Year</option>
                         </select>
@@ -186,9 +187,9 @@ const DeanDashboard = () => {
                                 <div className="flex justify-between items-end">
                                     <div>
                                         <p className="text-xs font-black text-[#1a1b4b] uppercase tracking-tight">{dept.name}</p>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{dept.code}</p>
+                                        <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">{dept.code}</p>
                                     </div>
-                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md uppercase">Excellent</span>
+                                    <span className="text-[12px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md uppercase">Excellent</span>
                                 </div>
                                 <div className="h-2 w-full bg-gray-50 rounded-full overflow-hidden">
                                     <div 
@@ -205,9 +206,9 @@ const DeanDashboard = () => {
                         )}
                     </div>
 
-                    <button className="w-full mt-8 py-4 border-2 border-gray-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-gray-400 hover:bg-gray-50 hover:text-[#1a1b4b] transition-all flex items-center justify-center gap-2 group-hover:border-indigo-100/50">
+                    <Link to="/reports" className="w-full mt-8 py-4 border-2 border-gray-50 rounded-2xl text-[12px] font-black uppercase tracking-widest text-gray-400 hover:bg-indigo-50 hover:text-[#1a1b4b] transition-all flex items-center justify-center gap-2 group-hover:border-indigo-100/50">
                         Detailed Reports <ChevronRight size={14} />
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
