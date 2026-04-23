@@ -47,6 +47,7 @@ import Reports from './pages/Reports';
 import AllocationAudit from './pages/AllocationAudit';
 import Inventory from './pages/Inventory';
 import Procurement from './pages/Procurement';
+import AdmissionRequests from './pages/AdmissionRequests';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -239,6 +240,7 @@ function App() {
             <Route path="/audit/allocation/:id" element={<RoleRoute allowedRoles={['admin', 'dean', 'hod']}><AllocationAudit /></RoleRoute>} />
             <Route path="/inventory" element={<RoleRoute allowedRoles={['admin', 'dean']}><Inventory /></RoleRoute>} />
             <Route path="/procurement" element={<RoleRoute allowedRoles={['admin', 'dean']}><Procurement /></RoleRoute>} />
+            <Route path="/admissions" element={<RoleRoute allowedRoles={['admin']}><AdmissionRequests /></RoleRoute>} />
             <Route path="/lor" element={<LOR />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/meetings" element={<AllMeetings />} />
