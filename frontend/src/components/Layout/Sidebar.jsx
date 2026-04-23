@@ -16,7 +16,9 @@ import {
   CheckSquare,
   Briefcase,
   Users,
-  MessageSquare
+  MessageSquare,
+  Package,
+  ShoppingCart
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -33,6 +35,8 @@ const getNavItems = (role) => {
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Faculty Requisitions' },
       { to: '/faculty-proposals', icon: Briefcase, label: 'Faculty Proposals' },
       { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
+      { to: '/inventory', icon: Package, label: 'Inventory' },
+      { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
     ];
   }
 
@@ -43,6 +47,8 @@ const getNavItems = (role) => {
       { to: '/analytics', icon: FileText, label: 'Analytics' },
       { to: '/departments', icon: FileText, label: 'Departments' },
       { to: '/reports', icon: FileText, label: 'Reports' },
+      { to: '/inventory', icon: Package, label: 'Inventory' },
+      { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
     ];
   }
 
