@@ -144,7 +144,7 @@ const Approvals = () => {
                              {role === 'dean' ? 'Dean' : 'Leave'} Approvals
                              <div className="h-2 w-2 rounded-full bg-[#ef4444] animate-pulse"></div>
                         </h1>
-                        <p className="text-gray-400 font-bold text-xs tracking-[0.2em] uppercase mt-1">
+                        <p className="text-gray-400 font-bold text-[12px] tracking-[0.2em] uppercase mt-1">
                             {role === 'dean' ? 'Administrative Authority Hub • Selective Clearance' : 'Departmental Authorization Portal'}
                         </p>
                     </div>
@@ -154,7 +154,7 @@ const Approvals = () => {
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
-                                className={`px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                                className={`px-5 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all ${
                                     filter === f
                                         ? 'bg-white text-[#1a1b4b] shadow-md scale-[1.02]'
                                         : 'text-gray-400 hover:text-gray-600'
@@ -182,7 +182,7 @@ const Approvals = () => {
                         <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-6 text-gray-200">
                              <AlertCircle size={40} />
                         </div>
-                        <p className="text-sm font-black text-gray-300 uppercase tracking-widest">No matching applications detected</p>
+                        <p className="text-[12px] font-black text-gray-300 uppercase tracking-widest">No matching applications detected</p>
                     </div>
                 ) : (
                     filtered.map(req => {
@@ -199,13 +199,13 @@ const Approvals = () => {
                                             <div className="w-20 h-20 rounded-3xl bg-[#1a1b4b] text-white flex items-center justify-center font-black text-3xl shadow-2xl shadow-[#1a1b4b]/20 group-hover:scale-105 transition-transform duration-500">
                                                 {req.full_name?.charAt(0) || 'U'}
                                             </div>
-                                            <div className="absolute -bottom-2 -right-2 px-2.5 py-1 bg-white border border-gray-100 rounded-lg text-[10px] font-black text-[#1a1b4b] shadow-sm uppercase tracking-widest">
+                                            <div className="absolute -bottom-2 -right-2 px-2.5 py-1 bg-white border border-gray-100 rounded-lg text-[12px] font-black text-[#1a1b4b] shadow-sm uppercase tracking-widest">
                                                 {applicantRole}
                                             </div>
                                         </div>
                                         <div>
                                             <p className="text-lg font-black text-[#1a1b4b] tracking-tighter leading-tight">{req.full_name}</p>
-                                            <span className={`inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                                            <span className={`inline-block mt-2 px-3 py-1 rounded-full text-[12px] font-black uppercase tracking-widest shadow-sm ${
                                                 req.leave_type === 'sick' ? 'bg-red-50 text-red-600' :
                                                 req.leave_type === 'on-duty' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
                                             }`}>
@@ -222,11 +222,11 @@ const Approvals = () => {
                                                     <Calendar size={18} strokeWidth={2.5} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 italic">Authorized Period</p>
+                                                    <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1 italic">Authorized Period</p>
                                                     <p className="text-sm font-black text-[#1a1b4b] tracking-tight">
                                                         {new Date(req.start_date).toLocaleDateString('en-GB')} → {new Date(req.end_date).toLocaleDateString('en-GB')}
                                                     </p>
-                                                    <p className="text-xs font-bold text-gray-400 mt-0.5">{days} Total Effective {days > 1 ? 'Days' : 'Day'}</p>
+                                                    <p className="text-[12px] font-bold text-gray-400 mt-0.5">{days} Total Effective {days > 1 ? 'Days' : 'Day'}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-start gap-4">
@@ -234,8 +234,8 @@ const Approvals = () => {
                                                     <MessageSquare size={18} strokeWidth={2.5} />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 italic">Submission Justification</p>
-                                                    <p className="text-xs font-bold text-slate-500 leading-relaxed max-w-sm">
+                                                    <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1 italic">Submission Justification</p>
+                                                    <p className="text-[12px] font-bold text-slate-500 leading-relaxed max-w-sm">
                                                         "{req.reason}"
                                                     </p>
                                                 </div>
@@ -245,7 +245,7 @@ const Approvals = () => {
                                         {/* Status & Actions Section */}
                                         <div className="flex flex-col justify-center items-center md:items-end space-y-6">
                                             <div className="flex items-center gap-3">
-                                                <span className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 border ${s.bg} ${s.text} border-current/10`}>
+                                                <span className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest flex items-center gap-2 border ${s.bg} ${s.text} border-current/10`}>
                                                     <div className={`w-2 h-2 rounded-full ${s.dot} shadow-lg`} />
                                                     Current Status: {s.label}
                                                 </span>

@@ -43,6 +43,8 @@ import LOR from './pages/LOR';
 import LeaveApplication from './pages/LeaveApplication';
 import Proposals from './pages/Proposals';
 import FacultyProposals from './pages/FacultyProposals';
+import Reports from './pages/Reports';
+import AllocationAudit from './pages/AllocationAudit';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -231,6 +233,8 @@ function App() {
             <Route path="/leave-application" element={<LeaveApplication />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/proposals" element={<Proposals />} />
+            <Route path="/reports" element={<RoleRoute allowedRoles={['admin', 'dean', 'hod']}><Reports /></RoleRoute>} />
+            <Route path="/audit/allocation/:id" element={<RoleRoute allowedRoles={['admin', 'dean', 'hod']}><AllocationAudit /></RoleRoute>} />
             <Route path="/lor" element={<LOR />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/meetings" element={<AllMeetings />} />
