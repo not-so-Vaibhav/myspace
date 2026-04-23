@@ -19,12 +19,20 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
+const QUOTAS = {
+    sick: 12,
+    casual: 15,
+    'on-duty': 30,
+    medical: 10
+};
+
 const LeaveApplication = () => {
     const { profile, user } = useAuth();
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [requests, setRequests] = useState([]);
+    const [leaveBalances, setLeaveBalances] = useState(QUOTAS);
     const [toast, setToast] = useState(null);
     
     // Form State
@@ -39,6 +47,25 @@ const LeaveApplication = () => {
         }
     }, [user]);
 
+    const calculateBalances = (allRequests) => {
+        const used = { sick: 0, casual: 0, 'on-duty': 0, medical: 0 };
+        
+        allRequests.forEach(req => {
+            if (req.status === 'approved') {
+                const days = Math.ceil((new Date(req.end_date) - new Date(req.start_date)) / (1000 * 60 * 60 * 24)) + 1;
+                if (used[req.leave_type] !== undefined) {
+                    used[req.leave_type] += days;
+                }
+            }
+        });
+
+        const newBalances = {};
+        Object.keys(QUOTAS).forEach(key => {
+            newBalances[key] = Math.max(0, QUOTAS[key] - used[key]);
+        });
+        setLeaveBalances(newBalances);
+    };
+
     const fetchMyRequests = async () => {
         setFetching(true);
         const { data, error } = await supabase
@@ -51,6 +78,7 @@ const LeaveApplication = () => {
             console.error('Error fetching leaves:', error);
         } else {
             setRequests(data);
+            calculateBalances(data);
         }
         setFetching(false);
     };
@@ -267,10 +295,10 @@ const LeaveApplication = () => {
                                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold focus:bg-white focus:border-[#ef4444]/30 outline-none transition-all appearance-none"
                                 >
                                     <option value="">Select Category</option>
-                                    <option value="sick">Sick Leave</option>
-                                    <option value="casual">Casual Leave</option>
-                                    <option value="on-duty">On-Duty (OD)</option>
-                                    <option value="medical">Medical Emergency</option>
+                                    <option value="sick text-red-500">Sick Leave ({leaveBalances.sick} Left)</option>
+                                    <option value="casual">Casual Leave ({leaveBalances.casual} Left)</option>
+                                    <option value="on-duty">On-Duty ({leaveBalances['on-duty']} Left)</option>
+                                    <option value="medical">Medical Emergency ({leaveBalances.medical} Left)</option>
                                 </select>
                             </div>
 

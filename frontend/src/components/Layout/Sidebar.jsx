@@ -33,14 +33,13 @@ const getNavItems = (role) => {
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Faculty Requisitions' },
       { to: '/faculty-proposals', icon: Briefcase, label: 'Faculty Proposals' },
       { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
-      { to: '/roles', icon: FileText, label: 'Roles' },
-      { to: '/system-logs', icon: FileText, label: 'Logs' },
     ];
   }
 
   if (role === 'dean') {
     return [
       { to: '/dean-dashboard', icon: Home, label: 'Dean Dashboard' },
+      { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
       { to: '/analytics', icon: FileText, label: 'Analytics' },
       { to: '/departments', icon: FileText, label: 'Departments' },
       { to: '/reports', icon: FileText, label: 'Reports' },
@@ -50,6 +49,7 @@ const getNavItems = (role) => {
   if (role === 'hod') {
     return [
       { to: '/hod-dashboard', icon: Home, label: 'HOD Dashboard' },
+      { to: '/leave-application', icon: FileText, label: 'Leave Application' },
       { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/faculty-dashboard', icon: Home, label: 'Instructor View' },
