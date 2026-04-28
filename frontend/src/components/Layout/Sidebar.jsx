@@ -43,6 +43,7 @@ const getNavItems = (role) => {
       { to: '/academic-feedback', icon: BarChart3, label: 'Academic Feedback' },
       { to: '/performance-appraisal', icon: Award, label: 'Performance Appraisals' },
       { to: '/admissions', icon: UserPlus, label: 'Admission Requests' },
+      { to: '/schedule-allocation', icon: Clock, label: 'Schedule Allocation' },
     ];
   }
 

@@ -51,6 +51,7 @@ import AdmissionRequests from './pages/AdmissionRequests';
 import CourseFeedback from './pages/CourseFeedback';
 import FacultyFeedbackAnalytics from './pages/FacultyFeedbackAnalytics';
 import PerformanceAppraisal from './pages/PerformanceAppraisal';
+import ScheduleAllocation from './pages/ScheduleAllocation';
 
 // Layout wrapper for authenticated routes
 const ProtectedLayout = () => {
@@ -178,6 +179,15 @@ function App() {
               element={
                 <RoleRoute allowedRoles={['admin', 'hod']}>
                   <AllocationDashboard />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/schedule-allocation"
+              element={
+                <RoleRoute allowedRoles={['admin']}>
+                  <ScheduleAllocation />
                 </RoleRoute>
               }
             />
