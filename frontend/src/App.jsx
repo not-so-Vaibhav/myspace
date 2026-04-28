@@ -245,14 +245,14 @@ function App() {
             <Route path="/procurement" element={<RoleRoute allowedRoles={['admin', 'dean']}><Procurement /></RoleRoute>} />
             <Route path="/admissions" element={<RoleRoute allowedRoles={['admin']}><AdmissionRequests /></RoleRoute>} />
             <Route path="/academic-feedback" element={<RoleRoute allowedRoles={['admin', 'dean']}><FacultyFeedbackAnalytics /></RoleRoute>} />
-            <Route path="/performance-appraisal" element={<RoleRoute allowedRoles={['admin', 'faculty', 'hod', 'dean']}><PerformanceAppraisal /></RoleRoute>} />
+            <Route path="/performance-appraisal" element={<RoleRoute allowedRoles={['admin', 'faculty', 'hod', 'dean', 'non_teaching']}><PerformanceAppraisal /></RoleRoute>} />
             <Route path="/feedback" element={<CourseFeedback />} />
             <Route path="/lor" element={<LOR />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/meetings" element={<AllMeetings />} />
             <Route path="/approvals" element={<Approvals />} />
             <Route path="/faculty" element={<FacultyList />} />
-            <Route path="/salary-slip" element={<RoleRoute allowedRoles={['faculty', 'admin', 'hod']}><SalarySlip /></RoleRoute>} />
+            <Route path="/salary-slip" element={<RoleRoute allowedRoles={['faculty', 'admin', 'hod', 'non_teaching']}><SalarySlip /></RoleRoute>} />
 
             {/* Fallback Catch-All Route to prevent white screens on invalid URLs */}
             <Route path="*" element={<Navigate to="/" replace />} />

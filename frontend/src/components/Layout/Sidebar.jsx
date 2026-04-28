@@ -77,9 +77,12 @@ const getNavItems = (role) => {
   if (role === 'non_teaching') {
     return [
       { to: '/staff-dashboard', icon: Home, label: 'Staff Dashboard' },
-      { to: '/finance', icon: CreditCard, label: 'Finance' },
-      { to: '/admissions', icon: FileText, label: 'Admissions' },
-      { to: '/records', icon: FolderOpen, label: 'Records' },
+      { to: '/library', icon: Library, label: 'Library' },
+      { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
+      { to: '/performance-appraisal', icon: Award, label: 'Performance & Appraisal' },
+      { to: '/request-letter', icon: FileText, label: 'Requisitions' },
+      { to: '/proposals', icon: FileText, label: 'Proposals' },
+      { to: '/salary-slip', icon: CreditCard, label: 'Salary Slip' },
     ];
   }
 
