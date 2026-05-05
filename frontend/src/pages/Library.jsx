@@ -30,10 +30,10 @@ const Library = () => {
     });
 
     const stats = [
-        { label: 'Issued Items', value: '0 / 28', icon: BookMarked, color: 'bg-blue-500' },
-        { label: 'Reserved Items', value: '0 / 2', icon: Clock, color: 'bg-emerald-500' },
-        { label: 'Library Fine', value: '₹150', icon: AlertCircle, color: 'bg-red-500', showPay: true },
-        { label: 'Suggestions', value: '0', icon: MessageSquare, color: 'bg-purple-500' }
+        { label: 'Issued Items', value: '0 / 28', icon: BookMarked, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Reserved Items', value: '0 / 2', icon: Clock, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Library Fine', value: '₹150', icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-50', showPay: true },
+        { label: 'Suggestions', value: '0', icon: MessageSquare, color: 'text-slate-600', bg: 'bg-slate-50' }
     ];
 
     return (
@@ -54,27 +54,27 @@ const Library = () => {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                        <div className={`absolute top-0 right-0 w-24 h-24 ${stat.color} opacity-[0.03] rounded-bl-[4rem] group-hover:scale-110 transition-transform`} />
-                        <div className="flex items-start justify-between">
-                            <div className={`w-12 h-12 rounded-2xl ${stat.color} bg-opacity-10 flex items-center justify-center`}>
-                                <stat.icon size={22} className={stat.color.replace('bg-', 'text-')} />
+                    <div key={i} className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} opacity-20 rounded-bl-[4rem] group-hover:scale-110 transition-transform`} />
+                        <div className="flex items-start justify-between relative z-10">
+                            <div className={`w-14 h-14 rounded-2xl ${stat.bg} flex items-center justify-center`}>
+                                <stat.icon size={24} className={stat.color} />
                             </div>
-                            <button className="text-[12px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] flex items-center gap-1 transition-colors">
+                            <button className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] flex items-center gap-1 transition-colors">
                                 View Details <ArrowRight size={10} />
                             </button>
                         </div>
-                        <div className="mt-4 flex items-end justify-between">
+                        <div className="mt-6 flex items-end justify-between relative z-10">
                             <div>
-                                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                                <h3 className={`text-2xl font-black text-[#1a1b4b] ${stat.label === 'Library Fine' && 'text-red-500'}`}>{stat.value}</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                                <h3 className={`text-3xl font-black text-[#1a1b4b] ${stat.label === 'Library Fine' && 'text-rose-500'}`}>{stat.value}</h3>
                             </div>
                             {stat.showPay && (
                                 <button 
                                     onClick={() => navigate('/payment')}
-                                    className="px-4 py-2 bg-red-500 text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95 mb-1"
+                                    className="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-200 active:scale-95 mb-1"
                                 >
                                     Pay Now
                                 </button>
@@ -87,9 +87,9 @@ const Library = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Catalog Search Form */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
+                    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
                         <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight mb-8 flex items-center gap-3">
-                            <Filter size={20} className="text-[#ef4444]" /> Catalog Search
+                            <Filter size={20} className="text-indigo-500" /> Catalog Search
                         </h2>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -141,10 +141,10 @@ const Library = () => {
                             </div>
                         </div>
 
-                        <div className="mt-8 flex justify-end gap-3">
-                            <button className="px-6 py-3 bg-gray-100 text-gray-400 rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-gray-200 transition-colors">Clear All</button>
-                            <button className="px-10 py-3 bg-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all flex items-center gap-2 shadow-lg shadow-[#1a1b4b]/20">
-                                <Search size={14} /> Search Catalog
+                        <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-50">
+                            <button className="px-6 py-3 bg-gray-50 text-gray-400 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-gray-100 transition-colors">Clear Filters</button>
+                            <button className="px-10 py-3 bg-[#1a1b4b] text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all flex items-center gap-2 shadow-lg shadow-indigo-100">
+                                <Search size={14} /> Find Books
                             </button>
                         </div>
                     </div>
@@ -152,13 +152,13 @@ const Library = () => {
 
                 {/* Issued Holding Display */}
                 <div className="space-y-6">
-                    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 h-full">
+                    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8 h-full">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight flex items-center gap-3">
-                                <BookMarked size={20} className="text-[#ef4444]" /> Issued Holding
+                                <BookMarked size={20} className="text-indigo-500" /> Issued Holding
                             </h2>
-                            <span className="px-3 py-1 bg-gray-50 text-[12px] font-black text-gray-400 border border-gray-100 rounded-lg">
-                                0 ITEMS FOUND
+                            <span className="px-3 py-1 bg-gray-50 text-[10px] font-black text-gray-400 border border-gray-100 rounded-lg tracking-widest uppercase">
+                                0 Books
                             </span>
                         </div>
                         

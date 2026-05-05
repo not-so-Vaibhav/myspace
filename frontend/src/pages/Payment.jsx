@@ -32,43 +32,49 @@ const Payment = () => {
             </header>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-[#1a1b4b] to-[#2d3a8c] p-6 rounded-3xl shadow-lg relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 text-white/10 group-hover:scale-110 transition-transform">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute -right-6 -top-6 text-indigo-50 group-hover:scale-110 transition-transform">
                         <Wallet size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[12px] font-black text-white/60 uppercase tracking-widest mb-1">Current Session Schedule</p>
-                        <h3 className="text-3xl font-black text-white flex items-center gap-1">
-                            <IndianRupee size={24} strokeWidth={3} /> 157,500
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Current Session Schedule</p>
+                        <h3 className="text-4xl font-black text-[#1a1b4b] flex items-baseline gap-1">
+                            <span className="text-xl">₹</span> 157,500
                         </h3>
-                        <p className="text-[12px] font-bold text-white/40 uppercase tracking-widest mt-2">*Excluding Previous Schedule</p>
+                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                           <Clock size={12} /> Pending Review
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-3xl shadow-lg relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 text-white/10 group-hover:scale-110 transition-transform">
+                <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute -right-6 -top-6 text-emerald-50 group-hover:scale-110 transition-transform">
                         <CreditCard size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[12px] font-black text-emerald-100 uppercase tracking-widest mb-1">Current Session Paid</p>
-                        <h3 className="text-3xl font-black text-white flex items-center gap-1">
-                            <IndianRupee size={24} strokeWidth={3} /> 157,500
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Current Session Paid</p>
+                        <h3 className="text-4xl font-black text-emerald-600 flex items-baseline gap-1">
+                            <span className="text-xl">₹</span> 157,500
                         </h3>
-                        <p className="text-[12px] font-bold text-emerald-100/60 uppercase tracking-widest mt-2">*Excluding Previous Paid</p>
+                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                           <CheckCircle size={12} /> Fully Settled
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-red-500 to-rose-600 p-6 rounded-3xl shadow-lg relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 text-white/10 group-hover:scale-110 transition-transform">
+                <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute -right-6 -top-6 text-rose-50 group-hover:scale-110 transition-transform">
                         <Clock size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[12px] font-black text-red-100 uppercase tracking-widest mb-1">Amount Due</p>
-                        <h3 className="text-3xl font-black text-white flex items-center gap-1">
-                            <IndianRupee size={24} strokeWidth={3} /> 0
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Amount Due</p>
+                        <h3 className="text-4xl font-black text-rose-500 flex items-baseline gap-1">
+                            <span className="text-xl">₹</span> 0
                         </h3>
-                        <p className="text-[12px] font-bold text-red-100/60 uppercase tracking-widest mt-2">*Include Previous Dues & Fine</p>
+                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                           <Wallet size={12} /> No Outstanding
+                        </div>
                     </div>
                 </div>
             </div>
@@ -113,36 +119,36 @@ const Payment = () => {
                     </button>
                 </div>
                 
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-x-auto">
+                <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
                     <table className="w-full text-left min-w-[800px]">
                         <thead>
-                            <tr className="bg-[#1a1b4b] text-white">
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest whitespace-nowrap first:rounded-tl-2xl">Receipt Number</th>
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Due Amount</th>
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Arrear</th>
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Late Fee</th>
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-right">Amount Paid/Refund</th>
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-center">Date</th>
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-center">Type</th>
-                                <th className="p-4 text-[12px] font-black uppercase tracking-widest text-center last:rounded-tr-2xl">Action</th>
+                            <tr className="bg-gray-50/50 border-b border-gray-100">
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Receipt Number</th>
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Due Amount</th>
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Arrear</th>
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Late Fee</th>
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Amount Paid</th>
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Date</th>
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Type</th>
+                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {transactions.map((txn, idx) => (
-                                <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="p-4 text-xs font-bold text-[#1a1b4b] whitespace-nowrap">{txn.receipt}</td>
-                                    <td className="p-4 text-xs font-bold text-gray-600 text-right">{formatInr(txn.due)}</td>
-                                    <td className="p-4 text-xs font-bold text-gray-600 text-right">{formatInr(txn.arrear)}</td>
-                                    <td className="p-4 text-xs font-bold text-red-500 text-right">{formatInr(txn.lateFee)}</td>
-                                    <td className="p-4 text-xs font-black text-emerald-600 text-right">{formatInr(txn.amount)}</td>
-                                    <td className="p-4 text-xs font-bold text-gray-500 text-center whitespace-nowrap">{txn.date}</td>
-                                    <td className="p-4 text-center">
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[12px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-700">
+                                <tr key={idx} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0">
+                                    <td className="p-6 text-xs font-black text-[#1a1b4b] whitespace-nowrap">{txn.receipt}</td>
+                                    <td className="p-6 text-xs font-bold text-gray-500 text-right">{formatInr(txn.due)}</td>
+                                    <td className="p-6 text-xs font-bold text-gray-500 text-right">{formatInr(txn.arrear)}</td>
+                                    <td className="p-6 text-xs font-bold text-rose-500 text-right">{formatInr(txn.lateFee)}</td>
+                                    <td className="p-6 text-xs font-black text-emerald-600 text-right">{formatInr(txn.amount)}</td>
+                                    <td className="p-6 text-xs font-bold text-gray-400 text-center whitespace-nowrap">{txn.date}</td>
+                                    <td className="p-6 text-center">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600">
                                             {txn.type}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-center">
-                                        <button className="p-2 bg-gray-100 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <td className="p-6 text-center">
+                                        <button className="p-2.5 bg-gray-50 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
                                             <Printer size={16} />
                                         </button>
                                     </td>

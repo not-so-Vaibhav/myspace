@@ -57,11 +57,11 @@ const FacultyList = () => {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 gap-10">
                 
                 {/* Request Creation Panel */}
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="bg-white rounded-[2.5rem] p-10 border border-[#1a1b4b]/5 shadow-2xl shadow-gray-100 flex flex-col h-full">
+                <div className="space-y-8">
+                    <div className="bg-white rounded-[2.5rem] p-10 border border-[#1a1b4b]/5 shadow-2xl shadow-gray-100 flex flex-col h-full max-w-3xl mx-auto">
                         <div className="flex items-center gap-4 mb-10 pb-6 border-b border-gray-50">
                             <div className="w-12 h-12 bg-[#1a1b4b] text-white rounded-2xl flex items-center justify-center shadow-lg">
                                 <FilePlus size={24} />
@@ -134,24 +134,6 @@ const FacultyList = () => {
                                 )}
                             </button>
                         </form>
-                    </div>
-                </div>
-
-                {/* Info Panel */}
-                <div className="space-y-8">
-                    <div className="bg-[#1a1b4b] rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-100 h-full flex flex-col">
-                        <History className="mb-6 opacity-40 shrink-0" size={32} />
-                        <h3 className="text-2xl font-black uppercase tracking-tighter leading-tight mb-4">Request <br />Archives</h3>
-                        <p className="text-white/40 text-[12px] font-bold uppercase tracking-widest leading-relaxed mb-auto">
-                            No active employment requests found in your current vector. <br /><br />All historical loan, transfer, and separation data is securely encrypted.
-                        </p>
-                        
-                        <div className="mt-10 p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <p className="text-[12px] font-black text-white/40 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> System Integrity
-                            </p>
-                            <p className="text-[12px] font-black tracking-tight leading-tight uppercase">ISO/IEC 27001 Identity Protocol Active</p>
-                        </div>
                     </div>
                 </div>
 
