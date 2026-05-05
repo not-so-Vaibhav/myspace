@@ -328,13 +328,13 @@ const StudentCourses = () => {
                   {/* Content */}
                   <div className="p-6 flex-1 flex flex-col gap-4">
                     <div>
-                      <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight mb-4">{alloc?.subject?.name}</h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                      <h3 className="text-lg font-black text-[#1a1b4b] tracking-tight mb-4">{alloc?.subject?.name}</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                           <span>Duration</span>
-                          <span className="text-[#1a1b4b]">{(idx % 3 === 0) ? '15 hr' : (idx % 3 === 1) ? '16 hr' : '17 hr'}</span>
+                          <span className="text-[#1a1b4b] font-black">{(idx % 3 === 0) ? '15 hr' : (idx % 3 === 1) ? '16 hr' : '17 hr'}</span>
                         </div>
-                        <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                           <span>Class Code</span>
                           <span className="text-indigo-600 font-black">{alloc?.subject?.code}</span>
                         </div>
@@ -345,18 +345,18 @@ const StudentCourses = () => {
                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleUnenroll(enrollment.id, enrollment.allocation_id)}
-                            className="w-9 h-9 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-all"
+                            className="w-10 h-10 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-all"
                             title="Unenroll"
                           >
                             <Unenroll size={16} />
                           </button>
-                          <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-3 py-1 rounded-full uppercase tracking-widest">
+                          <span className="text-xs font-black bg-gray-50 text-gray-500 px-3 py-1.5 rounded-full uppercase tracking-widest">
                             {matList.length} Materials
                           </span>
                        </div>
                        <button
                           onClick={() => toggleExpand(enrollment.allocation_id)}
-                          className="bg-[#1a1b4b] text-white px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
+                          className="bg-[#1a1b4b] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
                        >
                           Go to Course
                        </button>

@@ -216,8 +216,8 @@ const FacultyCourses = () => {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <label className="cursor-pointer bg-white/90 hover:bg-white text-[#1a1b4b] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
-                      <Upload size={12} /> {isUploadingBanner ? 'Uploading...' : 'Change Cover'}
+                    <label className="cursor-pointer bg-white/90 hover:bg-white text-[#1a1b4b] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
+                      <Upload size={14} /> {isUploadingBanner ? 'Uploading...' : 'Change Cover'}
                       <input 
                         type="file" 
                         className="hidden" 
@@ -232,21 +232,21 @@ const FacultyCourses = () => {
                 {/* Content */}
                 <div className="p-6 flex-1 flex flex-col gap-4">
                   <div>
-                    <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight mb-4">{alloc.subject?.name}</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                    <h3 className="text-lg font-black text-[#1a1b4b] tracking-tight mb-4">{alloc.subject?.name}</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <span>Duration</span>
-                        <span className="text-[#1a1b4b]">{(idx % 3 === 0) ? '15 hr' : (idx % 3 === 1) ? '16 hr' : '17 hr'}</span>
+                        <span className="text-[#1a1b4b] font-black">{(idx % 3 === 0) ? '15 hr' : (idx % 3 === 1) ? '16 hr' : '17 hr'}</span>
                       </div>
-                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                      <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <span>Students #</span>
-                        <span className="text-[#1a1b4b]">{alloc.student_enrollments?.[0]?.count || 0}</span>
+                        <span className="text-[#1a1b4b] font-black">{alloc.student_enrollments?.[0]?.count || 0}</span>
                       </div>
-                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                      <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <span>Rating</span>
-                        <span className="text-[#1a1b4b]">0</span>
+                        <span className="text-[#1a1b4b] font-black">0</span>
                       </div>
-                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                      <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <span>Class Code</span>
                         <span className="text-indigo-600 font-black">{alloc.subject?.code}</span>
                       </div>
@@ -254,12 +254,12 @@ const FacultyCourses = () => {
                   </div>
 
                   <div className="pt-4 border-t border-gray-50 mt-auto flex items-center justify-between">
-                     <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-3 py-1 rounded-full uppercase tracking-widest">
+                     <span className="text-xs font-black bg-gray-50 text-gray-500 px-3 py-1.5 rounded-full uppercase tracking-widest">
                         {materialList.length} Materials
                      </span>
                      <button
                         onClick={() => toggleExpand(alloc.id)}
-                        className="bg-[#1a1b4b] text-white px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
+                        className="bg-[#1a1b4b] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
                      >
                         Go to Course
                      </button>

@@ -444,33 +444,47 @@ const FacultyAttendance = () => {
                 <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mt-2">Wait for your HOD/Admin to assign you subjects.</p>
              </div>
           ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {allocations.map(alloc => (
                       <button
                           key={alloc.id}
                           onClick={() => setSelectedAllocation(alloc.id)}
-                          className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100/80 hover:shadow-md hover:-translate-y-1 hover:border-[#1a1b4b]/10 transition-all flex flex-col h-60 relative group text-left"
+                          className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-lg group text-left"
                       >
-                          <div className="absolute inset-0 flex justify-center items-center pointer-events-none pb-8">
-                             <div className="w-[84px] h-[84px] bg-gray-50/70 group-hover:bg-[#1a1b4b]/5 rounded-[2rem] flex justify-center items-center transition-colors">
-                                <CalendarCheck size={36} className="text-[#1a1b4b]" strokeWidth={2} />
-                             </div>
-                          </div>
-                          <div className="mt-auto flex items-end justify-between w-full relative z-10">
-                              <div>
-                                  <h3 className="text-3xl font-black text-[#1a1b4b] tracking-tighter mb-2 leading-none">
-                                      {alloc.subject?.code}
-                                  </h3>
-                                  <div className="flex items-center gap-1.5">
-                                      <span className="text-[12px] font-black text-[#1a1b4b] bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-widest border border-indigo-100">
-                                          {alloc.batch?.name || 'Class'}
-                                      </span>
-                                      <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">
-                                          Attendance
-                                      </span>
+                          {/* Banner/Icon Area */}
+                          <div className="h-24 bg-indigo-50/50 flex items-center justify-center relative overflow-hidden">
+                              <div className="absolute top-0 right-0 p-3">
+                                  <div className="w-8 h-8 rounded-xl bg-white/80 backdrop-blur-sm flex items-center justify-center text-[#1a1b4b] shadow-sm">
+                                      <CalendarCheck size={16} strokeWidth={2.5} />
                                   </div>
                               </div>
-                              <div className="w-3.5 h-3.5 rounded-full bg-[#666885]"></div>
+                              <CalendarCheck size={32} className="text-[#1a1b4b]/10 group-hover:scale-110 transition-transform duration-500" strokeWidth={1} />
+                          </div>
+
+                          {/* Content */}
+                          <div className="p-6 flex-1 flex flex-col gap-3">
+                              <div>
+                                  <div className="flex items-center gap-2 mb-2">
+                                      <span className="text-[12px] font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-widest border border-indigo-100">
+                                          {alloc.subject?.code}
+                                      </span>
+                                      <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">
+                                          {alloc.batch?.name || 'Batch'}
+                                      </span>
+                                  </div>
+                                  <h3 className="text-lg font-black text-[#1a1b4b] tracking-tight leading-tight group-hover:text-indigo-600 transition-colors line-clamp-1">
+                                      {alloc.subject?.name}
+                                  </h3>
+                              </div>
+
+                              <div className="pt-3 border-t border-gray-50 mt-auto flex items-center justify-between">
+                                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                                      <Users size={14} className="text-indigo-400" /> Ledger
+                                  </span>
+                                  <div className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center text-[#1a1b4b] group-hover:bg-[#1a1b4b] group-hover:text-white transition-all">
+                                      <ArrowLeft className="rotate-180" size={14} strokeWidth={3} />
+                                  </div>
+                              </div>
                           </div>
                       </button>
                   ))}
