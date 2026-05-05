@@ -68,15 +68,21 @@ const Calendar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Personal & Public Events State
-  const [personalEvents, setPersonalEvents] = useState(() => {
-    const saved = localStorage.getItem('personal_events');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [personalEvents, setPersonalEvents] = useState([]);
   const [publicEvents, setPublicEvents] = useState([]);
   const [assignmentDeadlines, setAssignmentDeadlines] = useState([]);
   const [meetings, setMeetings] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({ title: '', startDate: format(new Date(), 'yyyy-MM-dd'), endDate: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal', targetAudience: 'both' });
+  const [newEvent, setNewEvent] = useState({ 
+    title: '', 
+    startDate: format(new Date(), 'yyyy-MM-dd'), 
+    endDate: format(new Date(), 'yyyy-MM-dd'), 
+    startTime: '10:00', 
+    endTime: '11:00', 
+    type: 'Personal', 
+    targetAudience: 'both',
+    reminder: 'none' // 'none', '1h', '2h', '4h', '1d'
+  });
 
   const { profile, user } = useAuth();
   const role = profile?.role?.toLowerCase();
@@ -96,13 +102,41 @@ const Calendar = () => {
 
   useEffect(() => {
     fetchPublicEvents();
-    if (profile?.id && role === 'student') {
-      fetchAssignmentDeadlines();
-    }
-    if (profile?.id && (role === 'faculty' || role === 'hod' || role === 'instructor')) {
-      fetchMeetings();
+    if (profile?.id) {
+      fetchPersonalEvents();
+      if (role === 'student') {
+        fetchAssignmentDeadlines();
+      }
+      if (role === 'faculty' || role === 'hod' || role === 'instructor') {
+        fetchMeetings();
+      }
     }
   }, [profile?.id, role]);
+
+  const fetchPersonalEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('personal_events')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      if (data) {
+        setPersonalEvents(data.map(e => ({
+          id: e.id,
+          title: e.title,
+          startDate: e.start_date,
+          endDate: e.end_date,
+          startTime: e.start_time,
+          endTime: e.end_time,
+          reminder: e.reminder,
+          type: 'Personal'
+        })));
+      }
+    } catch (err) {
+      console.error('Error fetching personal events:', err);
+    }
+  };
 
   const fetchMeetings = async () => {
     try {
@@ -179,9 +213,7 @@ const Calendar = () => {
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem('personal_events', JSON.stringify(personalEvents));
-  }, [personalEvents]);
+  // Removed localStorage sync
 
   const hours = useMemo(() => {
     return eachHourOfInterval({
@@ -237,12 +269,46 @@ const Calendar = () => {
         console.error('Failed to create public event', err);
       }
     } else {
-      const event = { ...newEvent, id: Date.now().toString() };
-      setPersonalEvents([...personalEvents, event]);
+      try {
+        const { data, error } = await supabase.from('personal_events').insert([{
+          title: newEvent.title,
+          start_date: newEvent.startDate,
+          end_date: newEvent.endDate,
+          start_time: newEvent.startTime,
+          end_time: newEvent.endTime,
+          reminder: newEvent.reminder,
+          user_id: user.id
+        }]).select();
+
+        if (error) throw error;
+        if (data) {
+          setPersonalEvents([...personalEvents, {
+            id: data[0].id,
+            title: data[0].title,
+            startDate: data[0].start_date,
+            endDate: data[0].end_date,
+            startTime: data[0].start_time,
+            endTime: data[0].end_time,
+            reminder: data[0].reminder,
+            type: 'Personal'
+          }]);
+        }
+      } catch (err) {
+        console.error('Failed to create personal event', err);
+      }
     }
 
     setIsModalOpen(false);
-    setNewEvent({ title: '', startDate: format(new Date(), 'yyyy-MM-dd'), endDate: format(new Date(), 'yyyy-MM-dd'), startTime: '10:00', endTime: '11:00', type: 'Personal', targetAudience: 'both' });
+    setNewEvent({ 
+      title: '', 
+      startDate: format(new Date(), 'yyyy-MM-dd'), 
+      endDate: format(new Date(), 'yyyy-MM-dd'), 
+      startTime: '10:00', 
+      endTime: '11:00', 
+      type: 'Personal', 
+      targetAudience: 'both',
+      reminder: 'none'
+    });
   };
 
   const removeEvent = async (id, type) => {
@@ -254,7 +320,12 @@ const Calendar = () => {
         console.error('Failed to delete public event', err);
       }
     } else {
-      setPersonalEvents(personalEvents.filter(e => e.id !== id));
+      try {
+        await supabase.from('personal_events').delete().eq('id', id);
+        setPersonalEvents(personalEvents.filter(e => e.id !== id));
+      } catch (err) {
+        console.error('Failed to delete personal event', err);
+      }
     }
   };
 
@@ -600,6 +671,27 @@ const Calendar = () => {
                        </div>
                     </div>
                  </div>
+
+                 {newEvent.type === 'Personal' && (
+                   <div>
+                     <label className="block text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                       <Bell size={12} className="text-indigo-500" /> Set Reminder
+                     </label>
+                     <select 
+                       value={newEvent.reminder}
+                       onChange={(e) => setNewEvent({...newEvent, reminder: e.target.value})}
+                       className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100"
+                     >
+                       <option value="none">No Reminder</option>
+                       <option value="1h">1 Hour Before</option>
+                       <option value="2h">2 Hours Before</option>
+                       <option value="4h">4 Hours Before</option>
+                       <option value="12h">12 Hours Before</option>
+                       <option value="1d">1 Day Before</option>
+                     </select>
+                     <p className="text-[10px] text-gray-400 font-bold uppercase mt-2 ml-1">Reminders will appear in your Announcements feed</p>
+                   </div>
+                 )}
               </div>
 
               <div className="mt-10 flex gap-3">

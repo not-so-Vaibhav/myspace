@@ -30,6 +30,7 @@ const Announcements = () => {
   const [success, setSuccess] = useState(null);
   const [likedIds, setLikedIds] = useState(new Set());
   const [deadlineReminders, setDeadlineReminders] = useState([]);
+  const [personalReminders, setPersonalReminders] = useState([]);
   const [deadlinesLoading, setDeadlinesLoading] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -54,8 +55,9 @@ const Announcements = () => {
 
   useEffect(() => {
     fetchAnnouncements();
-    if (role === 'student' && profile?.id) {
-      fetchDeadlineReminders();
+    if (profile?.id) {
+      if (role === 'student') fetchDeadlineReminders();
+      fetchPersonalReminders();
     }
     // Mark as read when page is visited
     if (profile?.id) {
@@ -144,6 +146,47 @@ const Announcements = () => {
       console.error("Error fetching deadline reminders:", err);
     } finally {
       setDeadlinesLoading(false);
+    }
+  };
+
+  const fetchPersonalReminders = async () => {
+    try {
+      const { data: events, error } = await supabase
+        .from('personal_events')
+        .select('*')
+        .eq('user_id', profile.id);
+      
+      if (error) throw error;
+      if (!events) return;
+
+      const now = new Date();
+      
+      const activeReminders = events.filter(e => {
+        if (e.reminder === 'none') return false;
+        
+        const eventStart = new Date(`${e.start_date}T${e.start_time || '00:00'}`);
+        if (isNaN(eventStart.getTime())) return false;
+        
+        let reminderTime;
+        const ms = 60 * 60 * 1000;
+        if (e.reminder === '1h') reminderTime = new Date(eventStart.getTime() - 1 * ms);
+        else if (e.reminder === '2h') reminderTime = new Date(eventStart.getTime() - 2 * ms);
+        else if (e.reminder === '4h') reminderTime = new Date(eventStart.getTime() - 4 * ms);
+        else if (e.reminder === '12h') reminderTime = new Date(eventStart.getTime() - 12 * ms);
+        else if (e.reminder === '1d') reminderTime = new Date(eventStart.getTime() - 24 * ms);
+        
+        return now >= reminderTime && now < eventStart;
+      });
+      
+      setPersonalReminders(activeReminders.map(rem => ({
+        id: rem.id,
+        title: rem.title,
+        startDate: rem.start_date,
+        startTime: rem.start_time,
+        reminder: rem.reminder
+      })));
+    } catch (err) {
+      console.error("Error fetching personal reminders:", err);
     }
   };
 
@@ -534,6 +577,40 @@ const Announcements = () => {
       {/* Published Announcements (visible on Admin "Published" tab + for students/faculty) */}
       {(!isAdmin || tab === 'active') && (
         <>
+          {/* Personal Event Reminders Alert */}
+          {personalReminders.length > 0 && (
+            <section className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              <h2 className="text-[12px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+                <Bell size={12} className="animate-pulse" /> Personal Event Reminders
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {personalReminders.map(rem => (
+                  <div key={rem.id} className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 flex items-start gap-4 shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200">
+                      <Clock size={18} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-[15px] font-black text-[#1a1b4b] leading-tight uppercase tracking-tight">{rem.title}</h3>
+                      <p className="text-[11px] font-bold text-indigo-600 uppercase tracking-widest mt-1">
+                        Starts at: {format(parseISO(rem.startDate), 'MMM dd')} {rem.startTime}
+                      </p>
+                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                         Personal Reminder: {rem.reminder} before
+                      </p>
+                    </div>
+                    <Link 
+                      to="/calendar" 
+                      className="px-4 py-2 bg-white text-[#1a1b4b] rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-200 hover:bg-[#1a1b4b] hover:text-white transition-all shadow-sm"
+                    >
+                      View
+                    </Link>
+                  </div>
+                ))}
+              </div>
+              <div className="h-px bg-gray-100 mt-4" />
+            </section>
+          )}
+
           {/* Deadline Reminders section for students */}
           {role === 'student' && deadlineReminders.length > 0 && (
             <section className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
