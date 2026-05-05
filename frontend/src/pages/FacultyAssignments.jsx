@@ -47,7 +47,7 @@ const FacultyAssignments = () => {
         const ids = allocData.map(a => a.id);
         const { data: matData } = await supabase
           .from('course_materials')
-          .select('*, allocation:subject_allocations(subject:subjects(name,code), batch:batches(name))')
+          .select('*, allocation:subject_allocations(subject:subjects(name,code), batch:batches(name)), student_submissions(count)')
           .in('allocation_id', ids)
           .eq('type', 'Assignment')
           .order('created_at', { ascending: false });
@@ -326,10 +326,12 @@ const FacultyAssignments = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                     <div className="text-right hidden sm:block">
-                        <div className="text-xs font-black text-[#1a1b4b] uppercase tracking-widest">{subs.length} Uploads</div>
-                        <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest">Received</p>
-                     </div>
+                      <div className="text-right hidden sm:block">
+                         <div className="text-xs font-black text-[#1a1b4b] uppercase tracking-widest">
+                            {subs.length > 0 ? subs.length : (mat.student_submissions?.[0]?.count || 0)} Uploads
+                         </div>
+                         <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest">Received</p>
+                      </div>
                      {isExpanded ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
                   </div>
                 </div>
