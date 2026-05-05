@@ -12,6 +12,7 @@ const FacultyCourses = () => {
 
   // Resource Upload State
   const [uploadingId, setUploadingId] = useState(null);
+  const [uploadingBannerId, setUploadingBannerId] = useState(null);
   const [uploadForm, setUploadForm] = useState({ title: '', type: 'Module', file: null });
   const [resources, setResources] = useState({}); // keyed by allocation_id
 
@@ -27,10 +28,12 @@ const FacultyCourses = () => {
         .from('subject_allocations')
         .select(`
           id,
+          banner_url,
           subject:subjects(id, name, code, credits, type),
           batch:batches(id, name),
           semester:semesters(id, term_number),
-          faculty:profiles(id, full_name)
+          faculty:profiles(id, full_name),
+          student_enrollments:student_enrollments(count)
         `)
         .eq('faculty_id', profile.id)
         .order('created_at', { ascending: false });
@@ -65,6 +68,40 @@ const FacultyCourses = () => {
   const toggleExpand = (id) => {
     setExpandedId(prev => prev === id ? null : id);
     setUploadingId(null); // reset upload panel
+  };
+
+  const handleBannerUpload = async (allocationId, file) => {
+    if (!file) return;
+    setUploadingBannerId(allocationId);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `course-banners/${allocationId}/${Date.now()}.${ext}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('course-resources')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('course-resources')
+        .getPublicUrl(filePath);
+      
+      const bannerUrl = urlData?.publicUrl;
+
+      const { error: updateError } = await supabase
+        .from('subject_allocations')
+        .update({ banner_url: bannerUrl })
+        .eq('id', allocationId);
+
+      if (updateError) throw updateError;
+
+      setAllocations(prev => prev.map(a => a.id === allocationId ? { ...a, banner_url: bannerUrl } : a));
+    } catch (err) {
+      setError('Banner upload failed: ' + err.message);
+    } finally {
+      setUploadingBannerId(null);
+    }
   };
 
   const handleUpload = async (allocationId) => {
@@ -161,116 +198,171 @@ const FacultyCourses = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {allocations.map(alloc => {
-            const isOpen = expandedId === alloc.id;
             const materialList = resources[alloc.id] || [];
-            const isUploading = uploadingId === alloc.id;
+            const isUploadingBanner = uploadingBannerId === alloc.id;
+            const isOpen = expandedId === alloc.id;
 
             return (
-              <div key={alloc.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                {/* Header Row */}
-                <button
-                  onClick={() => toggleExpand(alloc.id)}
-                  className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-5 text-left">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center shrink-0">
-                      <BookOpen className="w-6 h-6 text-[#1a1b4b]" />
+              <div key={alloc.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-lg group">
+                {/* Cover Image */}
+                <div className="relative h-48 bg-gray-100 overflow-hidden">
+                  {alloc.banner_url ? (
+                    <img src={alloc.banner_url} alt={alloc.subject?.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-indigo-50">
+                      <BookOpen className="w-12 h-12 text-indigo-200" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="text-xs font-black bg-[#1a1b4b] text-white px-2.5 py-1 rounded-md uppercase tracking-widest">
-                          {alloc.subject?.code}
-                        </span>
-                        <span className="text-xs font-black text-gray-300 uppercase tracking-widest">
-                          Sem {alloc.semester?.term_number}
-                        </span>
-                      </div>
-                      <h3 className="text-base font-black text-[#1a1b4b] tracking-tight leading-none">{alloc.subject?.name}</h3>
-                      <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                        Batch: <span className="text-[#ef4444]">{alloc.batch?.name}</span> · {alloc.subject?.credits} Credits · {alloc.subject?.type}
-                      </p>
-                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <label className="cursor-pointer bg-white/90 hover:bg-white text-[#1a1b4b] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
+                      <Upload size={12} /> {isUploadingBanner ? 'Uploading...' : 'Change Cover'}
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*" 
+                        onChange={(e) => handleBannerUpload(alloc.id, e.target.files[0])}
+                        disabled={isUploadingBanner}
+                      />
+                    </label>
                   </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs font-black text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
-                      {materialList.length} Materials
-                    </span>
-                    {isOpen ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
-                  </div>
-                </button>
+                </div>
 
-                {/* Expanded Panel */}
+                {/* Content */}
+                <div className="p-6 flex-1 flex flex-col gap-4">
+                  <div>
+                    <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight mb-4">{alloc.subject?.name}</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Duration (HH:MM:SS)</span>
+                        <span className="text-[#1a1b4b]">0:0:0</span>
+                      </div>
+                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Students #</span>
+                        <span className="text-[#1a1b4b]">{alloc.student_enrollments?.[0]?.count || 0}</span>
+                      </div>
+                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Rating</span>
+                        <span className="text-[#1a1b4b]">0</span>
+                      </div>
+                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Class Code</span>
+                        <span className="text-indigo-600 font-black">{alloc.subject?.code}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-50 mt-auto flex items-center justify-between">
+                     <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-3 py-1 rounded-full uppercase tracking-widest">
+                        {materialList.length} Materials
+                     </span>
+                     <button
+                        onClick={() => toggleExpand(alloc.id)}
+                        className="bg-[#1a1b4b] text-white px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
+                     >
+                        Go to Course
+                     </button>
+                  </div>
+                </div>
+
+                {/* Material Management (Dropdown style inside card or modal) */}
                 {isOpen && (
-                  <div className="border-t border-gray-100 p-6 space-y-6 bg-gray-50/50">
-
-                    {/* Upload Form */}
-                    <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-                      <h4 className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                        <Upload size={13} /> Add Material
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <input
-                          type="text"
-                          value={uploadForm.title}
-                          onChange={e => setUploadForm(f => ({ ...f, title: e.target.value }))}
-                          placeholder="Material title..."
-                          className="sm:col-span-1 p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-[#1a1b4b]/20 placeholder:text-gray-300"
-                        />
-                        <select
-                          value={uploadForm.type}
-                          onChange={e => setUploadForm(f => ({ ...f, type: e.target.value }))}
-                          className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-[#1a1b4b]/20"
-                        >
-                          <option value="Module">Module</option>
-                          <option value="Resource">Resource</option>
-                          <option value="Assignment">Assignment</option>
-                        </select>
-                        <input
-                          type="file"
-                          onChange={e => setUploadForm(f => ({ ...f, file: e.target.files[0] }))}
-                          className="p-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs font-bold text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-[#1a1b4b] file:text-white cursor-pointer"
-                        />
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a1b4b]/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                      <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                        <div>
+                          <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight">{alloc.subject?.name}</h3>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Resource Management</p>
+                        </div>
+                        <button onClick={() => setExpandedId(null)} className="w-10 h-10 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                          <Plus className="rotate-45" size={20} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => handleUpload(alloc.id)}
-                        disabled={!uploadForm.title.trim() || uploadingId === 'loading'}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1a1b4b] text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#2d3a8c] transition-colors disabled:opacity-50"
-                      >
-                        {uploadingId === 'loading' ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} strokeWidth={3} />}
-                        Publish Material
-                      </button>
-                    </div>
-
-                    {/* Material List */}
-                    {materialList.length === 0 ? (
-                      <p className="text-center text-xs font-bold text-gray-300 uppercase tracking-widest py-4">No materials yet. Add your first module above.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {materialList.map(mat => (
-                          <div key={mat.id} className="flex items-center justify-between bg-white rounded-xl border border-gray-100 px-4 py-3 group">
-                            <div className="flex items-center gap-3">
-                              <FileText size={16} className="text-gray-400 shrink-0" />
-                              <div>
-                                <p className="text-sm font-bold text-[#1a1b4b]">{mat.title}</p>
-                                <span className={`text-[12px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${typeColor(mat.type)}`}>{mat.type}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              {mat.file_url && (
-                                <a href={mat.file_url} target="_blank" rel="noreferrer" className="p-1.5 text-gray-400 hover:text-[#1a1b4b] hover:bg-gray-100 rounded-lg transition-colors">
-                                  <ExternalLink size={15} />
-                                </a>
-                              )}
-                              <button onClick={() => handleDelete(alloc.id, mat.id)} className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
+                      
+                      <div className="p-8 overflow-y-auto space-y-6">
+                        {/* Upload section */}
+                        <div className="bg-indigo-50/50 rounded-3xl p-6 border border-indigo-100/50">
+                          <h4 className="text-[11px] font-black text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Upload size={14} /> Add New Material
+                          </h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <input
+                              type="text"
+                              value={uploadForm.title}
+                              onChange={e => setUploadForm(f => ({ ...f, title: e.target.value }))}
+                              placeholder="Title (e.g. Chapter 1 Notes)"
+                              className="w-full p-4 bg-white rounded-2xl border border-indigo-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                            />
+                            <select
+                              value={uploadForm.type}
+                              onChange={e => setUploadForm(f => ({ ...f, type: e.target.value }))}
+                              className="w-full p-4 bg-white rounded-2xl border border-indigo-100 text-sm font-bold text-[#1a1b4b] outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                            >
+                              <option value="Module">Module</option>
+                              <option value="Resource">Resource</option>
+                              <option value="Assignment">Assignment</option>
+                            </select>
                           </div>
-                        ))}
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1">
+                              <input
+                                type="file"
+                                id={`file-${alloc.id}`}
+                                className="hidden"
+                                onChange={e => setUploadForm(f => ({ ...f, file: e.target.files[0] }))}
+                              />
+                              <label htmlFor={`file-${alloc.id}`} className="flex items-center justify-center gap-3 w-full p-4 bg-white border-2 border-dashed border-indigo-200 rounded-2xl cursor-pointer hover:border-indigo-400 transition-all">
+                                <FileText size={16} className="text-indigo-400" />
+                                <span className="text-xs font-bold text-gray-500 truncate">{uploadForm.file ? uploadForm.file.name : 'Choose file...'}</span>
+                              </label>
+                            </div>
+                            <button
+                              onClick={() => handleUpload(alloc.id)}
+                              disabled={!uploadForm.title.trim() || uploadingId === 'loading'}
+                              className="px-8 py-4 bg-[#1a1b4b] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 transition-all"
+                            >
+                              {uploadingId === 'loading' ? <Loader2 className="animate-spin" /> : 'Publish'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* List */}
+                        <div className="space-y-3">
+                          <h4 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Existing Materials</h4>
+                          {materialList.length === 0 ? (
+                            <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                              <Layers className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">No materials found</p>
+                            </div>
+                          ) : (
+                            materialList.map(mat => (
+                              <div key={mat.id} className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md transition-all group">
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${typeColor(mat.type)}`}>
+                                    <FileText size={18} />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-black text-[#1a1b4b]">{mat.title}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-0.5">{mat.type}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {mat.file_url && (
+                                    <a href={mat.file_url} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 flex items-center justify-center transition-all">
+                                      <ExternalLink size={16} />
+                                    </a>
+                                  )}
+                                  <button onClick={() => handleDelete(alloc.id, mat.id)} className="w-9 h-9 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-all">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
               </div>

@@ -12,6 +12,7 @@ const Resources = () => {
   const [materialsByCourse, setMaterialsByCourse] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,7 +29,7 @@ const Resources = () => {
           // For faculty, get all their allocations
           const { data: allocData } = await supabase
             .from('subject_allocations')
-            .select('id, subject:subjects(name, code), batch:batches(name)')
+            .select('id, banner_url, subject:subjects(name, code), batch:batches(name)')
             .eq('faculty_id', profile.id);
           
           if (allocData) {
@@ -39,7 +40,7 @@ const Resources = () => {
           // For students, get their enrollments
           const { data: enrollments } = await supabase
             .from('student_enrollments')
-            .select('allocation_id, allocation:subject_allocations(id, subject:subjects(name, code), batch:batches(name))')
+            .select('allocation_id, allocation:subject_allocations(id, banner_url, subject:subjects(name, code), batch:batches(name))')
             .eq('student_id', profile.id);
 
           if (enrollments) {
@@ -128,55 +129,105 @@ const Resources = () => {
           )}
         </div>
       ) : (
-        <div className="space-y-8">
-          {materialsByCourse.map((course) => (
-            <div key={course.id} className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0">
-                      <FolderOpen className="w-6 h-6 text-emerald-500" />
-                   </div>
-                   <div>
-                     <h2 className="text-lg font-black text-[#1a1b4b] tracking-tight">{course.allocation?.subject?.name}</h2>
-                     <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                        [{course.allocation?.subject?.code}] · Batch {course.allocation?.batch?.name}
-                     </p>
-                   </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {materialsByCourse.map((course) => {
+            const isOpen = expandedId === course.id;
+            
+            return (
+              <div key={course.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-lg group">
+                {/* Cover Image */}
+                <div className="relative h-48 bg-gray-100 overflow-hidden">
+                  {course.allocation?.banner_url ? (
+                    <img src={course.allocation.banner_url} alt={course.allocation.subject?.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-emerald-50">
+                      <FolderOpen className="w-12 h-12 text-emerald-100" />
+                    </div>
+                  )}
                 </div>
-                {isFaculty && (
-                  <Link to={`/faculty-resources`} className="text-[12px] px-4 py-2 bg-white border border-gray-200 text-gray-500 hover:text-[#1a1b4b] rounded-lg font-black uppercase tracking-widest transition-all">
-                    Manage
-                  </Link>
+
+                {/* Content */}
+                <div className="p-6 flex-1 flex flex-col gap-4">
+                  <div>
+                    <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight mb-4">{course.allocation?.subject?.name}</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Duration (HH:MM:SS)</span>
+                        <span className="text-[#1a1b4b]">0:0:0</span>
+                      </div>
+                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Class Code</span>
+                        <span className="text-emerald-600 font-black">{course.allocation?.subject?.code}</span>
+                      </div>
+                      <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Batch</span>
+                        <span className="text-gray-500 font-bold">{course.allocation?.batch?.name}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-50 mt-auto flex items-center justify-between">
+                     <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-3 py-1 rounded-full uppercase tracking-widest">
+                        {course.resources?.length} Resources
+                     </span>
+                     <button
+                        onClick={() => setExpandedId(course.id)}
+                        className="bg-[#1a1b4b] text-white px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
+                     >
+                        View Resources
+                     </button>
+                  </div>
+                </div>
+
+                {/* Resources Modal */}
+                {isOpen && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a1b4b]/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                      <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                        <div>
+                          <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight">{course.allocation?.subject?.name}</h3>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Study Materials & Notes</p>
+                        </div>
+                        <button onClick={() => setExpandedId(null)} className="w-10 h-10 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                          <BookOpen className="rotate-45" size={20} />
+                        </button>
+                      </div>
+                      
+                      <div className="p-8 overflow-y-auto space-y-4">
+                        {course.resources?.length === 0 ? (
+                          <div className="text-center py-20 bg-gray-50 rounded-[2.5rem] border border-dashed border-gray-200">
+                            <FolderOpen className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                            <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No resources uploaded yet</p>
+                          </div>
+                        ) : (
+                          course.resources.map(res => (
+                            <div key={res.id} className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md transition-all group">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-50 text-gray-400">
+                                  <FileText size={20} />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-black text-[#1a1b4b]">{res.title}</p>
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-0.5">
+                                    {new Date(res.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                                  </p>
+                                </div>
+                              </div>
+                              {res.file_url && (
+                                <a href={res.file_url} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 flex items-center justify-center transition-all">
+                                  <ExternalLink size={18} />
+                                </a>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
-              <ul className="divide-y divide-gray-100">
-                {course.resources?.length === 0 ? (
-                  <li className="px-8 py-10 text-center">
-                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">No resources uploaded for this batch</p>
-                  </li>
-                ) : (
-                  (course.resources || []).map((r) => (
-                    <li key={r.id} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors group">
-                      <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                         <FileText className="w-4 h-4 text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                         <p className="text-sm font-black text-[#1a1b4b] truncate">{r.title}</p>
-                         <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-                            {new Date(r.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                         </p>
-                      </div>
-                      {r.file_url && (
-                        <a href={r.file_url} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-gray-50 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all opacity-0 group-hover:opacity-100">
-                          <ExternalLink size={16} />
-                        </a>
-                      )}
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

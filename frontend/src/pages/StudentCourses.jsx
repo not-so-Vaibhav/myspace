@@ -36,10 +36,12 @@ const StudentCourses = () => {
           id, enrolled_at, allocation_id,
           allocation:subject_allocations(
             id,
+            banner_url,
             subject:subjects(id, name, code, credits, type),
             batch:batches(name),
             semester:semesters(term_number),
-            faculty:profiles(full_name)
+            faculty:profiles(full_name),
+            student_enrollments:student_enrollments(count)
           )
         `)
         .eq('student_id', profile.id)
@@ -304,113 +306,115 @@ const StudentCourses = () => {
             </p>
           </div>
         ) : (
-          enrolledCourses.map(enrollment => {
-            const alloc = enrollment.allocation;
-            const isOpen = expandedId === enrollment.allocation_id;
-            const matList = materials[enrollment.allocation_id] || [];
-            const modules = matList.filter(m => m.type === 'Module');
-            const resources = matList.filter(m => m.type === 'Resource');
-            const assignments = matList.filter(m => m.type === 'Assignment');
-
-            return (
-              <div key={enrollment.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <button
-                  onClick={() => toggleExpand(enrollment.allocation_id)}
-                  className="w-full flex items-center justify-between p-6 hover:bg-gray-50/50 transition-colors"
-                >
-                  <div className="flex items-center gap-5 text-left">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center shrink-0">
-                      <BookOpen className="w-6 h-6 text-[#1a1b4b]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="text-xs font-black bg-[#1a1b4b] text-white px-2.5 py-1 rounded-md uppercase tracking-widest">
-                          {alloc?.subject?.code}
-                        </span>
-                        <span className="text-xs font-black text-gray-300 uppercase tracking-widest">
-                          Sem {alloc?.semester?.term_number}
-                        </span>
-                      </div>
-                      <h3 className="text-base font-black text-[#1a1b4b] tracking-tight leading-none">{alloc?.subject?.name}</h3>
-                      <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                        Batch: <span className="text-[#ef4444]">{alloc?.batch?.name}</span> · Faculty: {alloc?.faculty?.full_name} · {alloc?.subject?.credits} CR
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleUnenroll(enrollment.id, enrollment.allocation_id); }}
-                      className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                      title="Unenroll"
-                    >
-                      <Unenroll size={16} />
-                    </button>
-                    {isOpen ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
-                  </div>
-                </button>
-
-                {isOpen && (
-                  <div className="border-t border-gray-100 p-6 bg-gray-50/30 space-y-6">
-
-                    {/* Stats */}
-                    <div className="flex gap-4">
-                      {[
-                        { label: 'Modules', count: modules.length, color: 'text-indigo-600 bg-indigo-50' },
-                        { label: 'Resources', count: resources.length, color: 'text-emerald-600 bg-emerald-50' },
-                        { label: 'Assignments', count: assignments.length, color: 'text-amber-600 bg-amber-50' },
-                      ].map(s => (
-                        <div key={s.label} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest ${s.color}`}>
-                          {s.count} {s.label}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Material List */}
-                    {matList.length === 0 ? (
-                      <p className="text-center text-xs font-bold text-gray-300 uppercase tracking-widest py-8">
-                        No materials published by faculty yet.
-                      </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {enrolledCourses.map(enrollment => {
+              const alloc = enrollment.allocation;
+              const isOpen = expandedId === enrollment.allocation_id;
+              const matList = materials[enrollment.allocation_id] || [];
+              
+              return (
+                <div key={enrollment.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-lg group">
+                  {/* Cover Image */}
+                  <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    {alloc?.banner_url ? (
+                      <img src={alloc.banner_url} alt={alloc.subject?.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="space-y-2">
-                        {matList.map(mat => {
-                          const ts = typeStyle(mat.type);
-                          const Icon = ts.icon;
-                          const isOverdue = mat.deadline && new Date(mat.deadline) < new Date();
-
-                          return (
-                            <div key={mat.id} className="flex items-center justify-between bg-white rounded-xl border border-gray-100 px-4 py-3 group">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 ${ts.bg} rounded-lg flex items-center justify-center shrink-0`}>
-                                  <Icon className={`w-4 h-4 ${ts.text}`} />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-bold text-[#1a1b4b]">{mat.title}</p>
-                                  <div className="flex items-center gap-2 mt-0.5">
-                                    <span className={`text-[12px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${ts.bg} ${ts.text}`}>{mat.type}</span>
-                                    {mat.deadline && (
-                                      <span className={`inline-flex items-center gap-1 text-[12px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${isOverdue ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                                        <Clock size={9} />
-                                        {isOverdue ? 'Overdue' : `Due: ${new Date(mat.deadline).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                              {mat.file_url && (
-                                <a href={mat.file_url} target="_blank" rel="noreferrer" className="p-2 text-gray-300 hover:text-[#1a1b4b] hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
-                                  <ExternalLink size={15} />
-                                </a>
-                              )}
-                            </div>
-                          );
-                        })}
+                      <div className="w-full h-full flex items-center justify-center bg-indigo-50">
+                        <BookOpen className="w-12 h-12 text-indigo-200" />
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            );
-          })
+
+                  {/* Content */}
+                  <div className="p-6 flex-1 flex flex-col gap-4">
+                    <div>
+                      <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight mb-4">{alloc?.subject?.name}</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                          <span>Duration (HH:MM:SS)</span>
+                          <span className="text-[#1a1b4b]">0:0:0</span>
+                        </div>
+                        <div className="flex justify-between text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+                          <span>Class Code</span>
+                          <span className="text-indigo-600 font-black">{alloc?.subject?.code}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-50 mt-auto flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleUnenroll(enrollment.id, enrollment.allocation_id)}
+                            className="w-9 h-9 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-all"
+                            title="Unenroll"
+                          >
+                            <Unenroll size={16} />
+                          </button>
+                          <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-3 py-1 rounded-full uppercase tracking-widest">
+                            {matList.length} Materials
+                          </span>
+                       </div>
+                       <button
+                          onClick={() => toggleExpand(enrollment.allocation_id)}
+                          className="bg-[#1a1b4b] text-white px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
+                       >
+                          Go to Course
+                       </button>
+                    </div>
+                  </div>
+
+                  {/* Material Drawer (Modal style) */}
+                  {isOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a1b4b]/40 backdrop-blur-sm">
+                      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                        <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                          <div>
+                            <h3 className="text-xl font-black text-[#1a1b4b] tracking-tight">{alloc?.subject?.name}</h3>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Course Materials & Resources</p>
+                          </div>
+                          <button onClick={() => setExpandedId(null)} className="w-10 h-10 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                            <Plus className="rotate-45" size={20} />
+                          </button>
+                        </div>
+                        
+                        <div className="p-8 overflow-y-auto space-y-4">
+                          {matList.length === 0 ? (
+                            <div className="text-center py-20 bg-gray-50 rounded-[2.5rem] border border-dashed border-gray-200">
+                              <FolderOpen className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                              <p className="text-xs font-bold text-gray-300 uppercase tracking-widest">No materials published yet</p>
+                            </div>
+                          ) : (
+                            matList.map(mat => {
+                              const ts = typeStyle(mat.type);
+                              const Icon = ts.icon;
+                              return (
+                                <div key={mat.id} className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md transition-all group">
+                                  <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${ts.bg} ${ts.text}`}>
+                                      <Icon size={20} />
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-black text-[#1a1b4b]">{mat.title}</p>
+                                      <span className={`text-[10px] font-black uppercase tracking-widest ${ts.text}`}>{mat.type}</span>
+                                    </div>
+                                  </div>
+                                  {mat.file_url && (
+                                    <a href={mat.file_url} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 flex items-center justify-center transition-all">
+                                      <ExternalLink size={18} />
+                                    </a>
+                                  )}
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
