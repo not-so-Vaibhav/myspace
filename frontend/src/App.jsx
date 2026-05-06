@@ -19,6 +19,7 @@ import Payment from './pages/Payment';
 import Placeholder from './pages/Placeholder';
 import Calendar from './pages/Calendar';
 import StudentProfile from './pages/StudentProfile';
+import FacultyProfile from './pages/FacultyProfile';
 import AllMeetings from './pages/AllMeetings';
 import Attendance from './pages/Attendance';
 import Approvals from './pages/Approvals';
@@ -130,6 +131,16 @@ const UnauthorizedFallback = () => {
       </button>
     </div>
   );
+};
+
+const ProfileSwitcher = () => {
+  const { profile } = useAuth();
+  const role = profile?.role?.toLowerCase();
+
+  if (role === 'faculty' || role === 'hod' || role === 'dean' || role === 'admin') {
+    return <FacultyProfile />;
+  }
+  return <StudentProfile />;
 };
 
 function App() {
@@ -258,7 +269,14 @@ function App() {
             <Route path="/performance-appraisal" element={<RoleRoute allowedRoles={['admin', 'faculty', 'hod', 'dean', 'non_teaching']}><PerformanceAppraisal /></RoleRoute>} />
             <Route path="/feedback" element={<CourseFeedback />} />
             <Route path="/lor" element={<LOR />} />
-            <Route path="/profile" element={<StudentProfile />} />
+            <Route 
+              path="/profile" 
+              element={
+                <RoleRoute allowedRoles={['student', 'faculty', 'hod', 'admin', 'dean', 'non_teaching']}>
+                  <ProfileSwitcher />
+                </RoleRoute>
+              } 
+            />
             <Route path="/meetings" element={<AllMeetings />} />
             <Route path="/approvals" element={<Approvals />} />
             <Route path="/faculty" element={<FacultyList />} />

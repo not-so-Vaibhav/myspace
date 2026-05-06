@@ -36,7 +36,7 @@ const Library = () => {
     const [paymentSuccess, setPaymentSuccess] = useState(false);
 
     const stats = [
-        { label: 'Issued Items', value: '0 / 28', icon: BookMarked, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Currently Borrowed', value: '0 / 28', icon: BookMarked, color: 'text-indigo-600', bg: 'bg-indigo-50' },
         { label: 'Reserved Items', value: '0 / 2', icon: Clock, color: 'text-emerald-600', bg: 'bg-emerald-50' },
         { label: 'Library Fine', value: '₹150', icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-50', showPay: true },
         { label: 'Suggestions', value: '0', icon: MessageSquare, color: 'text-slate-600', bg: 'bg-slate-50' }
@@ -68,19 +68,19 @@ const Library = () => {
                             <div className={`w-14 h-14 rounded-2xl ${stat.bg} flex items-center justify-center`}>
                                 <stat.icon size={24} className={stat.color} />
                             </div>
-                            <button className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] flex items-center gap-1 transition-colors">
+                            <button className="text-xs font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] flex items-center gap-1 transition-colors">
                                 View Details <ArrowRight size={10} />
                             </button>
                         </div>
                         <div className="mt-6 flex items-end justify-between relative z-10">
                             <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
                                 <h3 className={`text-3xl font-black text-[#1a1b4b] ${stat.label === 'Library Fine' && 'text-rose-500'}`}>{stat.value}</h3>
                             </div>
                             {stat.showPay && (
                                 <button 
                                     onClick={() => setIsPaymentModalOpen(true)}
-                                    className="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-200 active:scale-95 mb-1"
+                                    className="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-200 active:scale-95 mb-1"
                                 >
                                     Pay Now
                                 </button>
@@ -148,8 +148,8 @@ const Library = () => {
                         </div>
 
                         <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-50">
-                            <button className="px-6 py-3 bg-gray-50 text-gray-400 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-gray-100 transition-colors">Clear Filters</button>
-                            <button className="px-10 py-3 bg-[#1a1b4b] text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all flex items-center gap-2 shadow-lg shadow-indigo-100">
+                            <button className="px-6 py-3 bg-gray-50 text-gray-400 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-gray-100 transition-colors">Clear Filters</button>
+                            <button className="px-10 py-3 bg-[#1a1b4b] text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all flex items-center gap-2 shadow-lg shadow-indigo-100">
                                 <Search size={14} /> Find Books
                             </button>
                         </div>
@@ -161,9 +161,9 @@ const Library = () => {
                     <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8 h-full">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight flex items-center gap-3">
-                                <BookMarked size={20} className="text-indigo-500" /> Issued Holding
+                                <BookMarked size={20} className="text-indigo-500" /> Borrowed Items
                             </h2>
-                            <span className="px-3 py-1 bg-gray-50 text-[10px] font-black text-gray-400 border border-gray-100 rounded-lg tracking-widest uppercase">
+                            <span className="px-3 py-1 bg-gray-50 text-xs font-black text-gray-400 border border-gray-100 rounded-lg tracking-widest uppercase">
                                 0 Books
                             </span>
                         </div>
@@ -209,7 +209,7 @@ const Library = () => {
                                 <div className="flex items-center justify-between mb-8 relative z-10">
                                     <div>
                                         <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter">Settle Fine</h2>
-                                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-1">Institutional Billing</p>
+                                        <p className="text-xs font-black text-rose-500 uppercase tracking-widest mt-1">Institutional Billing</p>
                                     </div>
                                     <button 
                                         onClick={() => setIsPaymentModalOpen(false)}
@@ -221,7 +221,7 @@ const Library = () => {
 
                                 <div className="space-y-6 relative z-10">
                                     <div className="bg-gray-50 rounded-[2rem] p-6 border border-gray-100">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Invoice Details</p>
+                                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Invoice Details</p>
                                         <div className="space-y-3">
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Fine Type</span>
@@ -244,8 +244,8 @@ const Library = () => {
                                                 <CreditCard size={18} className="text-white" />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Payment Method</p>
-                                                <p className="text-[11px] font-black text-indigo-600 uppercase">Linked Student Account</p>
+                                                <p className="text-xs font-black text-indigo-900 uppercase tracking-widest">Payment Method</p>
+                                                <p className="text-xs font-black text-indigo-600 uppercase">Linked Student Account</p>
                                             </div>
                                         </div>
                                     </div>
@@ -271,7 +271,7 @@ const Library = () => {
                                             {isProcessing ? 'Processing...' : 'Authorize Payment'}
                                         </button>
                                     </div>
-                                    <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest mt-4">Safe & Encrypted Gateway</p>
+                                    <p className="text-xs text-gray-400 font-bold text-center uppercase tracking-widest mt-4">Safe & Encrypted Gateway</p>
                                 </div>
                             </>
                         ) : (
@@ -281,7 +281,7 @@ const Library = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter">Payment Success!</h2>
-                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-2 leading-relaxed">
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 leading-relaxed">
                                         Your library fine has been cleared. <br />You can now issue new items.
                                     </p>
                                 </div>
