@@ -11,7 +11,10 @@ import {
   Hash,
   Filter,
   ArrowRight,
-  Info
+  Info,
+  X,
+  CreditCard,
+  CheckCircle2
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +31,9 @@ const Library = () => {
         subTitle: '',
         publisher: ''
     });
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [paymentSuccess, setPaymentSuccess] = useState(false);
 
     const stats = [
         { label: 'Issued Items', value: '0 / 28', icon: BookMarked, color: 'text-indigo-600', bg: 'bg-indigo-50' },
@@ -73,7 +79,7 @@ const Library = () => {
                             </div>
                             {stat.showPay && (
                                 <button 
-                                    onClick={() => navigate('/payment')}
+                                    onClick={() => setIsPaymentModalOpen(true)}
                                     className="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-200 active:scale-95 mb-1"
                                 >
                                     Pay Now
@@ -190,6 +196,109 @@ const Library = () => {
                     </p>
                 </div>
             </div>
+
+            {/* PAYMENT MODAL */}
+            {isPaymentModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#1a1b4b]/20 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[3rem] w-full max-w-md p-10 shadow-2xl border border-white/50 relative overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Decorative background element */}
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full opacity-50 blur-3xl pointer-events-none" />
+                        
+                        {!paymentSuccess ? (
+                            <>
+                                <div className="flex items-center justify-between mb-8 relative z-10">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter">Settle Fine</h2>
+                                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-1">Institutional Billing</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => setIsPaymentModalOpen(false)}
+                                        className="p-3 hover:bg-gray-100 rounded-2xl transition-all"
+                                    >
+                                        <X size={20} className="text-gray-400" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-6 relative z-10">
+                                    <div className="bg-gray-50 rounded-[2rem] p-6 border border-gray-100">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Invoice Details</p>
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Fine Type</span>
+                                                <span className="text-xs font-black text-[#1a1b4b] uppercase">Overdue Books (3)</span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Date Accrued</span>
+                                                <span className="text-xs font-black text-[#1a1b4b] uppercase">May 01, 2026</span>
+                                            </div>
+                                            <div className="border-t border-dashed border-gray-200 pt-3 flex justify-between items-center">
+                                                <span className="text-sm font-black text-[#1a1b4b] uppercase tracking-tight">Total Amount</span>
+                                                <span className="text-2xl font-black text-rose-500 tracking-tighter">₹150.00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-100">
+                                                <CreditCard size={18} className="text-white" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Payment Method</p>
+                                                <p className="text-[11px] font-black text-indigo-600 uppercase">Linked Student Account</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4 pt-4">
+                                        <button 
+                                            onClick={() => setIsPaymentModalOpen(false)}
+                                            className="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-gray-200 transition-all"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                setIsProcessing(true);
+                                                setTimeout(() => {
+                                                    setIsProcessing(false);
+                                                    setPaymentSuccess(true);
+                                                }, 2000);
+                                            }}
+                                            disabled={isProcessing}
+                                            className="flex-[2] py-4 bg-[#1a1b4b] text-white rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isProcessing ? 'Processing...' : 'Authorize Payment'}
+                                        </button>
+                                    </div>
+                                    <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest mt-4">Safe & Encrypted Gateway</p>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="py-10 text-center space-y-6">
+                                <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 scale-110">
+                                    <CheckCircle2 size={48} className="text-green-500" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter">Payment Success!</h2>
+                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-2 leading-relaxed">
+                                        Your library fine has been cleared. <br />You can now issue new items.
+                                    </p>
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        setIsPaymentModalOpen(false);
+                                        setPaymentSuccess(false);
+                                    }}
+                                    className="w-full py-4 bg-green-500 text-white rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl shadow-green-100 hover:bg-green-600 transition-all"
+                                >
+                                    Return to Library
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
