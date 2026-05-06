@@ -125,27 +125,35 @@ const FilePreviewModal = ({ file, onClose }) => {
 };
 // ─── Mail Modal ─────────────────────────────────────────────────────────────
 const MailModal = ({ isOpen, onClose, students, courseName }) => {
-    const [recipient, setRecipient] = useState('all');
+    const [recipients, setRecipients] = useState([]);
     const [subject, setSubject] = useState(`Academic Update: ${courseName}`);
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
+    const [filter, setFilter] = useState('all');
+
+    useEffect(() => {
+        if (students.list?.length > 0) {
+            setRecipients(students.list.map(s => s.id));
+        }
+    }, [students.list]);
 
     if (!isOpen) return null;
 
     const handleSend = () => {
         setSending(true);
         let targetEmails = [];
+        
         if (students.role === 'student' && students.faculty?.email) {
             targetEmails = [students.faculty.email];
-        } else if (recipient === 'all') {
-            targetEmails = students.list.map(s => s.email).filter(Boolean);
         } else {
-            const s = students.list.find(x => x.id === recipient);
-            if (s?.email) targetEmails = [s.email];
+            targetEmails = recipients.map(id => {
+                const s = students.list.find(x => x.id === id);
+                return s?.email;
+            }).filter(Boolean);
         }
 
         if (targetEmails.length === 0) {
-            alert('No registered email found for the selected recipient.');
+            alert('No registered email found for the selected recipients.');
             setSending(false);
             return;
         }
@@ -159,10 +167,32 @@ const MailModal = ({ isOpen, onClose, students, courseName }) => {
         }, 1000);
     };
 
+    const toggleRecipient = (id) => {
+        setRecipients(prev => 
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    };
+
+    const selectByFilter = (filterType) => {
+        let filtered = [];
+        if (filterType === 'all') {
+            filtered = students.list.map(s => s.id);
+        } else if (filterType === 'none') {
+            filtered = [];
+        } else if (filterType === 'critical') {
+            filtered = students.list.filter(s => (s.attendance || 0) < 75).map(s => s.id);
+        } else if (filterType === 'warning') {
+            filtered = students.list.filter(s => (s.attendance || 0) >= 75 && (s.attendance || 0) < 85).map(s => s.id);
+        } else if (filterType === 'excellent') {
+            filtered = students.list.filter(s => (s.attendance || 0) >= 85).map(s => s.id);
+        }
+        setRecipients(filtered);
+    };
+
     return (
-        <div className="fixed inset-0 z-[300] bg-[#1a1b4b]/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                <div className="p-8 border-b border-gray-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-[300] bg-[#1a1b4b]/40 backdrop-blur-sm flex items-center justify-center p-8 sm:p-12 lg:p-16 overflow-y-auto">
+            <div className="bg-white rounded-[3rem] w-full max-w-2xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden animate-in zoom-in-95 duration-300 my-auto">
+                <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
                             <Mail size={24} />
@@ -175,26 +205,57 @@ const MailModal = ({ isOpen, onClose, students, courseName }) => {
                     <button onClick={onClose} className="p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-400 hover:text-[#ef4444] shadow-sm"><X size={20} /></button>
                 </div>
 
-                <div className="p-8 space-y-6">
+                <div className="p-6 sm:p-8 space-y-5">
                     <div>
-                        <label className="block text-[13px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Recipient Vector</label>
+                        <div className="flex items-center justify-between mb-2 px-1">
+                            <label className="text-[13px] font-black text-gray-400 uppercase tracking-widest">Recipient Selection ({recipients.length})</label>
+                            {students.role !== 'student' && (
+                                <div className="flex gap-2">
+                                    <button onClick={() => selectByFilter('all')} className="text-[10px] font-black text-indigo-500 hover:underline uppercase tracking-widest">All</button>
+                                    <button onClick={() => selectByFilter('none')} className="text-[10px] font-black text-gray-400 hover:underline uppercase tracking-widest">Clear</button>
+                                </div>
+                            )}
+                        </div>
+
                         {students.role === 'student' ? (
-                            <div className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b]">
-                                Primary Faculty: {students.faculty?.full_name || 'Assigned Instructor'}
+                            <div className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b] flex items-center gap-3">
+                                <Mail size={18} className="text-indigo-500" /> {students.faculty?.full_name || 'Assigned Instructor'}
                             </div>
                         ) : (
-                            <select 
-                                value={recipient}
-                                onChange={(e) => setRecipient(e.target.value)}
-                                className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all appearance-none cursor-pointer"
-                            >
-                                <option value="all">Broadcast to All Enrolled Students ({students.list.length})</option>
-                                <optgroup label="Individual Identities">
+                            <div className="space-y-4">
+                                {/* Attendance Filters */}
+                                <div className="flex gap-2 p-1 bg-gray-50 rounded-xl border border-gray-100 overflow-x-auto no-scrollbar">
+                                    <button onClick={() => selectByFilter('critical')} className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest whitespace-nowrap bg-white text-rose-500 border border-rose-100 shadow-sm hover:bg-rose-50 transition-all">Critical (&lt;75%)</button>
+                                    <button onClick={() => selectByFilter('warning')} className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest whitespace-nowrap bg-white text-amber-500 border border-amber-100 shadow-sm hover:bg-amber-50 transition-all">Warning (75-85%)</button>
+                                    <button onClick={() => selectByFilter('excellent')} className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest whitespace-nowrap bg-white text-emerald-500 border border-emerald-100 shadow-sm hover:bg-emerald-50 transition-all">Excellent (&gt;85%)</button>
+                                </div>
+
+                                <div className="max-h-48 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
                                     {students.list.map(s => (
-                                        <option key={s.id} value={s.id}>{s.full_name} ({s.email || 'No email'})</option>
+                                        <div 
+                                            key={s.id} 
+                                            onClick={() => toggleRecipient(s.id)}
+                                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${recipients.includes(s.id) ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${recipients.includes(s.id) ? 'bg-[#1a1b4b] border-[#1a1b4b]' : 'border-gray-200 bg-white'}`}>
+                                                    {recipients.includes(s.id) && <SendHorizonal size={10} className="text-white" />}
+                                                </div>
+                                                <div>
+                                                    <p className={`text-[14px] font-black uppercase tracking-tight ${recipients.includes(s.id) ? 'text-[#1a1b4b]' : 'text-gray-600'}`}>{s.full_name}</p>
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{s.email || 'No email'}</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className={`text-[12px] font-black ${(s.attendance || 0) < 75 ? 'text-rose-500' : (s.attendance || 0) < 85 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                                                    {s.attendance || 0}%
+                                                </p>
+                                                <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Attendance</p>
+                                            </div>
+                                        </div>
                                     ))}
-                                </optgroup>
-                            </select>
+                                </div>
+                            </div>
                         )}
                     </div>
 
@@ -212,7 +273,7 @@ const MailModal = ({ isOpen, onClose, students, courseName }) => {
                     <div>
                         <label className="block text-[13px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Intel Payload (Message)</label>
                         <textarea 
-                            rows={5}
+                            rows={4}
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[17px] font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all resize-none placeholder:text-gray-300"
@@ -402,13 +463,43 @@ const Discussions = () => {
 
     const fetchCourseStudents = async (allocationId) => {
         try {
-            const { data, error } = await supabase
+            // 1. Fetch Students
+            const { data: enrollmentData, error: enrollErr } = await supabase
                 .from('student_enrollments')
                 .select('student:profiles(id, full_name, email, avatar_url)')
                 .eq('allocation_id', allocationId);
             
-            if (error) throw error;
-            setCourseStudents(data?.map(d => d.student) || []);
+            if (enrollErr) throw enrollErr;
+            const studentList = enrollmentData?.map(d => d.student) || [];
+
+            // 2. Fetch Attendance for these students in this allocation
+            const { data: sessionData } = await supabase
+                .from('attendance_sessions')
+                .select('id')
+                .eq('allocation_id', allocationId);
+            
+            const sessionIds = sessionData?.map(s => s.id) || [];
+            
+            if (sessionIds.length > 0) {
+                const { data: recordData } = await supabase
+                    .from('attendance_records')
+                    .select('student_id, status')
+                    .in('session_id', sessionIds);
+                
+                // Calculate % for each student
+                const studentMetrics = studentList.map(s => {
+                    const studentRecords = recordData?.filter(r => r.student_id === s.id) || [];
+                    const present = studentRecords.filter(r => r.status === 'present').length;
+                    const total = sessionIds.length;
+                    return {
+                        ...s,
+                        attendance: total > 0 ? Math.round((present / total) * 100) : 0
+                    };
+                });
+                setCourseStudents(studentMetrics);
+            } else {
+                setCourseStudents(studentList.map(s => ({ ...s, attendance: 0 })));
+            }
         } catch (err) {
             console.error('Students fetch error:', err);
         }
