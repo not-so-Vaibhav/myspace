@@ -38,11 +38,11 @@ const Payment = () => {
                         <Wallet size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Current Session Schedule</p>
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Current Session Schedule</p>
                         <h3 className="text-4xl font-black text-[#1a1b4b] flex items-baseline gap-1">
                             <span className="text-xl">₹</span> 157,500
                         </h3>
-                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-widest">
                            <Clock size={12} /> Pending Review
                         </div>
                     </div>
@@ -53,11 +53,11 @@ const Payment = () => {
                         <CreditCard size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Current Session Paid</p>
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Current Session Paid</p>
                         <h3 className="text-4xl font-black text-emerald-600 flex items-baseline gap-1">
                             <span className="text-xl">₹</span> 157,500
                         </h3>
-                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-black uppercase tracking-widest">
                            <CheckCircle size={12} /> Fully Settled
                         </div>
                     </div>
@@ -68,11 +68,11 @@ const Payment = () => {
                         <Clock size={120} strokeWidth={1} />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Amount Due</p>
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Amount Due</p>
                         <h3 className="text-4xl font-black text-rose-500 flex items-baseline gap-1">
                             <span className="text-xl">₹</span> 0
                         </h3>
-                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-xs font-black uppercase tracking-widest">
                            <Wallet size={12} /> No Outstanding
                         </div>
                     </div>
@@ -123,14 +123,14 @@ const Payment = () => {
                     <table className="w-full text-left min-w-[800px]">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Receipt Number</th>
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Due Amount</th>
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Arrear</th>
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Late Fee</th>
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Amount Paid</th>
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Date</th>
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Type</th>
-                                <th className="p-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Action</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400">Receipt Number</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-right">Due Amount</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-right">Arrear</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-right">Late Fee</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-right">Amount Paid</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-center">Date</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-center">Type</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -143,7 +143,7 @@ const Payment = () => {
                                     <td className="p-6 text-xs font-black text-emerald-600 text-right">{formatInr(txn.amount)}</td>
                                     <td className="p-6 text-xs font-bold text-gray-400 text-center whitespace-nowrap">{txn.date}</td>
                                     <td className="p-6 text-center">
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-indigo-50 text-indigo-600">
                                             {txn.type}
                                         </span>
                                     </td>

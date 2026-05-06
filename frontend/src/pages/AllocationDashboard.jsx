@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Filter, Users, BookOpen, AlertCircle, CheckCircle2, Trash2, Edit2, Layers, Plus } from 'lucide-react';
 import SubjectCreatorModal from '../components/Dashboard/SubjectCreatorModal';
+import SubjectEditorModal from '../components/Dashboard/SubjectEditorModal';
 
 const AllocationDashboard = () => {
     const { profile } = useAuth();
@@ -32,6 +33,14 @@ const AllocationDashboard = () => {
 
     // Modal State
     const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+
+    // Inline Editing for Course Registry
+    const [editingSubjectId, setEditingSubjectId] = useState(null);
+    const [editSubjectData, setEditSubjectData] = useState({ name: '', code: '' });
+
+    // Subject Editor Modal State
+    const [isSubjectEditorOpen, setIsSubjectEditorOpen] = useState(false);
+    const [selectedSubjectToEdit, setSelectedSubjectToEdit] = useState(null);
 
     // ==========================================
     // 2. DATA FETCHING
@@ -69,7 +78,7 @@ const AllocationDashboard = () => {
                 .from('subject_allocations')
                 .select(`
           id, subject_id, batch_id, semester_id, faculty_id,
-          subject:subjects(name, code),
+          subject:subjects(id, name, code),
           batch:batches(name),
           semester:semesters(term_number),
           faculty:profiles(full_name, email)
@@ -251,6 +260,29 @@ const AllocationDashboard = () => {
             fetchCoreData(); 
         } catch (err) {
             showError('Failed to remove course: ' + err.message);
+        }
+    };
+
+    const handleUpdateSubject = async (subjectId) => {
+        setIsSubmitting(true);
+        try {
+            const { error } = await supabase
+                .from('subjects')
+                .update({ 
+                    name: editSubjectData.name, 
+                    code: editSubjectData.code.toUpperCase() 
+                })
+                .eq('id', subjectId);
+
+            if (error) throw error;
+
+            showSuccess('Course details updated successfully.');
+            setEditingSubjectId(null);
+            fetchCoreData(); // Refresh all data to reflect changes everywhere
+        } catch (err) {
+            showError('Failed to update course: ' + err.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -444,10 +476,29 @@ const AllocationDashboard = () => {
                              {rawSubjects.map(sub => (
                                  <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50/80 group">
                                      <td className="p-4 pl-6">
-                                         <p className="font-bold text-[#1a1b4b] text-sm tabular-nums">{sub.code}</p>
+                                         {editingSubjectId === sub.id ? (
+                                             <input 
+                                                 type="text" 
+                                                 value={editSubjectData.code} 
+                                                 onChange={(e) => setEditSubjectData({...editSubjectData, code: e.target.value})}
+                                                 className="w-full p-2 bg-white border border-indigo-200 rounded text-sm font-black text-[#1a1b4b] uppercase outline-none focus:ring-2 focus:ring-indigo-100"
+                                                 autoFocus
+                                             />
+                                         ) : (
+                                             <p className="font-bold text-[#1a1b4b] text-sm tabular-nums">{sub.code}</p>
+                                         )}
                                      </td>
                                      <td className="p-4">
-                                        <p className="text-[12px] text-gray-600 font-bold tracking-tight uppercase">{sub.name}</p>
+                                         {editingSubjectId === sub.id ? (
+                                             <input 
+                                                 type="text" 
+                                                 value={editSubjectData.name} 
+                                                 onChange={(e) => setEditSubjectData({...editSubjectData, name: e.target.value})}
+                                                 className="w-full p-2 bg-white border border-indigo-200 rounded text-sm font-black text-[#1a1b4b] uppercase outline-none focus:ring-2 focus:ring-indigo-100"
+                                             />
+                                         ) : (
+                                            <p className="text-[12px] text-gray-600 font-bold tracking-tight uppercase">{sub.name}</p>
+                                         )}
                                      </td>
                                      <td className="p-4">
                                          <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[12px] font-black uppercase tracking-widest rounded shadow-[inset_0_0_0_1px_rgba(16,185,129,0.1)]">
@@ -455,12 +506,46 @@ const AllocationDashboard = () => {
                                          </span>
                                      </td>
                                      <td className="p-4 text-center">
-                                         <button
-                                             onClick={() => handleDeleteSubject(sub.id)}
-                                             className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
-                                         >
-                                             <Trash2 className="w-4 h-4" />
-                                         </button>
+                                         <div className="flex items-center justify-center gap-2">
+                                             {editingSubjectId === sub.id ? (
+                                                 <>
+                                                     <button
+                                                         onClick={() => handleUpdateSubject(sub.id)}
+                                                         className="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-all"
+                                                         title="Save Changes"
+                                                     >
+                                                         <CheckCircle2 className="w-4 h-4" />
+                                                     </button>
+                                                     <button
+                                                         onClick={() => setEditingSubjectId(null)}
+                                                         className="p-1.5 text-rose-500 hover:bg-rose-50 rounded transition-all"
+                                                         title="Cancel"
+                                                     >
+                                                         <Trash2 className="w-4 h-4" />
+                                                     </button>
+                                                 </>
+                                             ) : (
+                                                 <>
+                                                     <button
+                                                         onClick={() => {
+                                                             setEditingSubjectId(sub.id);
+                                                             setEditSubjectData({ name: sub.name, code: sub.code });
+                                                         }}
+                                                         className="p-1.5 text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                         title="Edit Course"
+                                                     >
+                                                         <Edit2 className="w-4 h-4" />
+                                                     </button>
+                                                     <button
+                                                         onClick={() => handleDeleteSubject(sub.id)}
+                                                         className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                         title="Delete Course"
+                                                     >
+                                                         <Trash2 className="w-4 h-4" />
+                                                     </button>
+                                                 </>
+                                             )}
+                                         </div>
                                      </td>
                                  </tr>
                              ))}
@@ -492,8 +577,22 @@ const AllocationDashboard = () => {
                             {allocations.map(alloc => (
                                 <tr key={alloc.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50/80 group">
                                     <td className="p-4 pl-6">
-                                        <p className="font-bold text-[#1a1b4b] text-sm tabular-nums">{alloc.subject?.code}</p>
-                                        <p className="text-[12px] text-gray-400 uppercase tracking-widest truncate max-w-[200px]" title={alloc.subject?.name}>{alloc.subject?.name}</p>
+                                        <div className="flex items-center gap-2 group/code">
+                                            <div>
+                                                <p className="font-bold text-[#1a1b4b] text-sm tabular-nums">{alloc.subject?.code}</p>
+                                                <p className="text-[12px] text-gray-400 uppercase tracking-widest truncate max-w-[200px]" title={alloc.subject?.name}>{alloc.subject?.name}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    setSelectedSubjectToEdit(alloc.subject);
+                                                    setIsSubjectEditorOpen(true);
+                                                }}
+                                                className="p-1.5 text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all opacity-0 group-hover/code:opacity-100"
+                                                title="Edit Course Details"
+                                            >
+                                                <Edit2 size={12} />
+                                            </button>
+                                        </div>
                                     </td>
                                     <td className="p-4">
                                         <span className="px-2.5 py-1 bg-blue-50/50 text-blue-600 text-[12px] font-black uppercase tracking-widest rounded shadow-[inset_0_0_0_1px_rgba(59,130,246,0.1)]">
@@ -543,6 +642,13 @@ const AllocationDashboard = () => {
                 onClose={() => setIsSubjectModalOpen(false)} 
                 targetDepartment={activeDepartment}
                 onSubjectCreated={() => fetchCoreData()} 
+            />
+
+            <SubjectEditorModal 
+                isOpen={isSubjectEditorOpen}
+                onClose={() => setIsSubjectEditorOpen(false)}
+                subject={selectedSubjectToEdit}
+                onSubjectUpdated={() => fetchCoreData()}
             />
 
         </div>

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   GraduationCap, Search, BookOpen, FileText, FolderOpen,
   CheckCircle, Loader2, XCircle, ChevronDown, ChevronUp,
-  Clock, ExternalLink, LogOut as Unenroll
+  Clock, ExternalLink, LogOut as Unenroll, Plus
 } from 'lucide-react';
 
 const StudentCourses = () => {
