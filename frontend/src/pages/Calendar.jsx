@@ -749,16 +749,38 @@ const Calendar = () => {
               >
                  <Plus size={14} strokeWidth={4} /> {isAdmin ? 'Add Event' : 'Add Personal Event'}
               </button>
+
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Calendar Legend</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.4)]"></div>
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Holiday</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full shadow-[0_0_5px_rgba(99,102,241,0.4)]"></div>
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Personal</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full shadow-[0_0_5px_rgba(34,197,94,0.4)]"></div>
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Public</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 bg-amber-500 rounded-full shadow-[0_0_5px_rgba(245,158,11,0.4)]"></div>
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Deadline</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 bg-violet-500 rounded-full shadow-[0_0_5px_rgba(139,92,246,0.4)]"></div>
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Meeting</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 bg-[#1a1b4b] rounded-full shadow-[0_0_5px_rgba(26,27,75,0.4)]"></div>
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Active</span>
+                  </div>
+                </div>
+              </div>
            </div>
 
-           <div className="bg-indigo-600 rounded-[2rem] p-6 relative overflow-hidden shadow-xl shadow-indigo-50">
-              <div className="relative z-10">
-                 <Bell className="text-white w-5 h-5 mb-4 opacity-70" />
-                 <h3 className="text-lg font-black text-white leading-tight uppercase tracking-widest">Academic Alerts <br />Live</h3>
-                 <p className="text-white/60 text-[12px] font-bold mt-2 uppercase tracking-widest leading-relaxed">System notifications enabled for submission deadlines.</p>
-              </div>
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-           </div>
         </div>
 
         {/* Calendar Core */}
@@ -771,32 +793,6 @@ const Calendar = () => {
              {view === 'Year' && renderYearView()}
            </div>
            
-           <div className="mt-5 p-4 bg-white rounded-2xl border border-gray-100 flex flex-wrap gap-5 items-center justify-center sm:justify-start">
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">University Holiday</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Personal Event</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Public Event</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Assignment Deadline</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 bg-violet-500 rounded-full"></div>
-                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Departmental Meeting</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 bg-[#1a1b4b] rounded-full"></div>
-                 <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Current Active</span>
-              </div>
-           </div>
         </div>
       </div>
     </div>
