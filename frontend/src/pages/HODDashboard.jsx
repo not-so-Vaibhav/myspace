@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FileUser, Clock, Plus, X, ArrowRight, Check, Ban, Loader2, AlertCircle } from 'lucide-react';
+import { FileUser, Clock, Plus, X, ArrowRight, Check, Ban, Loader2, AlertCircle, BookX } from 'lucide-react';
 import { MeetingCard, statusColors } from '../components/Dashboard/MeetingSection';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useBacklogSummary } from '../hooks/useAcademicProgression';
 
 // Toast notification component
 const Toast = ({ message, type, onClose }) => {
@@ -32,6 +33,9 @@ const HODDashboard = () => {
     const [facultyStats, setFacultyStats] = useState({ active: 0, total: 0 });
     const [toast, setToast] = useState(null);
     const [processingId, setProcessingId] = useState(null);
+
+    // ── Backlog data from new academic_progression schema ──
+    const { backlogs: pendingBacklogs, totalPending: totalBacklogs } = useBacklogSummary();
     const [newMeet, setNewMeet] = useState({
         date: '', start_time: '', end_time: '', agenda: '', location: '', organized_by: ''
     });
@@ -150,7 +154,7 @@ const HODDashboard = () => {
                     {/* Left Side: Stats + Leave Approvals */}
                     <div className="space-y-8">
                         {/* Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <Link to="/faculty" className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 hover:border-[#1a1b4b]/20 hover:shadow-2xl hover:shadow-[#1a1b4b]/5 transition-all cursor-pointer group relative overflow-hidden">
                                 <FileUser className="absolute -right-4 -top-4 w-24 h-24 text-indigo-500 opacity-5 rotate-12" />
                                 <div className="flex justify-between items-start mb-6">
@@ -170,6 +174,21 @@ const HODDashboard = () => {
                                 <div className="text-4xl font-black text-[#1a1b4b] tracking-tighter">{pendingCount}</div>
                                 <p className="text-[12px] font-bold text-amber-600 uppercase tracking-widest mt-1">Action Required</p>
                             </Link>
+
+                            {/* NEW: Backlog stat card from academic_progression schema */}
+                            <div className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 hover:border-red-200 hover:shadow-2xl hover:shadow-red-500/5 transition-all relative overflow-hidden group">
+                                <BookX className="absolute -right-4 -top-4 w-24 h-24 text-red-400 opacity-5 rotate-12" />
+                                <div className="flex justify-between items-start mb-6">
+                                    <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#1a1b4b] transition-colors leading-none">Active Backlogs</span>
+                                    <BookX className="w-6 h-6 text-red-400" />
+                                </div>
+                                <div className={`text-4xl font-black tracking-tighter ${totalBacklogs > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                                    {totalBacklogs}
+                                </div>
+                                <p className={`text-[12px] font-bold uppercase tracking-widest mt-1 ${totalBacklogs > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                                    {totalBacklogs > 0 ? 'Pending Clearance' : 'All Cleared'}
+                                </p>
+                            </div>
                         </div>
 
                         {/* Leave Approvals List */}
@@ -229,6 +248,43 @@ const HODDashboard = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* NEW: Pending Backlogs Panel */}
+                    {pendingBacklogs.length > 0 && (
+                        <div className="bg-white rounded-[3rem] p-10 border-2 border-red-50 shadow-sm relative overflow-hidden">
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter flex items-center gap-3">
+                                    <BookX className="text-red-400" size={22} /> Backlog Watch
+                                </h2>
+                                <span className="text-[12px] font-black text-red-400 bg-red-50 px-3 py-1 rounded-full uppercase tracking-widest">
+                                    {totalBacklogs} Pending
+                                </span>
+                            </div>
+                            <div className="space-y-3">
+                                {pendingBacklogs.slice(0, 6).map(b => (
+                                    <div key={b.backlog_id} className="flex items-center justify-between p-4 bg-red-50/40 rounded-2xl border border-red-100">
+                                        <div>
+                                            <p className="text-sm font-black text-[#1a1b4b] uppercase tracking-tight">{b.student_name}</p>
+                                            <p className="text-[12px] text-gray-400 font-bold mt-0.5">
+                                                {b.subject_code} — {b.subject_name}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[11px] font-black text-red-400 uppercase tracking-widest">{b.origin_year_level} Sem {b.origin_semester_term}</p>
+                                            <p className="text-[11px] font-bold text-gray-300 mt-0.5">
+                                                {b.attempts_used}/{b.max_attempts} attempts
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                                {totalBacklogs > 6 && (
+                                    <p className="text-center text-[12px] font-black text-red-400 uppercase tracking-widest pt-2">
+                                        + {totalBacklogs - 6} more pending backlogs
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Right Side: Upcoming Meetings */}
                     <div className="bg-white rounded-[3rem] p-10 border-2 border-slate-100 shadow-sm h-full flex flex-col relative overflow-hidden">

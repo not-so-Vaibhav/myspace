@@ -1,4 +1,8 @@
-@import "tailwindcss";
+/* Scan application source only. This avoids scanning archived node_modules backups. */
+@import "tailwindcss" source(none);
+@source ".";
+@plugin "tailwindcss-animate";
+
 
 /* ─────────────────────────────────────────────
    Global font-size scale — proportional +2px

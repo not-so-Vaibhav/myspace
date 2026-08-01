@@ -572,7 +572,7 @@ const Calendar = () => {
             <div key={month.toString()} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                <h3 className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest mb-3 border-b border-gray-100 pb-2">{format(month, 'MMMM')}</h3>
                <div className="grid grid-cols-7 gap-0.5">
-                  {['S','M','T','W','T','F','S'].map(d => <div key={d} className="text-[7px] font-black text-gray-300 text-center py-0.5">{d}</div>)}
+                  {['S','M','T','W','T','F','S'].map(d => <div key={d} className="text-[12px] font-black text-gray-300 text-center py-0.5">{d}</div>)}
                   {Array.from({ length: startOfWeek(startOfMonth(month)).getDay() }).map((_, i) => <div key={i}></div>)}
                   {monthDays.map(d => {
                     const hasEvt = allEvents.some(e => isDayInEvent(d, e));
@@ -727,18 +727,18 @@ const Calendar = () => {
                  />
               </div>
 
-              <div className="space-y-3 h-[240px] overflow-y-auto pr-1 custom-scrollbar">
+              <div className="space-y-2 h-[180px] overflow-y-auto pr-1 custom-scrollbar">
                  <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-50 pb-2">Academic Registry 2026</p>
                  {HOLIDAYS_2026.map((h, i) => (
-                   <div key={h.id} className="flex items-center gap-3 group">
-                      <div className="w-7 h-7 rounded-lg bg-red-50 flex flex-col items-center justify-center border border-red-100 shadow-sm">
-                         <span className="text-[7px] font-black text-red-500 leading-none uppercase">{format(parseISO(h.date), 'MMM')}</span>
-                         <span className="text-[12px] font-black text-red-700 leading-none">{format(parseISO(h.date), 'dd')}</span>
-                      </div>
-                      <div className="flex-1 pb-1 border-b border-gray-50 last:border-0">
-                         <p className="text-[12px] font-black text-[#1a1b4b] truncate tracking-tight uppercase">{h.title}</p>
-                         <p className="text-[12px] text-gray-400 font-bold uppercase">{format(parseISO(h.date), 'EEEE')}</p>
-                      </div>
+                      <div key={h.id} className="flex items-center gap-3 group py-1.5">
+                         <div className="w-8 h-8 rounded-lg bg-red-50 flex flex-col items-center justify-center border border-red-100 shadow-sm flex-shrink-0">
+                            <span className="text-[10px] font-black text-red-500 leading-none uppercase">{format(parseISO(h.date), 'MMM')}</span>
+                            <span className="text-[12px] font-black text-red-700 leading-none">{format(parseISO(h.date), 'dd')}</span>
+                         </div>
+                         <div className="flex-1 min-w-0">
+                            <p className="text-[12px] font-black text-[#1a1b4b] truncate tracking-tight uppercase leading-none">{h.title}</p>
+                            <p className="text-[12px] text-gray-400 font-bold uppercase leading-none mt-1">{format(parseISO(h.date), 'EEEE')}</p>
+                         </div>
                    </div>
                  ))}
               </div>
@@ -749,37 +749,8 @@ const Calendar = () => {
               >
                  <Plus size={14} strokeWidth={4} /> {isAdmin ? 'Add Event' : 'Add Personal Event'}
               </button>
-
-              <div className="mt-8 pt-6 border-t border-gray-100">
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Calendar Legend</p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.4)]"></div>
-                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Holiday</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full shadow-[0_0_5px_rgba(99,102,241,0.4)]"></div>
-                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Personal</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full shadow-[0_0_5px_rgba(34,197,94,0.4)]"></div>
-                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Public</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 bg-amber-500 rounded-full shadow-[0_0_5px_rgba(245,158,11,0.4)]"></div>
-                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Deadline</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 bg-violet-500 rounded-full shadow-[0_0_5px_rgba(139,92,246,0.4)]"></div>
-                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Meeting</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 bg-[#1a1b4b] rounded-full shadow-[0_0_5px_rgba(26,27,75,0.4)]"></div>
-                    <span className="text-xs font-black text-gray-500 uppercase tracking-tight">Active</span>
-                  </div>
-                </div>
-              </div>
            </div>
+
 
         </div>
 

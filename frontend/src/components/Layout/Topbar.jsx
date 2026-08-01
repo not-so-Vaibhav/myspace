@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Menu, Youtube, Instagram, Facebook, Twitter, Linkedin, HandCoins, UserSquare2, Mail, Medal, Briefcase, Monitor, FileText, Calendar, GraduationCap, FolderOpen } from 'lucide-react';
+import { Search, Bell, Menu, Youtube, Instagram, Facebook, Twitter, Linkedin, HandCoins, UserSquare2, Mail, Medal, Briefcase, Monitor, FileText, Calendar, GraduationCap, FolderOpen, CheckCircle, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import notificationApi from '../../api/notificationApi';
 
 const XLogo = ({ size = 14 }) => (
   <svg 
@@ -20,6 +21,8 @@ const Topbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const role = profile?.role?.toLowerCase();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [recentNotifs, setRecentNotifs] = useState([]);
   const [search, setSearch] = useState('');
   const [results, setResults] = useState([]);
   const [index, setIndex] = useState([]); // Searchable items
@@ -127,6 +130,13 @@ const Topbar = ({ onMenuClick }) => {
         }
 
         setUnreadCount(count);
+
+        // Fetch recent notifications for drawer separately (non-blocking)
+        notificationApi.getNotifications({ userId: profile.id, role, limit: 5 })
+          .then(listRes => {
+            if (listRes?.data?.length) setRecentNotifs(listRes.data);
+          })
+          .catch(() => {}); // Silent fail — drawer just shows announcements
       } catch (err) {
         console.error('Notification fetch error:', err);
       }
@@ -270,14 +280,10 @@ const Topbar = ({ onMenuClick }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 pr-4 border-r border-[#f4f6fa]">
+        <div className="relative flex items-center gap-2 pr-4 border-r border-[#f4f6fa]">
           <button 
             type="button" 
-            onClick={() => {
-              localStorage.setItem(`last_read_notifications_${profile.id}`, new Date().toISOString());
-              setUnreadCount(0);
-              navigate('/announcements');
-            }}
+            onClick={() => setShowDrawer(!showDrawer)}
             className="p-3 text-gray-400 hover:text-[#1a1b4b] hover:bg-[#f4f6fa] rounded-full transition-all relative" 
             aria-label="Notifications"
           >
@@ -288,6 +294,96 @@ const Topbar = ({ onMenuClick }) => {
               </span>
             )}
           </button>
+
+          {showDrawer && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowDrawer(false)} />
+              <div className="absolute right-4 top-14 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="p-4 bg-[#1a1b4b] text-white flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell size={18} className="text-[#f59e0b]" />
+                    <span className="text-sm font-black uppercase tracking-wider">Notifications & Announcements</span>
+                  </div>
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        try {
+                          await notificationApi.markAllRead(profile.id);
+                        } catch (err) {}
+                        localStorage.setItem(`last_read_notifications_${profile.id}`, new Date().toISOString());
+                        setUnreadCount(0);
+                      }}
+                      className="text-[11px] font-bold text-amber-300 hover:text-white underline cursor-pointer"
+                    >
+                      Mark All Read
+                    </button>
+                  )}
+                </div>
+
+                <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
+                  {recentNotifs && recentNotifs.length > 0 ? (
+                    recentNotifs.map((item, idx) => {
+                      const isCritical = item.priority === 'CRITICAL';
+                      return (
+                        <div
+                          key={item.id || idx}
+                          onClick={() => {
+                            setShowDrawer(false);
+                            if (item.action_url) navigate(item.action_url);
+                            else navigate('/announcements');
+                          }}
+                          className={`p-3 hover:bg-gray-50 transition-colors cursor-pointer flex items-start gap-3 ${isCritical ? 'bg-red-50/40 border-l-4 border-red-500' : ''}`}
+                        >
+                          <div className="mt-0.5">
+                            {isCritical ? (
+                              <AlertTriangle size={16} className="text-red-500 shrink-0" />
+                            ) : (
+                              <CheckCircle size={16} className="text-emerald-500 shrink-0" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs font-bold text-gray-800 truncate">{item.title}</p>
+                              {item.priority && (
+                                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${
+                                  isCritical ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+                                }`}>
+                                  {item.priority}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-gray-500 line-clamp-2 mt-0.5">{item.message || item.description}</p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="p-6 text-center text-gray-400 text-xs font-semibold">
+                      No recent notifications
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3 bg-gray-50 border-t border-gray-100 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDrawer(false);
+                      localStorage.setItem(`last_read_notifications_${profile.id}`, new Date().toISOString());
+                      setUnreadCount(0);
+                      navigate('/announcements');
+                    }}
+                    className="text-xs font-bold text-[#1a1b4b] hover:text-[#31327c] flex items-center justify-center gap-1.5 w-full"
+                  >
+                    <span>Open Notification & Announcement Center</span>
+                    <ExternalLink size={12} />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-4 pl-2">

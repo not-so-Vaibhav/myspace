@@ -1,309 +1,421 @@
-import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Award, Printer, Download, ChevronRight, CheckCircle2, FileText, Info } from 'lucide-react';
+import { useStudentResults, useStudentCurrentSemester } from '../hooks/useAcademicProgression';
+import {
+  Award, Printer, ChevronRight, CheckCircle2, AlertTriangle,
+  Loader2, RefreshCw, BookOpen, TrendingUp, XCircle
+} from 'lucide-react';
 
+// ─── Grade color helper ───────────────────────────────────────────────────────
+const gradeColor = (grade) => {
+  if (!grade) return 'text-gray-400';
+  const g = grade.toUpperCase();
+  if (['O', 'A+'].includes(g))     return 'text-emerald-600';
+  if (['A', 'B+'].includes(g))     return 'text-blue-600';
+  if (['B', 'C+', 'C'].includes(g)) return 'text-amber-600';
+  if (g === 'F')                   return 'text-red-500';
+  return 'text-gray-600';
+};
+
+const passChipStyle = (isPass) => isPass
+  ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+  : 'bg-red-50 text-red-500 border-red-100';
+
+// ─── Results page ─────────────────────────────────────────────────────────────
 const Results = () => {
-  const { profile } = useAuth();
-  const [activeSem, setActiveSem] = useState(3);
+  const { profile, user } = useAuth();
 
-  const resultData = {
-    1: {
-      exam: "Odd Semester End Examinations 2024-2025",
-      sem: "First Semester",
-      sgpa: "8.27",
-      totalCredits: "22",
-      cgpa: "8.27",
-      status: "First Class with Distinction",
-      courses: [
-        { code: "23ASH1103", name: "Mathematical Foundations for Computing - I", cr: "3", int: "P", ext: "P", gr: "A", result: "PASS", rmk: "CA" },
-        { code: "23CSE1101", name: "Computational Thinking", cr: "2", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23CSE1102R", name: "C Programming", cr: "2", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23ASH1105", name: "Engineering Physics", cr: "3", int: "P", ext: "P", gr: "B+", result: "PASS", rmk: "CA" },
-        { code: "23CSE1104", name: "Electrical and Electronics Engineering", cr: "3", int: "P", ext: "P", gr: "A", result: "PASS", rmk: "CA" },
-        { code: "23CSE1108", name: "Design Thinking Part - 1", cr: "2", int: "P", ext: "P", gr: "A", result: "PASS", rmk: "CA" },
-        { code: "23ASH1108", name: "English Communication for Engineers", cr: "2", int: "P", ext: "-", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23CSE1107", name: "Computer Engineering Workshop", cr: "1", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23SHD1130", name: "Photography-I", cr: "2", int: "P", ext: "-", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23SHD1073", name: "Health Practices - I", cr: "2", int: "P", ext: "-", gr: "A", result: "PASS", rmk: "CA" },
-      ]
-    },
-    2: {
-      exam: "Even Semester End Examinations 2024-2025",
-      sem: "Second Semester",
-      sgpa: "8.91",
-      totalCredits: "22",
-      cgpa: "8.59",
-      status: "First Class with Distinction (Promoted)",
-      courses: [
-        { code: "23ASH1107", name: "Mathematical Foundations for Computing - II", cr: "3", int: "P", ext: "P", gr: "A", result: "PASS", rmk: "CA" },
-        { code: "23IT1102", name: "Introduction to Data Structures", cr: "2", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23CSE1103R", name: "C++ Programming", cr: "2", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23ASH1106", name: "Fundamentals of Photonics", cr: "3", int: "P", ext: "P", gr: "B+", result: "PASS", rmk: "CA" },
-        { code: "23CSE1105", name: "Digital Electronics and Logic Design", cr: "3", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23SE1109", name: "Design Thinking Part - II", cr: "2", int: "P", ext: "P", gr: "O", result: "PASS", rmk: "CA" },
-        { code: "23SHD2003", name: "Professional English Communication for Engineers", cr: "2", int: "P", ext: "-", gr: "O", result: "PASS", rmk: "CA" },
-        { code: "23SVS1001", name: "Indian Knowledge System for Engineers", cr: "1", int: "P", ext: "-", gr: "O", result: "PASS", rmk: "CA" },
-        { code: "23SHD1074", name: "Health Practices-II", cr: "2", int: "P", ext: "-", gr: "O", result: "PASS", rmk: "CA" },
-        { code: "23SHD1131", name: "Photography-II", cr: "2", int: "P", ext: "-", gr: "A+", result: "PASS", rmk: "CA" },
-      ]
-    },
-    3: {
-      exam: "Odd Semester End Examinations 2025-2026",
-      sem: "Third Semester",
-      sgpa: "8.78",
-      totalCredits: "23",
-      cgpa: "8.66",
-      status: "First Class with Distinction",
-      courses: [
-        { code: "23ASH1109", name: "Mathematical Foundation for Computing - III", cr: "3", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23SE2002", name: "Data Structures and Algorithms", cr: "4", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23SE2003", name: "Software Engineering", cr: "3", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23SE1007", name: "Processor Architecture and Interfacing", cr: "3", int: "P", ext: "P", gr: "A", result: "PASS", rmk: "CA" },
-        { code: "23SE2009", name: "Database Management Systems Lab", cr: "1", int: "P", ext: "P", gr: "A", result: "PASS", rmk: "CA" },
-        { code: "23SE2004", name: "Database Management Systems", cr: "3", int: "P", ext: "P", gr: "A", result: "PASS", rmk: "CA" },
-        { code: "23SE1010", name: "Project Based Learning - 1", cr: "2", int: "P", ext: "-", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23SE1012", name: "Python Essentials", cr: "2", int: "P", ext: "P", gr: "A+", result: "PASS", rmk: "CA" },
-        { code: "23CIV1302", name: "Environmental Studies", cr: "2", int: "P", ext: "-", gr: "O", result: "PASS", rmk: "CA" },
-        { code: "23SHD1007", name: "Societal Immersion, Spirituality and Morality - I", cr: "-", int: "P", ext: "-", gr: "A+", result: "PASS", rmk: "CA" },
-      ]
-    }
-  };
+  const {
+    activeSemResults,
+    backlogs,
+    semesters,
+    currentSem,
+    setCurrentSem,
+    activeSGPA,
+    cgpa,
+    loading,
+    error,
+    refetch,
+  } = useStudentResults(user?.id);
 
-  const currentResult = resultData[activeSem];
+  const { semesterInfo } = useStudentCurrentSemester(user?.id);
+
+  // ── Loading state ─────────────────────────────────────────────────────────
+  if (loading) return (
+    <div className="p-8 sm:p-12 min-h-screen bg-[#fcfdfe] flex flex-col items-center justify-center gap-4">
+      <Loader2 className="w-12 h-12 text-[#1a1b4b] animate-spin" />
+      <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">
+        Fetching Academic Records…
+      </p>
+    </div>
+  );
+
+  // ── Error state ───────────────────────────────────────────────────────────
+  if (error) return (
+    <div className="p-8 sm:p-12 min-h-screen bg-[#fcfdfe] flex flex-col items-center justify-center gap-4">
+      <XCircle className="w-12 h-12 text-red-400" />
+      <p className="text-sm font-bold text-red-500">{error}</p>
+      <button
+        onClick={refetch}
+        className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all"
+      >
+        <RefreshCw size={14} /> Retry
+      </button>
+    </div>
+  );
+
+  // ── Empty state (no results in DB yet) ────────────────────────────────────
+  if (semesters.length === 0) return (
+    <div className="p-8 sm:p-12 min-h-screen bg-[#fcfdfe] flex flex-col items-center justify-center gap-6 text-center">
+      <div className="w-20 h-20 rounded-2xl bg-[#1a1b4b]/5 flex items-center justify-center">
+        <BookOpen size={36} className="text-[#1a1b4b]/30" />
+      </div>
+      <div>
+        <h2 className="text-xl font-black text-[#1a1b4b] uppercase tracking-tighter">No Results Yet</h2>
+        <p className="text-sm text-gray-400 font-bold mt-1">
+          Exam results will appear here once they are published by your faculty.
+        </p>
+      </div>
+      {semesterInfo && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 text-sm text-[#1a1b4b] font-bold">
+          Current Semester: <span className="text-[#ef4444]">{semesterInfo.year_level} – Sem {semesterInfo.semester_term}</span>
+          {semesterInfo.batch_name && <> &nbsp;|&nbsp; Batch: <span className="text-[#ef4444]">{semesterInfo.batch_name}</span></>}
+        </div>
+      )}
+    </div>
+  );
+
+  // ── Derive current result metadata for the result card header ─────────────
+  const activeSemMeta   = semesters.find(s => s.key === currentSem);
+  const totalCredits    = activeSemResults
+    .filter(r => r.attempt_number === 1)
+    .reduce((sum, r) => sum + (parseFloat(r.credits) || 0), 0);
+  const passCount       = activeSemResults.filter(r => r.attempt_number === 1 && r.is_pass).length;
+  const failCount       = activeSemResults.filter(r => r.attempt_number === 1 && !r.is_pass && r.is_pass !== null).length;
+
+  const performanceStatus = (() => {
+    if (!activeSGPA) return '—';
+    const gpa = parseFloat(activeSGPA);
+    if (gpa >= 9)    return 'Outstanding';
+    if (gpa >= 8)    return 'First Class with Distinction';
+    if (gpa >= 6.5)  return 'First Class';
+    if (gpa >= 5.5)  return 'Second Class';
+    return 'Pass';
+  })();
 
   return (
     <div className="p-8 sm:p-12 space-y-10 bg-[#fcfdfe] min-h-screen">
-      <style>
-        {`
+      {/* Print styles */}
+      <style>{`
         @media print {
-            @page {
-                size: A4;
-                margin: 1.25cm;
-            }
-            body {
-                background: white !important;
-                -webkit-print-color-adjust: exact;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-canvas {
-                padding: 0 !important;
-                margin: 0 !important;
-                max-width: 100% !important;
-                border: 1px solid #f0f0f0 !important;
-                box-shadow: none !important;
-                border-radius: 1rem !important;
-            }
-            .print-compact-p {
-                padding: 1.5rem !important;
-            }
-            .print-compact-table-py {
-                padding-top: 0.4rem !important;
-                padding-bottom: 0.4rem !important;
-            }
-            .print-compact-mb {
-                margin-bottom: 0.5rem !important;
-            }
-            .print-signature-area {
-                padding-top: 1rem !important;
-                gap: 1.5rem !important;
-            }
-            .print-text-xs {
-                font-size: 10px !important;
-            }
-            .print-text-sm {
-                font-size: 11px !important;
-            }
+          @page { size: A4; margin: 1.25cm; }
+          body { background: white !important; -webkit-print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          .print-canvas {
+            padding: 0 !important; margin: 0 !important;
+            max-width: 100% !important; border: 1px solid #f0f0f0 !important;
+            box-shadow: none !important; border-radius: 1rem !important;
+          }
         }
-        `}
-      </style>
-      {/* Header */}
+      `}</style>
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-6 no-print">
         <div>
           <h1 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tighter flex items-center gap-3">
             <Award className="text-[#ef4444]" /> Academic Results
           </h1>
-          <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">Grade Cards & Performance Tracking</p>
+          <p className="text-gray-400 font-bold text-xs tracking-widest uppercase mt-1">
+            Grade Cards & Performance Tracking
+          </p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all shadow-md">
+          <button
+            onClick={refetch}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-100 text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm"
+          >
+            <RefreshCw size={14} /> Refresh
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all shadow-md"
+          >
             <Printer size={14} /> Print Result
           </button>
         </div>
       </div>
 
-      {/* Semester Selector */}
-      <div className="flex gap-3 no-print">
-        {[1, 2, 3].map(sem => (
+      {/* ── Current Semester Info Banner ────────────────────────────────────── */}
+      {semesterInfo && (
+        <div className="no-print bg-gradient-to-r from-[#1a1b4b]/5 to-transparent border border-[#1a1b4b]/10 rounded-2xl px-6 py-4 flex flex-wrap gap-6 text-sm font-bold text-[#1a1b4b]">
+          <span>📍 Current: <span className="text-[#ef4444]">{semesterInfo.academic_year_label || semesterInfo.year_level} – Sem {semesterInfo.semester_term}</span></span>
+          {semesterInfo.batch_name && (
+            <span>🎓 Batch: <span className="text-[#ef4444]">{semesterInfo.batch_name}</span></span>
+          )}
+          {semesterInfo.department_name && (
+            <span>🏛️ Dept: <span className="text-[#ef4444]">{semesterInfo.department_name}</span></span>
+          )}
+        </div>
+      )}
+
+      {/* ── Semester Tab Selector ────────────────────────────────────────────── */}
+      <div className="flex flex-wrap gap-3 no-print">
+        {semesters.map(sem => (
           <button
-            key={sem}
-            onClick={() => setActiveSem(sem)}
+            key={sem.key}
+            onClick={() => setCurrentSem(sem.key)}
             className={`px-6 py-3 rounded-2xl text-[12px] font-black uppercase tracking-widest transition-all ${
-              activeSem === sem 
-                ? 'bg-[#1a1b4b] text-white shadow-lg shadow-[#1a1b4b]/20 scale-105' 
+              currentSem === sem.key
+                ? 'bg-[#1a1b4b] text-white shadow-lg shadow-[#1a1b4b]/20 scale-105'
                 : 'bg-white border border-gray-100 text-gray-400 hover:bg-gray-50'
             }`}
           >
-            Semester {sem}
+            {sem.label}
           </button>
         ))}
       </div>
 
-      {/* Grade Card Canvas */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-[#1a1b4b]/5 overflow-hidden lg:max-w-5xl mx-auto print-canvas">
-        {/* Certificate Header */}
-        <div className="p-10 border-b border-gray-100 text-center space-y-4 print-compact-p print:space-y-2">
-          <h2 className="text-sm font-black text-gray-400 uppercase tracking-[0.3em] print-text-xs">MIT ADT UNIVERSITY</h2>
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold text-[#1a1b4b] uppercase print-text-sm">School of Computing</h3>
-            <h4 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tight print:text-xl">Grade Card</h4>
-            <p className="text-xs font-black text-[#ef4444] uppercase tracking-widest print-text-xs">B. Tech. (Computer Science and Engineering)</p>
-          </div>
-          <div className="inline-block px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100 italic text-[12px] font-bold text-gray-500 print:py-0.5 print-text-xs">
-            {currentResult.exam}
+      {/* ── Active Backlog Alert ─────────────────────────────────────────────── */}
+      {backlogs.length > 0 && (
+        <div className="no-print bg-red-50 border border-red-100 rounded-2xl px-6 py-4 flex items-start gap-4">
+          <AlertTriangle className="text-red-500 mt-0.5 shrink-0" size={20} />
+          <div>
+            <p className="text-sm font-black text-red-600 uppercase tracking-tight">
+              {backlogs.length} Pending Backlog{backlogs.length > 1 ? 's' : ''}
+            </p>
+            <ul className="mt-2 space-y-1">
+              {backlogs.map(b => (
+                <li key={b.backlog_id} className="text-xs font-bold text-red-400">
+                  {b.subject_code} — {b.subject_name}
+                  <span className="text-red-300 ml-2">
+                    ({b.attempts_used}/{b.max_attempts} attempts used · {b.origin_year_level} Sem {b.origin_semester_term})
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+      )}
 
-        {/* User Info Grid */}
-        <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 border-b border-gray-100 bg-gray-50/30 print-compact-p print:grid-cols-2 print:gap-4">
-          <div className="space-y-4 print:space-y-2">
+      {/* ── Grade Card Canvas ────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-[#1a1b4b]/5 overflow-hidden lg:max-w-5xl mx-auto print-canvas">
+
+        {/* Certificate Header */}
+        <div className="p-10 border-b border-gray-100 text-center space-y-4">
+          <h2 className="text-sm font-black text-gray-400 uppercase tracking-[0.3em]">MIT ADT UNIVERSITY</h2>
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold text-[#1a1b4b] uppercase">School of Computing</h3>
+            <h4 className="text-3xl font-black text-[#1a1b4b] uppercase tracking-tight">Grade Card</h4>
+            <p className="text-xs font-black text-[#ef4444] uppercase tracking-widest">
+              B. Tech. (Computer Science and Engineering)
+            </p>
+          </div>
+          {activeSemMeta && (
+            <div className="inline-block px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100 italic text-[12px] font-bold text-gray-500">
+              {activeSemMeta.label}
+            </div>
+          )}
+        </div>
+
+        {/* Student Info Grid */}
+        <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 border-b border-gray-100 bg-gray-50/30">
+          <div className="space-y-4">
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest print-text-xs">Student Name</span>
-              <span className="text-sm font-black text-[#1a1b4b] uppercase print-text-sm">{profile?.full_name || 'Vaibhav Bariyar'}</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Student Name</span>
+              <span className="text-sm font-black text-[#1a1b4b] uppercase">{profile?.full_name || '—'}</span>
             </div>
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest print-text-xs">Father's Name</span>
-              <span className="text-sm font-black text-[#1a1b4b] uppercase print-text-sm">Vijay Kumar Bariar</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Department</span>
+              <span className="text-sm font-black text-[#1a1b4b]">{semesterInfo?.department_name || '—'}</span>
             </div>
           </div>
-          <div className="space-y-4 print:space-y-2">
+          <div className="space-y-4">
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest print-text-xs">Enrolment No.</span>
-              <span className="text-sm font-black text-[#1a1b4b] uppercase tracking-widest print-text-sm">ADT24SOCB1338</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Year Level</span>
+              <span className="text-sm font-black text-[#1a1b4b] uppercase">{activeSemMeta?.year_level || '—'}</span>
             </div>
             <div className="flex justify-between items-end border-b border-gray-200 pb-1">
-              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest print-text-xs">Mother's Name</span>
-              <span className="text-sm font-black text-[#1a1b4b] uppercase print-text-sm">Sandhya Rani</span>
+              <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Batch</span>
+              <span className="text-sm font-black text-[#1a1b4b]">{semesterInfo?.batch_name || '—'}</span>
             </div>
           </div>
         </div>
 
         {/* Results Table */}
         <div className="p-0 overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-[#1a1b4b]/5">
-                <th className="px-6 py-4 text-left text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">Code</th>
-                <th className="px-6 py-4 text-left text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">Course Name</th>
-                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">CR</th>
-                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">INT</th>
-                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">EXT</th>
-                <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">GR</th>
-                <th className="px-4 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">Grade</th>
-                <th className="px-4 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100 print:py-2 print-text-xs">Rmk</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentResult.courses.map((course, idx) => (
-                <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-3 text-[13px] font-black text-gray-400 tracking-tight print-compact-table-py print-text-xs">{course.code}</td>
-                  <td className="px-6 py-3 text-[13px] font-bold text-[#1a1b4b] truncate max-w-[200px] sm:max-w-none print-compact-table-py print-text-xs">{course.name}</td>
-                  <td className="px-2 py-3 text-[13px] font-black text-[#1a1b4b] text-center print-compact-table-py print-text-xs">{course.cr}</td>
-                  <td className="px-2 py-3 text-[13px] font-black text-gray-400 text-center print-compact-table-py print-text-xs">{course.int}</td>
-                  <td className="px-2 py-3 text-[13px] font-black text-gray-400 text-center print-compact-table-py print-text-xs">{course.ext}</td>
-                  <td className="px-2 py-3 text-[13px] font-black text-emerald-600 text-center print-compact-table-py print-text-xs">{course.gr}</td>
-                  <td className="px-4 py-3 text-center print-compact-table-py">
-                    <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[12px] font-black uppercase tracking-widest border border-emerald-100 print-text-xs">
-                      {course.result}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[13px] font-black text-gray-400 text-center print-compact-table-py print-text-xs">{course.rmk}</td>
+          {activeSemResults.length === 0 ? (
+            <div className="text-center py-16 text-gray-300">
+              <BookOpen size={40} className="mx-auto mb-3" />
+              <p className="text-xs font-black uppercase tracking-widest">No results published for this semester yet.</p>
+            </div>
+          ) : (
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[#1a1b4b]/5">
+                  <th className="px-6 py-4 text-left text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Code</th>
+                  <th className="px-6 py-4 text-left text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Subject</th>
+                  <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">CR</th>
+                  <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">INT</th>
+                  <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">EXT</th>
+                  <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Total</th>
+                  <th className="px-2 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">GR</th>
+                  <th className="px-4 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Result</th>
+                  <th className="px-3 py-4 text-center text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest border-b border-gray-100">Attempt</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="bg-gray-50/80 font-black text-[#1a1b4b] text-xs">
-                <td colSpan={2} className="px-6 py-4 uppercase tracking-widest print:py-2 print-text-xs">Semester Performance Summary</td>
-                <td className="px-2 py-4 text-center underline font-bold print:py-2 print-text-xs">{currentResult.totalCredits}</td>
-                <td colSpan={4} className="px-2 py-4 text-right pr-6 md:pr-12 lg:pr-16 text-[#ef4444] uppercase tracking-widest print:py-2 print-text-xs">SGPA:</td>
-                <td className="px-4 py-4 text-center text-xl text-[#1a1b4b] print:py-2 print:text-lg">{currentResult.sgpa}</td>
-              </tr>
-            </tfoot>
-          </table>
+              </thead>
+              <tbody>
+                {activeSemResults.map((row) => (
+                  <tr
+                    key={row.result_id}
+                    className={`border-b border-gray-100 hover:bg-gray-50/50 transition-colors ${!row.is_pass && row.is_pass !== null ? 'bg-red-50/30' : ''}`}
+                  >
+                    <td className="px-6 py-3 text-[13px] font-black text-gray-400 tracking-tight">{row.subject_code}</td>
+                    <td className="px-6 py-3 text-[13px] font-bold text-[#1a1b4b] max-w-[220px] truncate sm:max-w-none">
+                      {row.subject_name}
+                      {row.subject_type && (
+                        <span className="ml-2 text-[10px] font-black text-gray-300 uppercase">{row.subject_type}</span>
+                      )}
+                    </td>
+                    <td className="px-2 py-3 text-[13px] font-black text-[#1a1b4b] text-center">{row.credits ?? '—'}</td>
+                    <td className="px-2 py-3 text-[13px] font-black text-gray-500 text-center">
+                      {row.internal_marks != null ? row.internal_marks : '—'}
+                    </td>
+                    <td className="px-2 py-3 text-[13px] font-black text-gray-500 text-center">
+                      {row.external_marks != null ? row.external_marks : '—'}
+                    </td>
+                    <td className="px-2 py-3 text-[13px] font-black text-[#1a1b4b] text-center">
+                      {row.total_marks != null ? row.total_marks : '—'}
+                    </td>
+                    <td className={`px-2 py-3 text-[13px] font-black text-center ${gradeColor(row.grade)}`}>
+                      {row.grade ?? '—'}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {row.is_pass !== null ? (
+                        <span className={`inline-block px-2 py-0.5 rounded text-[12px] font-black uppercase tracking-widest border ${passChipStyle(row.is_pass)}`}>
+                          {row.is_pass ? 'PASS' : 'FAIL'}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300 text-[12px] font-black">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      {row.attempt_number > 1 ? (
+                        <span className="inline-block px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 rounded text-[11px] font-black uppercase">
+                          ATKT #{row.attempt_number - 1}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300 text-[11px] font-black">Regular</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-gray-50/80 font-black text-[#1a1b4b] text-xs">
+                  <td colSpan={2} className="px-6 py-4 uppercase tracking-widest">Semester Summary</td>
+                  <td className="px-2 py-4 text-center font-bold underline">{totalCredits || '—'}</td>
+                  <td colSpan={4} className="px-2 py-4 text-right pr-6 text-[#ef4444] uppercase tracking-widest">SGPA:</td>
+                  <td colSpan={2} className="px-4 py-4 text-center text-xl text-[#1a1b4b]">
+                    {activeSGPA ?? '—'}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
         </div>
 
-        {/* Cumulative Record & Signatures */}
-        <div className="p-10 bg-white flex flex-col md:flex-row gap-10 print-compact-p print-signature-area print:flex-row print:justify-between">
-          <div className="flex-1 space-y-6 print:space-y-3">
-            <h4 className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 print-text-xs">
-              <div className="w-1 h-3 bg-[#ef4444] rounded-full"></div> Cumulative Record
+        {/* Cumulative Record */}
+        <div className="p-10 bg-white flex flex-col md:flex-row gap-10">
+          <div className="flex-1 space-y-6">
+            <h4 className="text-[12px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+              <div className="w-1 h-3 bg-[#ef4444] rounded-full" /> Cumulative Record
             </h4>
-            <div className="grid grid-cols-2 gap-4 print:gap-2">
-              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-1 print:p-2 print:border-none">
-                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest print-text-xs">Total Credits</p>
-                <p className="text-xl font-black text-[#1a1b4b] print:text-lg">{currentResult.totalCredits} / 160</p>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-1">
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Subjects</p>
+                <p className="text-xl font-black text-[#1a1b4b]">
+                  {passCount}<span className="text-gray-300 font-bold text-sm"> / {passCount + failCount}</span>
+                </p>
+                <p className="text-[10px] text-gray-300 font-bold uppercase">Passed / Appeared</p>
               </div>
-              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-1 print:p-2 print:border-none">
-                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest print-text-xs">Overall CGPA</p>
-                <p className="text-xl font-black text-[#ef4444] print:text-lg">{currentResult.cgpa}</p>
+              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-1">
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Sem Credits</p>
+                <p className="text-xl font-black text-[#1a1b4b]">{totalCredits || '—'}</p>
+                <p className="text-[10px] text-gray-300 font-bold uppercase">This Semester</p>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-1">
+                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">CGPA</p>
+                <p className="text-xl font-black text-[#ef4444]">{cgpa ?? '—'}</p>
+                <p className="text-[10px] text-gray-300 font-bold uppercase">Cumulative</p>
               </div>
             </div>
-            <div className="bg-[#1a1b4b] p-5 rounded-2xl flex items-center justify-between shadow-lg shadow-[#1a1b4b]/10 print:p-3 print:bg-white print:border print:border-[#1a1b4b]/10">
+            <div className={`p-5 rounded-2xl flex items-center justify-between shadow-lg ${failCount > 0 ? 'bg-red-500' : 'bg-[#1a1b4b]'}`}>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center no-print">
-                  <CheckCircle2 className="text-white" size={18} />
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${failCount > 0 ? 'bg-white/20' : 'bg-emerald-500'}`}>
+                  {failCount > 0
+                    ? <AlertTriangle className="text-white" size={18} />
+                    : <CheckCircle2 className="text-white" size={18} />
+                  }
                 </div>
                 <div>
-                  <p className="text-[12px] font-black text-white/50 uppercase tracking-widest leading-none print:text-gray-400 print-text-xs">Status</p>
-                  <p className="text-sm font-black text-white mt-1 uppercase tracking-tight print:text-[#1a1b4b] print-text-sm">{currentResult.status}</p>
+                  <p className="text-[12px] font-black text-white/50 uppercase tracking-widest leading-none">Status</p>
+                  <p className="text-sm font-black text-white mt-1 uppercase tracking-tight">{performanceStatus}</p>
                 </div>
               </div>
-              <ChevronRight className="text-white/20 no-print" />
+              <ChevronRight className="text-white/20" />
             </div>
           </div>
 
-          <div className="w-full md:w-72 flex flex-col justify-end items-center gap-4 py-4 border-l border-gray-100 border-dashed pl-10 print:border-none print:pl-0 print:w-auto mt-auto">
-             <div className="text-center space-y-6 w-full mt-auto print:space-y-3">
-                <div className="h-20 w-full border-b border-gray-200 italic text-gray-200 flex items-center justify-center text-[12px] print:h-12 print-text-xs">Digital Signature Verified</div>
-                <div>
-                    <p className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest leading-tight print-text-xs">(Dr. Dnyandeo Neelwarna)</p>
-                    <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest print-text-xs">Controller of Examinations</p>
-                    <p className="text-[12px] font-bold text-gray-400 mt-4 italic print:mt-1 print-text-xs">Date: 16 January 2025</p>
-                </div>
-             </div>
+          {/* Signature area */}
+          <div className="w-full md:w-72 flex flex-col justify-end items-center gap-4 py-4 border-l border-dashed border-gray-100 pl-10 mt-auto">
+            <div className="text-center space-y-6 w-full mt-auto">
+              <div className="h-20 w-full border-b border-gray-200 italic text-gray-200 flex items-center justify-center text-[12px]">
+                Digital Signature Verified
+              </div>
+              <div>
+                <p className="text-[12px] font-black text-[#1a1b4b] uppercase tracking-widest leading-tight">(Controller of Examinations)</p>
+                <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">MIT ADT University</p>
+              </div>
+            </div>
           </div>
         </div>
-        
+
         {/* Abbreviations */}
-        <div className="px-10 py-8 bg-gray-50/50 flex flex-wrap gap-x-8 gap-y-2 print:px-6 print:py-2">
-            <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider print:text-[8px]">
-                <div className="w-1 h-1 rounded-full bg-gray-300"></div> Remark CA: Current Attempt
+        <div className="px-10 py-8 bg-gray-50/50 flex flex-wrap gap-x-8 gap-y-2 text-[12px] font-black text-gray-400 uppercase tracking-wider">
+          {[
+            ['INT', 'Internal Marks'],
+            ['EXT', 'External Marks'],
+            ['CR',  'Credits'],
+            ['GR',  'Grade'],
+            ['ATKT','Allowed To Keep Terms'],
+          ].map(([abbr, full]) => (
+            <div key={abbr} className="flex items-center gap-1.5">
+              <div className="w-1 h-1 rounded-full bg-gray-300" />
+              {abbr}: {full}
             </div>
-            <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider print:text-[8px]">
-                <div className="w-1 h-1 rounded-full bg-gray-300"></div> PP: Past Performance
-            </div>
-            <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider print:text-[8px]">
-                <div className="w-1 h-1 rounded-full bg-gray-300"></div> GR: Grade
-            </div>
-             <div className="flex items-center gap-1.5 text-[12px] font-black text-gray-400 uppercase tracking-wider print:text-[8px]">
-                <div className="w-1 h-1 rounded-full bg-gray-300"></div> CR: Credits
-            </div>
+          ))}
         </div>
       </div>
 
-      {/* Analytics Insight */}
+      {/* ── Performance Insight ─────────────────────────────────────────────── */}
       <div className="bg-gradient-to-br from-[#1a1b4b] to-[#2d3a8c] p-8 rounded-[2rem] text-white flex flex-col md:flex-row items-center gap-8 shadow-xl shadow-[#1a1b4b]/20 no-print">
         <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
-            <Award size={32} className="text-[#ef4444]" />
+          <TrendingUp size={32} className="text-[#ef4444]" />
         </div>
         <div className="flex-1 text-center md:text-left">
-            <h3 className="text-xl font-black uppercase tracking-tight">Performance Insight</h3>
-            <p className="text-sm font-bold text-white/60 mt-1">Your SGPA increased from 8.27 to 8.91 in the second semester. Keep maintaining the high standard!</p>
+          <h3 className="text-xl font-black uppercase tracking-tight">Performance Summary</h3>
+          <p className="text-sm font-bold text-white/60 mt-1">
+            {cgpa
+              ? `Overall CGPA: ${cgpa} across ${semesters.length} semester${semesters.length !== 1 ? 's' : ''}.`
+              : 'Results will appear here once published by your faculty.'}
+            {backlogs.length > 0
+              ? ` You have ${backlogs.length} active backlog${backlogs.length > 1 ? 's' : ''} to clear.`
+              : activeSGPA ? ' Keep up the great performance!' : ''}
+          </p>
         </div>
-        <button className="px-8 py-3 bg-white text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all shadow-lg active:scale-95">
-            View Analytics
-        </button>
+        <div className="text-right">
+          <p className="text-[12px] font-black text-white/40 uppercase tracking-widest">CGPA</p>
+          <p className="text-4xl font-black text-white">{cgpa ?? '—'}</p>
+        </div>
       </div>
     </div>
   );

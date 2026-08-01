@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { TrendingUp, Users, BookOpen, Building2, Loader2, IndianRupee, Activity, GraduationCap, ChevronRight, BarChart3 } from 'lucide-react';
+import { TrendingUp, Users, BookOpen, Building2, Loader2, Activity, GraduationCap, ChevronRight, BarChart3, ArrowUpCircle, MinusCircle, XCircle, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { usePromotionSummary } from '../hooks/useAcademicProgression';
 
 const DeanDashboard = () => {
     const { profile } = useAuth();
@@ -12,11 +13,12 @@ const DeanDashboard = () => {
         faculty: 0,
         departments: 0,
         courses: 0,
-        revenue: '₹14.2M', // Mocked as there is no transaction table yet
-        growth: '+8.4%'
     });
     const [deptPerformance, setDeptPerformance] = useState([]);
     const [enrollmentData, setEnrollmentData] = useState([]);
+
+    // ── Live promotion summary from academic_progression schema ──
+    const { counts: promoCounts, promotions: recentPromotions } = usePromotionSummary();
 
     useEffect(() => {
         fetchData();
@@ -210,6 +212,67 @@ const DeanDashboard = () => {
                         Detailed Reports <ChevronRight size={14} />
                     </Link>
                 </div>
+            </div>
+
+            {/* ── Promotion Summary (from promotion_history via v_promotion_summary) ── */}
+            <div className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm">
+                <h2 className="text-2xl font-black text-[#1a1b4b] uppercase tracking-tighter mb-8 flex items-center gap-2">
+                    <ArrowUpCircle className="text-indigo-500" size={24} /> Student Promotion Overview
+                </h2>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-10">
+                    {[
+                        { label: 'Promoted',   value: promoCounts.promoted,   color: 'text-emerald-600', bg: 'bg-emerald-50',  icon: ArrowUpCircle },
+                        { label: 'Graduated',  value: promoCounts.graduated,  color: 'text-indigo-600',  bg: 'bg-indigo-50',   icon: CheckCircle2 },
+                        { label: 'Held Back',  value: promoCounts.held_back,  color: 'text-amber-600',   bg: 'bg-amber-50',    icon: MinusCircle },
+                        { label: 'Detained',   value: promoCounts.detained,   color: 'text-red-500',     bg: 'bg-red-50',      icon: XCircle },
+                    ].map((item) => (
+                        <div key={item.label} className="flex flex-col items-center p-6 rounded-2xl border border-gray-100 hover:shadow-md transition-all">
+                            <div className={`p-3 rounded-2xl ${item.bg} ${item.color} mb-3`}>
+                                <item.icon size={22} strokeWidth={2.5} />
+                            </div>
+                            <div className={`text-3xl font-black tracking-tighter ${item.color}`}>{item.value}</div>
+                            <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mt-1">{item.label}</p>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Recent promotion decisions */}
+                {recentPromotions.length > 0 ? (
+                    <div className="space-y-3">
+                        <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-4">Recent Decisions</p>
+                        {recentPromotions.slice(0, 5).map((p, i) => (
+                            <div key={i} className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 bg-[#1a1b4b] text-white rounded-xl flex items-center justify-center font-black text-sm">
+                                        {p.student_name?.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-black text-[#1a1b4b] uppercase tracking-tight">{p.student_name}</p>
+                                        <p className="text-[12px] text-gray-400 font-bold">
+                                            {p.from_year_level} Sem {p.from_semester_term}
+                                            {p.to_year_level && <> → {p.to_year_level} Sem {p.to_semester_term}</>}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className={`inline-block text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
+                                        p.decision === 'promoted'  ? 'bg-emerald-50 text-emerald-600' :
+                                        p.decision === 'graduated' ? 'bg-indigo-50 text-indigo-600' :
+                                        p.decision === 'held_back' ? 'bg-amber-50 text-amber-600' :
+                                        'bg-red-50 text-red-500'
+                                    }`}>{p.decision.replace('_', ' ')}</span>
+                                    {p.cgpa && <p className="text-[11px] text-gray-300 font-bold mt-1">CGPA: {p.cgpa}</p>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-10 text-gray-200">
+                        <ArrowUpCircle size={40} className="mx-auto mb-3" />
+                        <p className="text-xs font-black uppercase tracking-widest">No promotion decisions recorded yet.</p>
+                    </div>
+                )}
             </div>
         </div>
     );

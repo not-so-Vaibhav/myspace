@@ -20,8 +20,10 @@ import {
     Mail,
     Phone,
     MapPin,
-    Globe
+    Globe,
+    KeyRound
 } from 'lucide-react';
+import ChangePasswordModal from '../components/Auth/ChangePasswordModal';
 
 // ─── Reusable field row ─────────────────────────────────────────────────────
 const Field = ({ label, value, editing, onChange, name, type = 'text', options }) => (
@@ -110,6 +112,7 @@ const SectionCard = ({ title, icon: Icon, color, fields, data, onSave }) => {
 const FacultyProfile = () => {
     const { user, profile } = useAuth();
     const [activeTab, setActiveTab] = useState('general');
+    const [showChangePassword, setShowChangePassword] = useState(false);
     
     // Mock faculty data - in real app, fetch from Supabase
     const [facultyData, setFacultyData] = useState({
@@ -207,6 +210,14 @@ const FacultyProfile = () => {
                             </button>
                             <button className="px-5 py-2.5 bg-white text-[#1a1b4b] border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all active:scale-95">
                                 Download CV
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowChangePassword(true)}
+                                className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all active:scale-95 flex items-center gap-1.5"
+                            >
+                                <KeyRound size={12} />
+                                <span>Change Password</span>
                             </button>
                         </div>
                     </div>
@@ -441,6 +452,10 @@ const FacultyProfile = () => {
                     )}
                 </div>
             </div>
+            <ChangePasswordModal
+                isOpen={showChangePassword}
+                onClose={() => setShowChangePassword(false)}
+            />
         </div>
     );
 };

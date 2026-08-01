@@ -1,0 +1,54 @@
+services:
+  # ────────────────────────────────────────────────────────────────────────
+  # 1. Backend API Service (Node.js Express)
+  # ────────────────────────────────────────────────────────────────────────
+  - type: web
+    name: mit-learn-backend
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  # ────────────────────────────────────────────────────────────────────────
+  # 2. Frontend Web Application (Vite + React Static Site)
+  # ────────────────────────────────────────────────────────────────────────
+  - type: web
+    name: mit-learn-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      # Rewrite rule for Single Page Application (React Router)
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: mit-learn-backend
+          property: url

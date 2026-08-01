@@ -106,3 +106,61 @@ exports.getMe = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+// @desc    Reset password (Forgot Password flow)
+// @route   POST /api/auth/reset-password
+// @access  Public
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+        if (!email || !newPassword) {
+            return res.status(400).json({ success: false, error: 'Email and new password are required' });
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long' });
+        }
+        const supabase = require('../config/supabaseClient');
+        const { data, error } = await supabase.rpc('reset_user_password', {
+            target_email: email,
+            new_password: newPassword
+        });
+        if (error) {
+            return res.status(500).json({ success: false, error: error.message });
+        }
+        if (!data || !data.success) {
+            return res.status(404).json({ success: false, error: data ? data.message : 'Failed to reset password' });
+        }
+        res.json({ success: true, message: data.message });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ success: false, error: 'Server error during password reset' });
+    }
+};
+
+// @desc    Change password (for logged-in users)
+// @route   POST /api/auth/change-password
+// @access  Private
+exports.changePassword = async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long' });
+        }
+        const userEmail = email || req.user?.email;
+        if (!userEmail) {
+            return res.status(400).json({ success: false, error: 'User email is required' });
+        }
+        const supabase = require('../config/supabaseClient');
+        const { data, error } = await supabase.rpc('reset_user_password', {
+            target_email: userEmail,
+            new_password: newPassword
+        });
+        if (error) {
+            return res.status(500).json({ success: false, error: error.message });
+        }
+        res.json({ success: true, message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ success: false, error: 'Server error during password change' });
+    }
+};

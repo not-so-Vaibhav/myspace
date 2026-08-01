@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
 import loginIllustration from '../assets/login_illustration.png';
+import ForgotPasswordModal from '../components/Auth/ForgotPasswordModal';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -12,15 +12,8 @@ const Login = () => {
   const [role, setRole] = useState('student');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState(null);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
-
-  // Safely navigate only AFTER the global Authentication state and DB Profile have synchronized
-  useEffect(() => {
-    if (user && profile) {
-      navigate('/');
-    }
-  }, [user, profile, navigate]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -36,27 +29,15 @@ const Login = () => {
             data: {
               full_name: fullName,
               role: role,
-            },
-          },
+            }
+          }
         });
-
-        if (error) {
-          console.error("AUTH ERROR:", error);
-          alert(error.message);
-          return;
-        }
-
+        if (error) throw error;
+        alert('Check your email for the confirmation link!');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          console.error("AUTH ERROR:", error);
-          alert(error.message);
-          return;
-        }
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        navigate('/');
       }
     } catch (error) {
       setError(error.message);
@@ -64,6 +45,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 font-sans">
       <div className="w-full max-w-5xl bg-[#f4f6fa] rounded-[2rem] shadow-xl overflow-hidden flex flex-col md:flex-row relative">
@@ -117,10 +99,10 @@ const Login = () => {
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'student', label: 'Student' },
-                        { id: 'faculty', label: 'Faculty' },
+                        { id: 'instructor', label: 'Faculty' },
                         { id: 'dean', label: 'Dean' },
                         { id: 'hod', label: 'HOD' },
-                        { id: 'non_teaching', label: 'Staff' },
+                        { id: 'staff', label: 'Staff' },
                         { id: 'admin', label: 'Admin' }
                       ].map((r) => (
                         <button
@@ -168,7 +150,11 @@ const Login = () => {
                 </div>
                 {!isSignUp && (
                   <div className="text-right mt-2">
-                    <button type="button" className="text-xs text-[#1a1b4b] hover:text-blue-800 font-medium">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotModal(true)}
+                      className="text-xs text-[#1a1b4b] hover:text-blue-800 font-medium"
+                    >
                       Forgot Password ?
                     </button>
                   </div>
@@ -201,6 +187,11 @@ const Login = () => {
           </div>
         </div>
       </div>
+      <ForgotPasswordModal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+        defaultEmail={email}
+      />
     </div>
   );
 };

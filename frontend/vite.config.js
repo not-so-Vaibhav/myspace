@@ -8,4 +8,21 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    // Bind explicitly to IPv4 so http://127.0.0.1:5173 works consistently.
+    host: '127.0.0.1',
+    port: 5173,
+    strictPort: true,
+    watch: {
+      ignored: [
+        '**/node_modules/**',
+        '**/node_modules_backup_*/**',
+        '**/dist/**',
+        '**/.git/**',
+        '**/*.sql',
+        '**/*.log',
+        '**/backend/**'
+      ],
+    },
+  },
 })

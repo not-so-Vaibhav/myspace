@@ -21,7 +21,14 @@ import {
   BarChart3,
   Package,
   ShoppingCart,
-  UserPlus
+  UserPlus,
+  Shield,
+  Activity,
+  TrendingUp,
+  Layers,
+  Database,
+  Eye,
+  Video
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -31,6 +38,7 @@ const getNavItems = (role) => {
     return [
       { to: '/admin-dashboard', icon: Home, label: 'Admin Dashboard' },
       { to: '/announcements', icon: Megaphone, label: 'Announcement' },
+      { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
       { to: '/users', icon: FileText, label: 'Users' },
@@ -44,12 +52,26 @@ const getNavItems = (role) => {
       { to: '/performance-appraisal', icon: Award, label: 'Performance Appraisals' },
       { to: '/admissions', icon: UserPlus, label: 'Admission Requests' },
       { to: '/schedule-allocation', icon: Clock, label: 'Schedule Allocation' },
+      { to: '/academic-rules', icon: Shield, label: 'Academic Rules Engine' },
+      { to: '/student-lifecycle', icon: Activity, label: 'Student Lifecycle' },
+      { to: '/academic-promotion', icon: TrendingUp, label: 'Academic Promotion' },
+      { to: '/admin/academic-records', icon: FileText, label: 'Academic Records' },
+      { to: '/admin/graduation', icon: GraduationCap, label: 'Graduation Processing' },
+      { to: '/course-registration-admin', icon: BookOpen, label: 'Course Registration System' },
+      { to: '/admin/credits', icon: Award, label: 'Credit System Admin' },
+      { to: '/admin/class-batches', icon: Layers, label: 'Class & Batch Management' },
+      { to: '/admin/report-center', icon: FileText, label: 'Enterprise Report Center' },
+      { to: '/admin/analytics-dashboard', icon: BarChart3, label: 'Institutional Analytics' },
+      { to: '/admin/bulk-data', icon: Database, label: 'Enterprise Bulk Data Hub' },
+      { to: '/admin/student-360', icon: Eye, label: 'Student 360' },
+      { to: '/admin/audit-center', icon: Shield, label: 'Audit Center' },
     ];
   }
 
   if (role === 'dean') {
     return [
       { to: '/dean-dashboard', icon: Home, label: 'Dean Dashboard' },
+      { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
       { to: '/analytics', icon: FileText, label: 'Analytics' },
       { to: '/reports', icon: FileText, label: 'Reports' },
@@ -57,12 +79,25 @@ const getNavItems = (role) => {
       { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
       { to: '/academic-feedback', icon: BarChart3, label: 'Academic Feedback' },
       { to: '/performance-appraisal', icon: Award, label: 'Performance Appraisals' },
+      { to: '/academic-rules', icon: Shield, label: 'Academic Rules Engine' },
+      { to: '/student-lifecycle', icon: Activity, label: 'Student Lifecycle' },
+      { to: '/academic-promotion', icon: TrendingUp, label: 'Academic Promotion' },
+      { to: '/admin/academic-records', icon: FileText, label: 'Academic Records' },
+      { to: '/admin/graduation', icon: GraduationCap, label: 'Graduation Processing' },
+      { to: '/course-registration-admin', icon: BookOpen, label: 'Course Registration System' },
+      { to: '/admin/class-batches', icon: Layers, label: 'Class & Batch Management' },
+      { to: '/admin/report-center', icon: FileText, label: 'Enterprise Report Center' },
+      { to: '/admin/analytics-dashboard', icon: BarChart3, label: 'Institutional Analytics' },
+      { to: '/admin/bulk-data', icon: Database, label: 'Enterprise Bulk Data Hub' },
+      { to: '/admin/student-360', icon: Eye, label: 'Student 360' },
+      { to: '/admin/audit-center', icon: Shield, label: 'Audit Center' },
     ];
   }
 
   if (role === 'hod') {
     return [
       { to: '/hod-dashboard', icon: Home, label: 'HOD Dashboard' },
+      { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/leave-application', icon: FileText, label: 'Leave Application' },
       { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
@@ -72,44 +107,71 @@ const getNavItems = (role) => {
       { to: '/performance-appraisal', icon: Award, label: 'Performance & Appraisal' },
       { to: '/faculty-proposals', icon: Briefcase, label: 'Proposals' },
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Requisitions' },
+      { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
+      { to: '/reports', icon: FileText, label: 'Reports' },
+      { to: '/academic-feedback', icon: BarChart3, label: 'Academic Feedback' },
+      { to: '/performance-appraisal', icon: Award, label: 'Performance Appraisals' },
+      { to: '/academic-rules', icon: Shield, label: 'Academic Rules Engine' },
+      { to: '/student-lifecycle', icon: Activity, label: 'Student Lifecycle' },
+      { to: '/academic-promotion', icon: TrendingUp, label: 'Academic Promotion' },
+      { to: '/admin/academic-records', icon: FileText, label: 'Academic Records' },
+      { to: '/admin/graduation', icon: GraduationCap, label: 'Graduation Processing' },
+      { to: '/course-registration-admin', icon: BookOpen, label: 'Course Registration System' },
+      { to: '/admin/class-batches', icon: Layers, label: 'Class & Batch Management' },
+      { to: '/admin/report-center', icon: FileText, label: 'Enterprise Report Center' },
+      { to: '/admin/analytics-dashboard', icon: BarChart3, label: 'Institutional Analytics' },
+      { to: '/admin/bulk-data', icon: Database, label: 'Enterprise Bulk Data Hub' },
+      { to: '/admin/student-360', icon: Eye, label: 'Student 360' },
+      { to: '/admin/audit-center', icon: Shield, label: 'Audit Center' },
     ];
   }
 
   if (role === 'non_teaching') {
     return [
       { to: '/staff-dashboard', icon: Home, label: 'Staff Dashboard' },
+      { to: '/announcements', icon: Megaphone, label: 'Announcement' },
+      { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/library', icon: Library, label: 'Library' },
       { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/performance-appraisal', icon: Award, label: 'Performance & Appraisal' },
       { to: '/request-letter', icon: FileText, label: 'Requisitions' },
       { to: '/proposals', icon: FileText, label: 'Proposals' },
       { to: '/salary-slip', icon: CreditCard, label: 'Salary Slip' },
+      { to: '/student-letter-requests', icon: Mail, label: 'Letter Requests' },
+      { to: '/leave-application', icon: FileText, label: 'Leave Application' },
+      { to: '/inventory', icon: Package, label: 'Inventory' },
+      { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
     ];
   }
 
   if (role === 'faculty') {
     return [
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
-      { to: '/announcements', icon: Megaphone, label: 'Announcement' },
+      { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/faculty-courses', icon: BookOpen, label: 'My Courses' },
-      { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
-      { to: '/faculty-assignments', icon: CheckSquare, label: 'Assignments' },
-      { to: '/faculty-resources', icon: FolderOpen, label: 'Resources' },
-      { to: '/library', icon: Library, label: 'Library' },
-      { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/performance-appraisal', icon: Award, label: 'Performance & Appraisal' },
       { to: '/request-letter', icon: FileText, label: 'Requisitions' },
       { to: '/proposals', icon: FileText, label: 'Proposals' },
       { to: '/lor', icon: FileText, label: 'LOR' },
       { to: '/salary-slip', icon: CreditCard, label: 'Salary Slip' },
       { to: '/faculty', icon: Users, label: 'Faculty Management' },
+      { to: '/faculty/course-registration', icon: BookOpen, label: 'Course Registration' },
+      { to: '/faculty/class-batches', icon: Layers, label: 'Class & Practical Batches' },
+      { to: '/admin/report-center', icon: FileText, label: 'Enterprise Report Center' },
+      { to: '/admin/analytics-dashboard', icon: BarChart3, label: 'Institutional Analytics' },
     ];
   }
 
   const base = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/announcements', icon: Megaphone, label: 'Announcement' },
+    { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
     { to: '/student-courses', icon: GraduationCap, label: 'Courses' },
+    { to: '/course-registration', icon: BookOpen, label: 'Course Registration' },
+    { to: '/student/credits', icon: Award, label: 'Credit Portfolio & Audit' },
+    { to: '/student/class-batch', icon: Layers, label: 'Class & Practical Batch' },
+    { to: '/student/academic-timeline', icon: Clock, label: 'Academic Audit Timeline' },
+    { to: '/admin/report-center', icon: FileText, label: 'Student Report Center' },
     { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
     { to: '/assignments', icon: FileText, label: 'Assignment' },
     { to: '/library', icon: Library, label: 'Library' },

@@ -12,7 +12,8 @@ export const useStudentAttendance = () => {
     
     fetchAttendanceInfo();
 
-    const channel = supabase.channel('student_attendance_realtime')
+    const channelName = `student_attendance_realtime_${profile.id}_${Date.now()}`;
+    const channel = supabase.channel(channelName)
       .on(
         'postgres_changes', 
         { event: '*', schema: 'public', table: 'attendance_records', filter: `student_id=eq.${profile.id}` }, 
