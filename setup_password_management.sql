@@ -97,3 +97,4 @@ GRANT EXECUTE ON FUNCTION public.reset_user_password(text, text) TO anon, authen
 
 -- 4. Print status confirmation
 SELECT 'Password management RPC function (reset_user_password) installed successfully!' AS result;
+
