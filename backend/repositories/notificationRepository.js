@@ -103,7 +103,10 @@ async function findNotificationsByUser({
     query = query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
 
     const { data, count, error } = await query;
-    if (error) throw error;
+    if (error) {
+        console.warn('[NotificationRepository] Error finding notifications:', error.message);
+        return { data: [], total: 0 };
+    }
     return { data: data || [], total: count || 0 };
 }
 
@@ -209,7 +212,10 @@ async function findAnnouncements({
     query = query.order('is_pinned', { ascending: false }).order('created_at', { ascending: false }).limit(limit);
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+        console.warn('[NotificationRepository] Error finding announcements:', error.message);
+        return [];
+    }
     return data || [];
 }
 
