@@ -507,10 +507,10 @@ const AllMeetings = () => {
 
                         {/* Main Studio Viewport */}
                         <div className="flex-1 flex overflow-hidden min-h-[520px]">
-                            {/* Embedded Live Video Room */}
+                            {/* Embedded AsgMeet Live Video Room */}
                             <iframe
-                                src={`https://meet.jit.si/myspace-${encodeURIComponent(activeLiveRoom.roomId)}#userInfo.displayName="${encodeURIComponent(profile?.full_name || 'Academic Member')}"`}
-                                title={`Live Classroom Room ${activeLiveRoom.roomId}`}
+                                src={`https://asgmeet.onrender.com/room.html?room=${encodeURIComponent(activeLiveRoom.roomId)}&name=${encodeURIComponent(profile?.full_name || 'Academic Member')}&appName=MYSPACE`}
+                                title={`AsgMeet Live Room ${activeLiveRoom.roomId}`}
                                 className="w-full h-full border-0 bg-slate-950 min-h-[520px]"
                                 allow="camera; microphone; display-capture; autoplay; clipboard-write"
                             />
