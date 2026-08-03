@@ -5,7 +5,7 @@
 // API service client connecting frontend components to /api/bulk-data endpoints.
 // ==============================================================================
 
-const BASE_URL = 'http://localhost:5001/api/bulk-data';
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'}/bulk-data`;
 
 const getHeaders = (isJson = true) => {
     const headers = {};

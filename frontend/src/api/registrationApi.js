@@ -2,8 +2,8 @@
 // Enterprise Course Registration Client API
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
-const API_URL = `${BASE_URL}/api/registration`;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+const API_URL = `${BASE_URL}/registration`;
 
 export const registrationApi = {
     // ── WINDOWS ──────────────────────────────────────────────────────────────

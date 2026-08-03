@@ -5,7 +5,7 @@
 import axios from 'axios';
 import { supabase } from '../lib/supabase';
 
-const BASE_URL = 'http://localhost:5001/api/notifications';
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'}/notifications`;
 
 // Helper: get current Supabase auth token
 const getAuthHeaders = async () => {

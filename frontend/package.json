@@ -20,6 +20,10 @@
     "recharts": "^3.7.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@babel/helper-validator-option": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
+    "@babel/runtime": "^8.0.0",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.1.18",
     "@types/react": "^19.2.5",

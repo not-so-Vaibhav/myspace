@@ -7,28 +7,26 @@ const { initCronJobs } = require('./jobs/cronJobs');
 dotenv.config();
 
 // Import routes
-const authRoutes = require('./routes/authRoutes');
-const studentRoutes = require('./routes/studentRoutes');
-const teacherRoutes = require('./routes/teacherRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const aiRoutes = require('./routes/aiRoutes');
-const academicRulesRoutes = require('./routes/academicRulesRoutes');
-const studentLifecycleRoutes = require('./routes/studentLifecycleRoutes');
-const promotionRoutes = require('./routes/promotionRoutes');
-const creditRoutes = require('./routes/creditRoutes');
-const graduationRoutes = require('./routes/graduationRoutes');
-const registrationRoutes = require('./routes/registrationRoutes');
-const batchManagementRoutes = require('./routes/batchManagementRoutes');
-const reportingRoutes = require('./routes/reportingRoutes');
-const bulkDataRoutes = require('./routes/bulkDataRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
-const auditRoutes = require('./routes/auditRoutes');
-const student360Routes = require('./routes/student360Routes');
+// All route modules are lazy-loaded in app.use() below for instant server startup
 
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    process.env.FRONTEND_URL,               // set this in your hosting env vars
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -43,23 +41,23 @@ cloudinary.config({
 console.log("⚡ Enterprise University ERP connected to Supabase / PostgreSQL database");
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/student', studentRoutes);
-app.use('/api/teacher', teacherRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/academic-rules', academicRulesRoutes);
-app.use('/api/student-lifecycle', studentLifecycleRoutes);
-app.use('/api/academic-promotion', promotionRoutes);
-app.use('/api/credits', creditRoutes);
-app.use('/api/graduation', graduationRoutes);
-app.use('/api/registration', registrationRoutes);
-app.use('/api/academic-batches', batchManagementRoutes);
-app.use('/api/reports', reportingRoutes);
-app.use('/api/bulk-data', bulkDataRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/audit-trail', auditRoutes);
-app.use('/api/student-360', student360Routes);
+app.use('/api/auth', (req, res, next) => require('./routes/authRoutes')(req, res, next));
+app.use('/api/student', (req, res, next) => require('./routes/studentRoutes')(req, res, next));
+app.use('/api/teacher', (req, res, next) => require('./routes/teacherRoutes')(req, res, next));
+app.use('/api/admin', (req, res, next) => require('./routes/adminRoutes')(req, res, next));
+app.use('/api/ai', (req, res, next) => require('./routes/aiRoutes')(req, res, next));
+app.use('/api/academic-rules', (req, res, next) => require('./routes/academicRulesRoutes')(req, res, next));
+app.use('/api/student-lifecycle', (req, res, next) => require('./routes/studentLifecycleRoutes')(req, res, next));
+app.use('/api/academic-promotion', (req, res, next) => require('./routes/promotionRoutes')(req, res, next));
+app.use('/api/credits', (req, res, next) => require('./routes/creditRoutes')(req, res, next));
+app.use('/api/graduation', (req, res, next) => require('./routes/graduationRoutes')(req, res, next));
+app.use('/api/registration', (req, res, next) => require('./routes/registrationRoutes')(req, res, next));
+app.use('/api/academic-batches', (req, res, next) => require('./routes/batchManagementRoutes')(req, res, next));
+app.use('/api/reports', (req, res, next) => require('./routes/reportingRoutes')(req, res, next));
+app.use('/api/bulk-data', (req, res, next) => require('./routes/bulkDataRoutes')(req, res, next));
+app.use('/api/notifications', (req, res, next) => require('./routes/notificationRoutes')(req, res, next));
+app.use('/api/audit-trail', (req, res, next) => require('./routes/auditRoutes')(req, res, next));
+app.use('/api/student-360', (req, res, next) => require('./routes/student360Routes')(req, res, next));
 
 // Health check
 app.get('/', (req, res) => {

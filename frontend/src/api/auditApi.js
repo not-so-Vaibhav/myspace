@@ -3,7 +3,7 @@
 // TCS iON / Oracle PeopleSoft Campus Solutions / SAP Campus Management Style
 // ==============================================================================
 
-const BASE_URL = 'http://localhost:5001/api/audit-trail';
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'}/audit-trail`;
 
 const getHeaders = () => {
     const headers = { 'Content-Type': 'application/json' };

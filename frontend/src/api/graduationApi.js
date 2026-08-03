@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
-const API_URL = `${BASE_URL}/api/graduation`;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+const API_URL = `${BASE_URL}/graduation`;
 
 export const graduationApi = {
     checkEligibility: async (studentId) => {

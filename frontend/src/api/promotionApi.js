@@ -2,8 +2,8 @@
 // Axios wrapper for the Academic Promotion Engine backend endpoints.
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
-const API_BASE = `${BASE_URL}/api/academic-promotion`;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+const API_BASE = `${BASE_URL}/academic-promotion`;
 
 const client = axios.create({ baseURL: API_BASE, timeout: 10000 });
 
