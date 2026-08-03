@@ -15,7 +15,8 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    process.env.FRONTEND_URL,               // set this in your hosting env vars
+    'https://myspace-dbq.pages.dev',        // deployed Cloudflare Pages frontend
+    process.env.FRONTEND_URL,               // override via env var if needed
 ].filter(Boolean);
 
 app.use(cors({
