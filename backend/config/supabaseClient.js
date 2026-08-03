@@ -10,13 +10,20 @@ const { createClient } = require('@supabase/supabase-js');
 const WebSocket = require('ws');
 global.WebSocket = WebSocket;
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://bxelrkxegyumuajizsvy.supabase.co';
-const supabaseAnonKey = process.env.SUPABASE_SERVICE_ROLE_KEY 
-    || process.env.SUPABASE_ANON_KEY 
-    || process.env.VITE_SUPABASE_ANON_KEY 
+const supabaseUrl = process.env.SUPABASE_URL
+    || process.env.VITE_SUPABASE_URL
+    || 'https://bxelrkxegyumuajizsvy.supabase.co';
+
+// Accept both naming conventions (Render uses SUPABASE_SERVICE_KEY, local uses SUPABASE_SERVICE_ROLE_KEY)
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    || process.env.SUPABASE_SERVICE_KEY;
+
+const supabaseAnonKey = serviceRoleKey
+    || process.env.SUPABASE_ANON_KEY
+    || process.env.VITE_SUPABASE_ANON_KEY
     || 'sb_publishable_BZPWastEbMSNRhhcxHyy_A_L5bB2kry';
 
-if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+if (serviceRoleKey) {
     console.log('✅ [Supabase] Using SERVICE ROLE key — RLS bypassed.');
 } else {
     console.log('⚠️  [Supabase] Using ANON key — RLS active. Add SUPABASE_SERVICE_ROLE_KEY to backend/.env to bypass.');
