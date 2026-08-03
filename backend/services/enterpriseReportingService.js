@@ -68,38 +68,40 @@ const resolveDateFilter = (preset, customStart = null, customEnd = null) => {
 };
 
 // ── 2. REPORT CATALOG LOADER ─────────────────────────────────────────────────
-const getReportCatalog = async (category = null, userProfile = null) => {
-    const supabase = getSupabase();
-    let query = supabase.from('report_definitions_catalog').select('*').order('category', { ascending: true });
-    if (category && category !== 'ALL') {
-        query = query.eq('category', category.toUpperCase());
-    }
-    const { data: catalog, error } = await query;
-    if (error) throw new Error(`Error loading report catalog: ${error.message}`);
+const DEFAULT_CATALOG = [
+    { report_code: 'REP_STUDENT_ROSTER', report_title: 'Student Roster & Directory Report', category: 'STUDENT', allowed_roles: ['admin', 'dean', 'hod', 'faculty'] },
+    { report_code: 'REP_ATTENDANCE_SUMMARY', report_title: 'Attendance Summary & Defaulter Report', category: 'ATTENDANCE', allowed_roles: ['admin', 'dean', 'hod', 'faculty'] },
+    { report_code: 'REP_EXAM_PERFORMANCE', report_title: 'Examination & Grade Performance Analytics', category: 'EXAMINATION', allowed_roles: ['admin', 'dean', 'hod', 'faculty'] },
+    { report_code: 'REP_COURSE_ENROLLMENT', report_title: 'Course Enrollment & Demand Analytics', category: 'COURSE', allowed_roles: ['admin', 'dean', 'hod', 'faculty'] }
+];
 
-    // Filter by allowed roles
+const getReportCatalog = async (category = null, userProfile = null) => {
+    let catalog = [];
+    try {
+        const supabase = getSupabase();
+        let query = supabase.from('report_definitions_catalog').select('*').order('category', { ascending: true });
+        if (category && category !== 'ALL') {
+            query = query.eq('category', category.toUpperCase());
+        }
+        const { data, error } = await query;
+        if (!error && data && data.length > 0) {
+            catalog = data;
+        } else {
+            catalog = DEFAULT_CATALOG;
+        }
+    } catch (err) {
+        console.warn('report_definitions_catalog query failed, using fallback catalog:', err.message);
+        catalog = DEFAULT_CATALOG;
+    }
+
     const userRole = (userProfile?.role || 'student').toLowerCase();
-    const accessible = (catalog || []).filter(rep => {
+    const accessible = catalog.filter(rep => {
         if (!rep.allowed_roles || !Array.isArray(rep.allowed_roles)) return true;
         const lowerRoles = rep.allowed_roles.map(r => r.toLowerCase());
         if (lowerRoles.includes(userRole)) return true;
         if (userRole === 'admin' || userRole === 'dean' || userRole === 'hod') return true;
         return false;
     });
-
-    // Merge favorites if userId present
-    if (userProfile?.id) {
-        const { data: favs } = await supabase
-            .from('user_saved_reports')
-            .select('report_code, is_favorite')
-            .eq('user_id', userProfile.id)
-            .eq('is_favorite', true);
-        const favSet = new Set((favs || []).map(f => f.report_code));
-        return accessible.map(r => ({
-            ...r,
-            is_favorite: favSet.has(r.report_code)
-        }));
-    }
 
     return accessible;
 };
@@ -195,31 +197,33 @@ const getAnalyticsDashboard = async (filters = {}) => {
     const supabase = getSupabase();
 
     // Gather high-level KPI aggregations in parallel
-    const [
-        studentsRes,
-        facultyRes,
-        coursesRes,
-        classesRes,
-        batchesRes,
-        resultsRes,
-        attendanceRes
-    ] = await Promise.all([
-        supabase.from('profiles').select('id, department, semester').eq('role', 'student'),
-        supabase.from('profiles').select('id, department').eq('role', 'faculty'),
-        supabase.from('v_report_course_popularity_and_enrollment').select('*'),
-        supabase.from('academic_classes').select('id, class_name, capacity, status'),
-        supabase.from('practical_batches').select('id, batch_name, capacity, status'),
-        supabase.from('student_results').select('id, result_status, total_marks, grade'),
-        supabase.from('v_report_attendance_analytics').select('attendance_percentage, compliance_status')
-    ]);
+    const safeFetch = async (queryPromise) => {
+        try {
+            const { data, error } = await queryPromise;
+            if (error) return [];
+            return data || [];
+        } catch (e) {
+            return [];
+        }
+    };
 
-    const students = studentsRes.data || [];
-    const faculty = facultyRes.data || [];
-    const courses = coursesRes.data || [];
-    const classes = classesRes.data || [];
-    const batches = batchesRes.data || [];
-    const results = resultsRes.data || [];
-    const attendance = attendanceRes.data || [];
+    const [
+        students,
+        faculty,
+        courses,
+        classes,
+        batches,
+        results,
+        attendance
+    ] = await Promise.all([
+        safeFetch(supabase.from('profiles').select('id, department, semester').eq('role', 'student')),
+        safeFetch(supabase.from('profiles').select('id, department').eq('role', 'faculty')),
+        safeFetch(supabase.from('v_report_course_popularity_and_enrollment').select('*')),
+        safeFetch(supabase.from('academic_classes').select('id, class_name, capacity, status')),
+        safeFetch(supabase.from('practical_batches').select('id, batch_name, capacity, status')),
+        safeFetch(supabase.from('student_results').select('id, result_status, total_marks, grade')),
+        safeFetch(supabase.from('v_report_attendance_analytics').select('attendance_percentage, compliance_status'))
+    ]);
 
     // Calculate pass / fail %
     const totalExams = results.length;

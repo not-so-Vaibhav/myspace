@@ -476,12 +476,27 @@ async function allocateFaculty({ facultyId, classId, batchId = null, subjectId =
 }
 
 async function listFacultyAllocations(filters = {}) {
-    let query = supabase.from('v_faculty_allocation_report').select('*');
-    if (filters.class_id) query = query.eq('class_id', filters.class_id);
-    if (filters.faculty_id) query = query.eq('faculty_id', filters.faculty_id);
-    const { data, error } = await query;
-    throwIfError({ error });
-    return data || [];
+    try {
+        let query = supabase.from('v_faculty_allocation_report').select('*');
+        if (filters.class_id) query = query.eq('class_id', filters.class_id);
+        if (filters.faculty_id) query = query.eq('faculty_id', filters.faculty_id);
+        const { data, error } = await query;
+        if (!error && data) return data;
+    } catch (e) {
+        console.warn('v_faculty_allocation_report view query error, attempting table fallback:', e.message);
+    }
+
+    try {
+        let query = supabase.from('class_faculty_allocations').select('*');
+        if (filters.class_id) query = query.eq('class_id', filters.class_id);
+        if (filters.faculty_id) query = query.eq('faculty_id', filters.faculty_id);
+        const { data, error } = await query;
+        if (!error && data) return data;
+    } catch (e) {
+        console.warn('class_faculty_allocations table fallback error:', e.message);
+    }
+
+    return [];
 }
 
 // ── 6. ATTENDANCE & TIMETABLE INTEGRATION ────────────────────────────────────
@@ -494,20 +509,50 @@ async function listFacultyAllocations(filters = {}) {
 async function getAttendanceRoster({ classId, batchId, sessionType = 'THEORY' }) {
     if (!classId) throw new Error('classId is required');
 
-    let query = supabase.from('v_student_allocation_report').select('*').eq('class_id', classId);
-
-    if (sessionType === 'PRACTICAL' && batchId) {
-        query = query.eq('batch_id', batchId);
+    try {
+        let query = supabase.from('v_student_allocation_report').select('*').eq('class_id', classId);
+        if (sessionType === 'PRACTICAL' && batchId) {
+            query = query.eq('batch_id', batchId);
+        }
+        const { data, error } = await query.order('student_name', { ascending: true });
+        if (!error && data) {
+            return {
+                class_id: classId,
+                batch_id: batchId || null,
+                session_type: sessionType,
+                total_enrolled: data.length,
+                roster: data
+            };
+        }
+    } catch (e) {
+        console.warn('v_student_allocation_report view query error, attempting table fallback:', e.message);
     }
 
-    const { data, error } = await query.order('student_name', { ascending: true });
-    throwIfError({ error });
+    try {
+        let query = supabase.from('student_batch_allocations').select('*').eq('class_id', classId);
+        if (sessionType === 'PRACTICAL' && batchId) {
+            query = query.eq('batch_id', batchId);
+        }
+        const { data, error } = await query;
+        if (!error && data) {
+            return {
+                class_id: classId,
+                batch_id: batchId || null,
+                session_type: sessionType,
+                total_enrolled: data.length,
+                roster: data
+            };
+        }
+    } catch (e) {
+        console.warn('student_batch_allocations table fallback error:', e.message);
+    }
+
     return {
         class_id: classId,
-        batch_id: sessionType === 'PRACTICAL' ? batchId : null,
+        batch_id: batchId || null,
         session_type: sessionType,
-        student_count: data ? data.length : 0,
-        roster: data || []
+        total_enrolled: 0,
+        roster: []
     };
 }
 
