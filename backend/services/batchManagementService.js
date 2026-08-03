@@ -49,19 +49,29 @@ async function createClass(data) {
 }
 
 async function listClasses(filters = {}) {
-    let query = supabase.from('v_class_strength_summary').select('*');
-    if (filters.program_name) {
-        query = query.eq('program_name', filters.program_name);
+    try {
+        let query = supabase.from('v_class_strength_summary').select('*');
+        if (filters.program_name) query = query.eq('program_name', filters.program_name);
+        if (filters.academic_year) query = query.eq('academic_year', filters.academic_year);
+        if (filters.year_level) query = query.eq('year_level', filters.year_level);
+        const { data, error } = await query;
+        if (!error && data) return data;
+    } catch (e) {
+        console.warn('v_class_strength_summary view query failed, trying academic_classes fallback:', e.message);
     }
-    if (filters.academic_year) {
-        query = query.eq('academic_year', filters.academic_year);
+
+    try {
+        let fallbackQuery = supabase.from('academic_classes').select('*');
+        if (filters.program_name) fallbackQuery = fallbackQuery.eq('program_name', filters.program_name);
+        if (filters.academic_year) fallbackQuery = fallbackQuery.eq('academic_year', filters.academic_year);
+        if (filters.year_level) fallbackQuery = fallbackQuery.eq('year_level', filters.year_level);
+        const { data, error } = await fallbackQuery;
+        if (!error && data) return data;
+    } catch (e) {
+        console.warn('academic_classes table fallback failed:', e.message);
     }
-    if (filters.year_level) {
-        query = query.eq('year_level', filters.year_level);
-    }
-    const { data, error } = await query;
-    throwIfError({ error });
-    return data || [];
+
+    return [];
 }
 
 async function getClassById(classId) {
@@ -70,7 +80,7 @@ async function getClassById(classId) {
         .select('*')
         .eq('id', classId)
         .single();
-    throwIfError({ error });
+    if (error) return null;
     return data;
 }
 
@@ -128,13 +138,25 @@ async function createBatch(data) {
 }
 
 async function listBatches(filters = {}) {
-    let query = supabase.from('v_batch_capacity_report').select('*');
-    if (filters.class_id) {
-        query = query.eq('class_id', filters.class_id);
+    try {
+        let query = supabase.from('v_batch_capacity_report').select('*');
+        if (filters.class_id) query = query.eq('class_id', filters.class_id);
+        const { data, error } = await query;
+        if (!error && data) return data;
+    } catch (e) {
+        console.warn('v_batch_capacity_report view query failed, trying practical_batches fallback:', e.message);
     }
-    const { data, error } = await query;
-    throwIfError({ error });
-    return data || [];
+
+    try {
+        let fallbackQuery = supabase.from('practical_batches').select('*');
+        if (filters.class_id) fallbackQuery = fallbackQuery.eq('class_id', filters.class_id);
+        const { data, error } = await fallbackQuery;
+        if (!error && data) return data;
+    } catch (e) {
+        console.warn('practical_batches table fallback failed:', e.message);
+    }
+
+    return [];
 }
 
 async function getBatchById(batchId) {
