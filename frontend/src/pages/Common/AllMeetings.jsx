@@ -24,10 +24,13 @@ import {
     Share2, 
     Radio, 
     BookOpen, 
-    ShieldCheck, 
     Megaphone,
     Play,
-    Square
+    Square,
+    ExternalLink,
+    ShieldCheck,
+    Shield,
+    Camera
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -245,6 +248,7 @@ const AllMeetings = () => {
     // Initialize AsgMeet SDK when active room changes
     useEffect(() => {
         if (!activeLiveRoom || !sdkLoaded) return;
+        if (!document.querySelector('#asgmeet-container')) return;
 
         try {
             if (window.AsgMeet) {
@@ -393,7 +397,7 @@ const AllMeetings = () => {
                 <div>
                     <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#4B7BFF]">
                         <Video className="w-4 h-4" />
-                        <span>Institutional Video Conference & Live Classroom (AsgMeet Engine)</span>
+                        <span>Institutional Video Conference & Live Classroom (MySpace Engine)</span>
                     </div>
                     <h1 className="text-3xl md:text-4xl font-black tracking-tight mt-2 text-[#1a1b4b] uppercase flex items-center gap-3 flex-wrap">
                         <span>Academic Live Meetings & Lectures</span>
@@ -440,7 +444,7 @@ const AllMeetings = () => {
                         <div>
                             <div className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-                                <span className="text-xs font-black uppercase tracking-widest text-red-600">Active Live Room • AsgMeet Engine</span>
+                                <span className="text-xs font-black uppercase tracking-widest text-red-600">Active Live Room • MySpace Engine</span>
                             </div>
                             <h2 className="text-xl font-black text-[#1a1b4b] uppercase mt-1">{activeLiveRoom.title}</h2>
                             <p className="text-xs font-bold text-gray-500 mt-0.5">
@@ -456,7 +460,7 @@ const AllMeetings = () => {
                                 className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-black text-xs uppercase tracking-widest border border-indigo-200 transition-all shadow-sm"
                             >
                                 <Share2 className="w-4 h-4" />
-                                <span>Open AsgMeet in New Tab ↗</span>
+                                <span>Open MySpace in New Tab ↗</span>
                             </a>
 
                             <button
@@ -469,7 +473,7 @@ const AllMeetings = () => {
                         </div>
                     </div>
 
-                    {/* Interactive AsgMeet Client-Side WebRTC Studio */}
+                    {/* Interactive MySpace Client-Side WebRTC Studio */}
                     <div className="w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 min-h-[600px] flex flex-col justify-between relative shadow-2xl">
                         
                         {/* Top Studio Indicator Bar */}
@@ -506,14 +510,42 @@ const AllMeetings = () => {
                         </div>
 
                         {/* Main Studio Viewport */}
-                        <div className="flex-1 flex overflow-hidden min-h-[520px]">
-                            {/* Embedded AsgMeet Live Video Room */}
-                            <iframe
-                                src={`https://asgmeet.onrender.com/room.html?room=${encodeURIComponent(activeLiveRoom.roomId)}&name=${encodeURIComponent(profile?.full_name || 'Academic Member')}&appName=MYSPACE`}
-                                title={`AsgMeet Live Room ${activeLiveRoom.roomId}`}
-                                className="w-full h-full border-0 bg-slate-950 min-h-[520px]"
-                                allow="camera; microphone; display-capture; autoplay; clipboard-write"
-                            />
+                        <div className="flex-1 flex overflow-hidden min-h-[550px] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-8 flex flex-col items-center justify-center relative">
+                            {/* Ambient Glow Effects */}
+                            <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+                            <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+
+                            <div className="max-w-xl w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl text-center space-y-6 relative z-10">
+                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-black uppercase tracking-widest">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                    <span>MySpace Live Engine Ready</span>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-2xl font-black text-white tracking-tight">
+                                        {activeLiveRoom.title}
+                                    </h3>
+                                    <p className="text-xs font-semibold text-slate-400 mt-1">
+                                        Room ID: <strong className="text-indigo-400">{activeLiveRoom.roomId}</strong> • Host: <strong className="text-slate-200">{activeLiveRoom.convenerName || profile?.full_name}</strong>
+                                    </p>
+                                </div>
+
+                                {/* Main Launch Button */}
+                                <div className="pt-2">
+                                    <button
+                                        onClick={() => {
+                                            const roomUrl = `https://asgmeet.onrender.com/room.html?room=${encodeURIComponent(activeLiveRoom.roomId)}&name=${encodeURIComponent(profile?.full_name || 'Academic Member')}&appName=MYSPACE`;
+                                            window.open(roomUrl, `asgmeet_${activeLiveRoom.roomId}`, 'width=1280,height=800,scrollbars=yes,resizable=yes');
+                                        }}
+                                        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-3 transform hover:-translate-y-0.5"
+                                    >
+                                        <Video className="w-5 h-5" />
+                                        <span>Launch MySpace Video Room</span>
+                                        <ExternalLink className="w-4 h-4 opacity-80" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
                             {/* Sidebar: Chat Panel */}
                             {studioTab === 'chat' && (
@@ -651,7 +683,6 @@ const AllMeetings = () => {
                             </button>
                         </div>
                     </div>
-                </div>
             ) : null}
 
             {/* ── Main Layout: Launcher (Left) | Sessions List (Right) ──────── */}
