@@ -506,71 +506,14 @@ const AllMeetings = () => {
                         </div>
 
                         {/* Main Studio Viewport */}
-                        <div className="flex-1 flex overflow-hidden">
-                            {/* Video Grid Area */}
-                            <div className="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
-                                {/* Local User Box */}
-                                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden relative flex flex-col items-center justify-center min-h-[220px] aspect-video">
-                                    {camOn ? (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/40 via-slate-900 to-slate-900 flex flex-col items-center justify-center">
-                                            <div className="w-20 h-20 rounded-full bg-indigo-600/30 border-2 border-indigo-500 flex items-center justify-center shadow-lg">
-                                                <User className="w-10 h-10 text-indigo-300" />
-                                            </div>
-                                            <span className="text-xs font-black uppercase tracking-widest text-indigo-300 mt-3">Live Camera Active</span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center">
-                                            <div className="w-20 h-20 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mb-2">
-                                                <VideoOff className="w-8 h-8 text-slate-500" />
-                                            </div>
-                                            <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Camera Off</span>
-                                        </div>
-                                    )}
-
-                                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800">
-                                        <span className="text-xs font-black uppercase tracking-wider text-white truncate">
-                                            {profile?.full_name || 'You (Convener)'}
-                                        </span>
-                                        <div className="flex items-center gap-1.5">
-                                            {handRaised && <span className="text-sm" title="Hand Raised">✋</span>}
-                                            <span className={`w-2.5 h-2.5 rounded-full ${micOn ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Simulated Participant 1 */}
-                                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden relative flex flex-col items-center justify-center min-h-[220px] aspect-video">
-                                    <div className="w-16 h-16 rounded-full bg-purple-600/30 border border-purple-500 flex items-center justify-center">
-                                        <span className="text-base font-black text-purple-300">AS</span>
-                                    </div>
-                                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800">
-                                        <span className="text-xs font-black uppercase tracking-wider text-slate-300 truncate">Aarav Sharma (Student)</span>
-                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                                    </div>
-                                </div>
-
-                                {/* Simulated Participant 2 */}
-                                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden relative flex flex-col items-center justify-center min-h-[220px] aspect-video">
-                                    <div className="w-16 h-16 rounded-full bg-blue-600/30 border border-blue-500 flex items-center justify-center">
-                                        <span className="text-base font-black text-blue-300">PD</span>
-                                    </div>
-                                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800">
-                                        <span className="text-xs font-black uppercase tracking-wider text-slate-300 truncate">Priya Deshmukh (Student)</span>
-                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                                    </div>
-                                </div>
-
-                                {/* Simulated Participant 3 */}
-                                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden relative flex flex-col items-center justify-center min-h-[220px] aspect-video">
-                                    <div className="w-16 h-16 rounded-full bg-amber-600/30 border border-amber-500 flex items-center justify-center">
-                                        <span className="text-base font-black text-amber-300">RK</span>
-                                    </div>
-                                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800">
-                                        <span className="text-xs font-black uppercase tracking-wider text-slate-300 truncate">Rohan Kulkarni (Student)</span>
-                                        <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="flex-1 flex overflow-hidden min-h-[520px]">
+                            {/* Embedded Live Video Room */}
+                            <iframe
+                                src={`https://meet.jit.si/myspace-${encodeURIComponent(activeLiveRoom.roomId)}#userInfo.displayName="${encodeURIComponent(profile?.full_name || 'Academic Member')}"`}
+                                title={`Live Classroom Room ${activeLiveRoom.roomId}`}
+                                className="w-full h-full border-0 bg-slate-950 min-h-[520px]"
+                                allow="camera; microphone; display-capture; autoplay; clipboard-write"
+                            />
 
                             {/* Sidebar: Chat Panel */}
                             {studioTab === 'chat' && (
@@ -613,7 +556,7 @@ const AllMeetings = () => {
                             {studioTab === 'participants' && (
                                 <div className="w-80 border-l border-slate-800 bg-slate-900 flex flex-col">
                                     <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                                        <span className="text-xs font-black uppercase tracking-widest text-white">Participants (5)</span>
+                                        <span className="text-xs font-black uppercase tracking-widest text-white">Active Room Participants</span>
                                         <button onClick={() => setStudioTab('grid')} className="text-slate-400 hover:text-white">
                                             <X className="w-4 h-4" />
                                         </button>
@@ -622,36 +565,8 @@ const AllMeetings = () => {
                                     <div className="flex-1 p-4 overflow-y-auto space-y-2">
                                         <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700 flex items-center justify-between">
                                             <div>
-                                                <span className="text-xs font-black text-white block">{profile?.full_name || 'You (Convener)'}</span>
-                                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Host / Convener</span>
-                                            </div>
-                                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                                        </div>
-                                        <div className="p-3 bg-slate-800/40 rounded-xl border border-slate-800 flex items-center justify-between">
-                                            <div>
-                                                <span className="text-xs font-black text-slate-200 block">Aarav Sharma</span>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Student</span>
-                                            </div>
-                                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                                        </div>
-                                        <div className="p-3 bg-slate-800/40 rounded-xl border border-slate-800 flex items-center justify-between">
-                                            <div>
-                                                <span className="text-xs font-black text-slate-200 block">Priya Deshmukh</span>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Student</span>
-                                            </div>
-                                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                                        </div>
-                                        <div className="p-3 bg-slate-800/40 rounded-xl border border-slate-800 flex items-center justify-between">
-                                            <div>
-                                                <span className="text-xs font-black text-slate-200 block">Rohan Kulkarni</span>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Student</span>
-                                            </div>
-                                            <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                                        </div>
-                                        <div className="p-3 bg-slate-800/40 rounded-xl border border-slate-800 flex items-center justify-between">
-                                            <div>
-                                                <span className="text-xs font-black text-slate-200 block">Sneha Patil</span>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Student</span>
+                                                <span className="text-xs font-black text-white block">{profile?.full_name || 'You'}</span>
+                                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">{profile?.role || 'Member'}</span>
                                             </div>
                                             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
                                         </div>
