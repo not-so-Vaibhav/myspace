@@ -171,7 +171,6 @@ const getNavItems = (role) => {
     { to: '/student/credits', icon: Award, label: 'Credit Portfolio & Audit' },
     { to: '/student/class-batch', icon: Layers, label: 'Class & Practical Batch' },
     { to: '/student/academic-timeline', icon: Clock, label: 'Academic Audit Timeline' },
-    { to: '/admin/report-center', icon: FileText, label: 'Student Report Center' },
     { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
     { to: '/assignments', icon: FileText, label: 'Assignment' },
     { to: '/library', icon: Library, label: 'Library' },

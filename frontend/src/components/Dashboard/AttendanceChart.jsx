@@ -35,7 +35,7 @@ const AttendanceChart = () => {
                 ) : (
                     <>
                         <div className="w-full h-[200px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                                 <PieChart>
                                     <Pie
                                         data={chartData}

@@ -17,7 +17,7 @@ const DEMO_MEETING_FALLBACK = {
   start_time: '10:00 AM',
   end_time: '11:00 AM',
   agenda: 'Group Theory & Algebraic Structures problem-solving session.',
-  location: 'AsgMeet Virtual Video Classroom (Room: dma-lecture-aia2)',
+  location: 'MySpace Virtual Video Classroom (Room: dma-lecture-aia2)',
   organized_by: 'Prof. Archana Pakhare (Faculty Convener)'
 };
 
@@ -152,7 +152,7 @@ const MeetingSection = () => {
             Live Video Classrooms & Meetings
           </h2>
           <span className="px-2.5 py-0.5 rounded-lg bg-red-50 text-red-600 border border-red-200 text-xs font-black uppercase tracking-widest flex items-center gap-1">
-            <Radio className="w-3 h-3 animate-pulse" /> AsgMeet SDK
+            <Radio className="w-3 h-3 animate-pulse" /> MySpace Engine
           </span>
         </div>
         <Link

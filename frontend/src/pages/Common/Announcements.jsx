@@ -540,11 +540,11 @@ const Announcements = () => {
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
                   <span className="text-xs font-black uppercase tracking-widest text-red-600">
-                    AsgMeet Live Engine • {liveAnnouncements.length} {liveAnnouncements.length === 1 ? 'Session' : 'Sessions'} Active
+                    MySpace Live Engine • {liveAnnouncements.length} {liveAnnouncements.length === 1 ? 'Session' : 'Sessions'} Active
                   </span>
                 </div>
                 <h2 className="text-base font-black text-[#1a1b4b] uppercase mt-1">
-                  Institutional Video Rooms & Online Lectures (Supabase Live Feed)
+                  Institutional Video Rooms & Online Lectures
                 </h2>
                 <p className="text-xs font-bold text-gray-500">
                   Direct 1-click room joining for Dean review meetings, HOD briefings, and Faculty subject lectures
@@ -588,7 +588,7 @@ const Announcements = () => {
                   No live video sessions are currently broadcasting in the database
                 </p>
                 <p className="text-xs font-bold text-gray-400">
-                  Deans, HODs, and Faculty can schedule or launch a real-time AsgMeet room from the Meetings console.
+                  Deans, HODs, and Faculty can schedule or launch a real-time MySpace room from the Meetings console.
                 </p>
               </div>
             )}

@@ -119,7 +119,7 @@ const AllMeetings = () => {
     const [handRaised, setHandRaised] = useState(false);
     const [studioTab, setStudioTab] = useState('grid'); // 'grid' | 'chat' | 'participants'
     const [chatMsgs, setChatMsgs] = useState([
-        { id: 1, sender: 'AsgMeet Engine', text: 'Welcome to the Live Academic Class room! Recording is enabled.', time: 'Now', system: true }
+        { id: 1, sender: 'MySpace Engine', text: 'Welcome to the Live Academic Class room! Recording is enabled.', time: 'Now', system: true }
     ]);
     const [newMsg, setNewMsg] = useState('');
 
@@ -137,12 +137,66 @@ const AllMeetings = () => {
         setNewMsg('');
     };
 
-    // Detect if current user is Student so they cannot see or join Faculty-only / HOD-only meetings
-    const roleStr = (profile?.role || '').toLowerCase();
-    const isStudent = roleStr === 'student' || roleStr === 'user' || (!roleStr && !profile?.email?.includes('admin') && !profile?.email?.includes('faculty') && !profile?.email?.includes('hod') && !profile?.email?.includes('dean'));
+    // Meeting Mode State: 'INSTANT' (Start Now) vs 'SCHEDULED' (Schedule Later)
+    const [launchMode, setLaunchMode] = useState('INSTANT'); // 'INSTANT' | 'SCHEDULED'
+    const [scheduledDate, setScheduledDate] = useState(() => new Date().toISOString().split('T')[0]);
+    const [scheduledStartTime, setScheduledStartTime] = useState('14:00');
+    const [scheduledEndTime, setScheduledEndTime] = useState('15:00');
 
-    // Filter visible sessions: Students NEVER see staff/faculty-only meetings
+    const formatTime12h = (timeStr) => {
+        if (!timeStr) return '';
+        const [h, m] = timeStr.split(':');
+        let hour = parseInt(h, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12 || 12;
+        const hourPad = hour < 10 ? `0${hour}` : hour;
+        return `${hourPad}:${m} ${ampm}`;
+    };
+
+    // Detect role & hierarchy permissions
+    const roleStr = (profile?.role || '').toLowerCase();
+    const emailStr = (profile?.email || '').toLowerCase();
+
+    const isDeanUser = roleStr.includes('dean') || emailStr.includes('dean') || roleStr.includes('admin') || roleStr.includes('superadmin');
+    const isHodUser = roleStr.includes('hod') || emailStr.includes('hod');
+    const isStudent = roleStr === 'student' || roleStr === 'user' || (!roleStr && !emailStr.includes('admin') && !emailStr.includes('faculty') && !emailStr.includes('hod') && !emailStr.includes('dean'));
+
+    // Allowed convener options strictly restricted by user hierarchy
+    // Faculty -> [FACULTY], HOD -> [HOD, FACULTY], Dean -> [DEAN, HOD, FACULTY]
+    const allowedConvenerRoles = isDeanUser
+        ? [ { key: 'DEAN', label: 'Dean' }, { key: 'HOD', label: 'HOD' }, { key: 'FACULTY', label: 'Faculty' } ]
+        : isHodUser
+        ? [ { key: 'HOD', label: 'HOD' }, { key: 'FACULTY', label: 'Faculty' } ]
+        : [ { key: 'FACULTY', label: 'Faculty' } ];
+
+    // Automatically set default selectedRole according to highest allowed role
+    useEffect(() => {
+        if (isDeanUser) {
+            setSelectedRole('DEAN');
+        } else if (isHodUser) {
+            setSelectedRole('HOD');
+        } else {
+            setSelectedRole('FACULTY');
+        }
+    }, [profile?.role, profile?.email]);
+
+    // Filter visible sessions: Automatically exclude completed, ended, expired, or past meetings
+    const todayStr = new Date().toISOString().split('T')[0];
+
     const visibleSessions = sessions.filter(s => {
+        const statusUpper = (s.status || '').toUpperCase();
+
+        // 1. Automatically remove completed, ended, finished, or expired meetings from everyone's dashboard
+        if (statusUpper === 'COMPLETED' || statusUpper === 'ENDED' || statusUpper === 'FINISHED' || statusUpper === 'EXPIRED') {
+            return false;
+        }
+
+        // 2. Automatically remove past/older meetings whose date is earlier than today (unless currently live ONGOING)
+        if (s.date && s.date !== 'Today' && s.date < todayStr && statusUpper !== 'ONGOING') {
+            return false;
+        }
+
+        // 3. Role-based filtering for students vs faculty
         const aud = (s.targetAudience || '').toLowerCase();
         const conv = (s.convenerRole || '').toUpperCase();
         if (isStudent) {
@@ -162,6 +216,43 @@ const AllMeetings = () => {
         }
         return true;
     });
+
+    // Convener can mark a meeting as Completed, automatically removing it from everyone's dashboard
+    const handleEndMeeting = async (sessionToComplete) => {
+        const sessionId = sessionToComplete?.id;
+        const roomToClose = sessionToComplete?.roomId;
+
+        try {
+            if (sessionId) {
+                await supabase
+                    .from('meetings')
+                    .update({ status: 'completed', end_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })
+                    .eq('id', sessionId);
+            }
+            if (roomToClose) {
+                await supabase
+                    .from('meetings')
+                    .update({ status: 'completed', end_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })
+                    .eq('room_id', roomToClose);
+            }
+        } catch (err) {
+            console.error('Error marking meeting as completed in Supabase:', err);
+        }
+
+        // Remove completed meeting from state immediately so it vanishes from all dashboards
+        setSessions(prev => prev.filter(s => {
+            if (sessionId && s.id === sessionId) return false;
+            if (roomToClose && s.roomId === roomToClose) return false;
+            return true;
+        }));
+
+        if (activeLiveRoom && activeLiveRoom.roomId === roomToClose) {
+            setActiveLiveRoom(null);
+        }
+
+        setNotificationMsg('Meeting completed and automatically removed from all user dashboards!');
+        setTimeout(() => setNotificationMsg(''), 5000);
+    };
 
     // Faculty can launch/start an upcoming scheduled class according to timetable
     const handleStartScheduledClass = async (session) => {
@@ -204,7 +295,21 @@ const AllMeetings = () => {
                     .order('date', { ascending: false });
 
                 if (!error && data && data.length > 0) {
-                    const mapped = data.map(m => ({
+                    const currentToday = new Date().toISOString().split('T')[0];
+
+                    // Automatically filter out completed, ended, or expired meetings from database
+                    const activeOrScheduledData = data.filter(m => {
+                        const st = (m.status || '').toLowerCase();
+                        if (st === 'completed' || st === 'ended' || st === 'finished' || st === 'expired') {
+                            return false;
+                        }
+                        if (m.date && m.date < currentToday && st !== 'ongoing') {
+                            return false;
+                        }
+                        return true;
+                    });
+
+                    const mapped = activeOrScheduledData.map(m => ({
                         id: m.id,
                         title: m.agenda || m.title || 'Live Video Session',
                         convenerRole: (m.organized_by || '').includes('HOD') ? 'HOD' : (m.organized_by || '').includes('DEAN') ? 'DEAN' : 'FACULTY',
@@ -296,6 +401,13 @@ const AllMeetings = () => {
 
         setPublishing(true);
         const newRoomId = roomId.trim() || `room-${Math.random().toString(36).substring(2, 7)}`;
+        const isInstant = launchMode === 'INSTANT';
+
+        const formattedStart = isInstant ? 'LIVE NOW' : formatTime12h(scheduledStartTime);
+        const formattedEnd = isInstant ? 'LIVE NOW' : formatTime12h(scheduledEndTime);
+        const timeDisplay = isInstant ? 'LIVE NOW' : `${formattedStart} - ${formattedEnd}`;
+        const dateDisplay = isInstant ? 'Today' : scheduledDate;
+
         const newSession = {
             id: `session-${Date.now()}`,
             title,
@@ -303,23 +415,23 @@ const AllMeetings = () => {
             convenerName: profile?.full_name || `${selectedRole} Member`,
             targetAudience,
             roomId: newRoomId,
-            status: 'ONGOING',
-            startTime: 'LIVE NOW',
-            date: 'Today',
+            status: isInstant ? 'ONGOING' : 'UPCOMING',
+            startTime: timeDisplay,
+            date: dateDisplay,
             agenda: agenda || 'Interactive live classroom and briefing room.',
-            participantsCount: 1
+            participantsCount: isInstant ? 1 : 0
         };
 
         // 1. Store in Supabase database meetings table & update state
         try {
             await supabase.from('meetings').insert([{
-                date: new Date().toISOString().split('T')[0],
-                start_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                end_time: 'LIVE NOW',
+                date: isInstant ? new Date().toISOString().split('T')[0] : scheduledDate,
+                start_time: isInstant ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : formattedStart,
+                end_time: isInstant ? 'LIVE NOW' : formattedEnd,
                 agenda: title,
                 location: targetAudience,
                 organized_by: `${newSession.convenerName} (${selectedRole})`,
-                status: 'ongoing',
+                status: isInstant ? 'ongoing' : 'upcoming',
                 created_by: profile?.id || null
             }]);
         } catch (dbErr) {
@@ -327,16 +439,20 @@ const AllMeetings = () => {
         }
         setSessions([newSession, ...sessions]);
 
-        // 2. Publish to Supabase Announcements table so students and faculty see it in /announcements
-        const announceTitle = `🔴 LIVE CLASS / MEETING: ${title}`;
-        const announceDescription = `🔴 LIVE VIDEO ROOM STARTED: "${title}". Convener: ${newSession.convenerName} (${selectedRole}). Audience: ${targetAudience}. Click below to enter the live room immediately. Agenda: ${newSession.agenda}`;
-        
+        // 2. Publish to Supabase Announcements table
+        const announcePrefix = isInstant ? '🔴 LIVE CLASS / MEETING:' : '📅 SCHEDULED CLASS / MEETING:';
+        const announceTitle = `${announcePrefix} ${title}`;
+        const announceDescPrefix = isInstant 
+            ? '🔴 LIVE VIDEO ROOM STARTED:' 
+            : `📅 SCHEDULED LIVE SESSION (${dateDisplay} ${timeDisplay}):`;
+        const announceDescription = `${announceDescPrefix} "${title}". Convener: ${newSession.convenerName} (${selectedRole}). Audience: ${targetAudience}. Agenda: ${newSession.agenda}`;
+
         try {
             await notificationApi.publishAnnouncement({
                 title: announceTitle,
                 description: announceDescription,
-                start_date: new Date().toISOString().split('T')[0],
-                end_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                start_date: isInstant ? new Date().toISOString().split('T')[0] : scheduledDate,
+                end_date: new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
                 targetAudience: 'both',
                 priority: 'HIGH',
                 category: 'LIVE_CLASS',
@@ -347,13 +463,12 @@ const AllMeetings = () => {
                 submittedByName: newSession.convenerName
             });
         } catch (err) {
-            // Fallback direct to Supabase
             try {
                 await supabase.from('announcements').insert([{
                     title: announceTitle,
                     description: announceDescription,
-                    start_date: new Date().toISOString().split('T')[0],
-                    end_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                    start_date: isInstant ? new Date().toISOString().split('T')[0] : scheduledDate,
+                    end_date: new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
                     target_audience: 'both',
                     priority: 'HIGH',
                     category: 'LIVE_CLASS',
@@ -364,28 +479,20 @@ const AllMeetings = () => {
                 console.error('Announcement publish fallback error:', fallbackErr);
             }
         }
-        // Always ensure direct insert in case backend route didn't hit Supabase
-        try {
-            await supabase.from('announcements').insert([{
-                title: announceTitle,
-                description: announceDescription,
-                start_date: new Date().toISOString().split('T')[0],
-                end_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                target_audience: 'both',
-                priority: 'HIGH',
-                category: 'LIVE_CLASS',
-                status: 'approved',
-                is_pinned: true
-            }]);
-        } catch (_) {}
 
         setPublishing(false);
-        setNotificationMsg(`Live session "${title}" started and broadcasted to Announcement section!`);
-        setActiveLiveRoom({
-            roomId: newRoomId,
-            title,
-            convenerName: newSession.convenerName
-        });
+
+        if (isInstant) {
+            setNotificationMsg(`Live room "${title}" started! Announcement broadcasted.`);
+            setActiveLiveRoom({
+                roomId: newRoomId,
+                title,
+                convenerName: newSession.convenerName
+            });
+        } else {
+            setNotificationMsg(`Meeting "${title}" successfully scheduled for ${scheduledDate} (${timeDisplay}) and broadcasted to Announcements!`);
+        }
+
         setTimeout(() => setNotificationMsg(''), 5000);
     };
 
@@ -399,23 +506,9 @@ const AllMeetings = () => {
                         <Video className="w-4 h-4" />
                         <span>Institutional Video Conference & Live Classroom (MySpace Engine)</span>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight mt-2 text-[#1a1b4b] uppercase flex items-center gap-3 flex-wrap">
-                        <span>Academic Live Meetings & Lectures</span>
-                        <span className="px-3 py-1 bg-red-50 border border-red-200 text-red-600 text-xs font-black uppercase tracking-widest rounded-xl flex items-center gap-1.5">
-                            <Radio className="w-3.5 h-3.5 animate-pulse" /> Live Room Engine
-                        </span>
+                    <h1 className="text-3xl md:text-4xl font-black tracking-tight mt-2 text-[#1a1b4b] uppercase">
+                        Academic Live Meetings & Lectures
                     </h1>
-                    <p className="text-sm font-bold text-gray-500 mt-2 max-w-3xl">
-                        {isStudent ? (
-                            <span>
-                                <strong className="text-[#1a1b4b]">Student Timetable Portal:</strong> Join live online classes started by your faculty according to your batch and division schedule. Classes activate automatically when your faculty starts the broadcast.
-                            </span>
-                        ) : (
-                            <span>
-                                Official hierarchy: <strong className="text-[#1a1b4b]">Dean</strong> calls meetings for HODs & Faculty • <strong className="text-[#1a1b4b]">HOD</strong> calls for Faculty & Students • <strong className="text-[#1a1b4b]">Faculty</strong> calls Live Online Lectures for assigned subject students. All notifications appear automatically in <strong className="text-[#4B7BFF]">Announcements</strong>.
-                            </span>
-                        )}
-                    </p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
@@ -465,10 +558,18 @@ const AllMeetings = () => {
 
                             <button
                                 onClick={() => setActiveLiveRoom(null)}
-                                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-black text-xs uppercase tracking-widest border border-red-200 transition-all shadow-sm"
+                                className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs uppercase tracking-widest border border-slate-200 transition-all shadow-sm"
+                            >
+                                <span>Minimize Preview</span>
+                            </button>
+
+                            <button
+                                onClick={() => handleEndMeeting(activeLiveRoom)}
+                                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all shadow-md"
+                                title="End meeting for all participants and remove from dashboard"
                             >
                                 <Square className="w-4 h-4" />
-                                <span>Leave Video Room</span>
+                                <span>End & Complete Meeting</span>
                             </button>
                         </div>
                     </div>
@@ -693,11 +794,7 @@ const AllMeetings = () => {
                 <div className="lg:col-span-5 space-y-6">
                     <div className="bg-white rounded-[2rem] border border-gray-200 p-7 shadow-sm space-y-6">
                         <div>
-                            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#4B7BFF]">
-                                <ShieldCheck className="w-4 h-4" />
-                                <span>Institutional Hierarchy Engine</span>
-                            </div>
-                            <h2 className="text-base font-black text-[#1a1b4b] uppercase mt-1">
+                            <h2 className="text-lg font-black text-[#1a1b4b] uppercase tracking-tight">
                                 Schedule & Announce Live Session
                             </h2>
                             <p className="text-xs font-bold text-gray-500 mt-1">
@@ -706,37 +803,80 @@ const AllMeetings = () => {
                         </div>
 
                         <form onSubmit={handleLaunchMeeting} className="space-y-5">
-                            {/* Role Selector */}
+                            {/* 1. Session Mode Toggle: Start Now vs Schedule for Later */}
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                                    1. Select Convener Role
+                                    1. Choose Meeting Mode
                                 </label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {[
-                                        { key: 'DEAN', label: "Dean" },
-                                        { key: 'HOD', label: "HOD" },
-                                        { key: 'FACULTY', label: "Faculty" }
-                                    ].map(r => (
-                                        <button
-                                            key={r.key}
-                                            type="button"
-                                            onClick={() => setSelectedRole(r.key)}
-                                            className={`py-3 px-3 rounded-2xl text-xs font-black uppercase tracking-widest border transition-all ${
-                                                selectedRole === r.key
-                                                    ? 'bg-[#1a1b4b] text-white border-[#1a1b4b] shadow-md'
-                                                    : 'bg-slate-50 text-gray-600 border-gray-200 hover:bg-slate-100'
-                                            }`}
-                                        >
-                                            {r.label}
-                                        </button>
-                                    ))}
+                                <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-gray-200">
+                                    <button
+                                        type="button"
+                                        onClick={() => setLaunchMode('INSTANT')}
+                                        className={`py-3 px-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                                            launchMode === 'INSTANT'
+                                                ? 'bg-[#4B7BFF] text-white shadow-md'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <Radio className="w-3.5 h-3.5 animate-pulse" />
+                                        <span>Start Now</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLaunchMode('SCHEDULED')}
+                                        className={`py-3 px-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                                            launchMode === 'SCHEDULED'
+                                                ? 'bg-[#1a1b4b] text-white shadow-md'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <Calendar className="w-3.5 h-3.5" />
+                                        <span>Schedule Later</span>
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Target Audience based on Hierarchy */}
+                            {/* 2. Convener Role Selector (Strictly restricted by user hierarchy) */}
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 flex items-center justify-between">
+                                    <span>2. Convener Role</span>
+                                    <span className="text-[10px] font-bold text-indigo-600 lowercase bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
+                                        {isDeanUser ? 'Dean Hierarchy' : isHodUser ? 'HOD Hierarchy' : 'Faculty Hierarchy'}
+                                    </span>
+                                </label>
+
+                                {allowedConvenerRoles.length === 1 ? (
+                                    <div className="p-3.5 bg-[#1a1b4b] text-white rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-between border border-[#1a1b4b]">
+                                        <span className="flex items-center gap-2">
+                                            <User className="w-4 h-4 text-indigo-300" />
+                                            <span>Faculty Convener</span>
+                                        </span>
+                                        <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold">Your Role</span>
+                                    </div>
+                                ) : (
+                                    <div className={`grid grid-cols-${allowedConvenerRoles.length} gap-2`}>
+                                        {allowedConvenerRoles.map(r => (
+                                            <button
+                                                key={r.key}
+                                                type="button"
+                                                onClick={() => setSelectedRole(r.key)}
+                                                className={`py-3 px-3 rounded-2xl text-xs font-black uppercase tracking-widest border transition-all ${
+                                                    selectedRole === r.key
+                                                        ? 'bg-[#1a1b4b] text-white border-[#1a1b4b] shadow-md'
+                                                        : 'bg-slate-50 text-gray-600 border-gray-200 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                {r.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 3. Target Audience based on Hierarchy */}
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                                    2. Target Audience ({selectedRole} Hierarchy)
+                                    3. Target Audience ({selectedRole} Hierarchy)
                                 </label>
                                 {selectedRole === 'DEAN' ? (
                                     <select
@@ -771,10 +911,58 @@ const AllMeetings = () => {
                                 )}
                             </div>
 
+                            {/* Scheduled Date & Time Pickers (Only when launchMode === 'SCHEDULED') */}
+                            {launchMode === 'SCHEDULED' && (
+                                <div className="space-y-4 p-4 bg-indigo-50/70 border border-indigo-100 rounded-2xl">
+                                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-900">
+                                        <Calendar className="w-4 h-4 text-indigo-600" />
+                                        <span>Select Date & Time Slot</span>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase tracking-wider text-indigo-900 mb-1">
+                                            Meeting Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={scheduledDate}
+                                            min={new Date().toISOString().split('T')[0]}
+                                            onChange={(e) => setScheduledDate(e.target.value)}
+                                            className="w-full p-3 bg-white border border-indigo-200 rounded-xl text-xs font-black text-[#1a1b4b] outline-none focus:border-[#4B7BFF]"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-wider text-indigo-900 mb-1">
+                                                Start Time
+                                            </label>
+                                            <input
+                                                type="time"
+                                                value={scheduledStartTime}
+                                                onChange={(e) => setScheduledStartTime(e.target.value)}
+                                                className="w-full p-3 bg-white border border-indigo-200 rounded-xl text-xs font-black text-[#1a1b4b] outline-none focus:border-[#4B7BFF]"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-wider text-indigo-900 mb-1">
+                                                End Time
+                                            </label>
+                                            <input
+                                                type="time"
+                                                value={scheduledEndTime}
+                                                onChange={(e) => setScheduledEndTime(e.target.value)}
+                                                className="w-full p-3 bg-white border border-indigo-200 rounded-xl text-xs font-black text-[#1a1b4b] outline-none focus:border-[#4B7BFF]"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Custom Room ID */}
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                                    3. Custom Video Room ID
+                                    {launchMode === 'SCHEDULED' ? '5. Custom Video Room ID' : '4. Custom Video Room ID'}
                                 </label>
                                 <input
                                     type="text"
@@ -788,7 +976,7 @@ const AllMeetings = () => {
                             {/* Session Title */}
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                                    4. Session Title / Subject
+                                    {launchMode === 'SCHEDULED' ? '6. Session Title / Subject' : '5. Session Title / Subject'}
                                 </label>
                                 <input
                                     type="text"
@@ -802,7 +990,7 @@ const AllMeetings = () => {
                             {/* Agenda */}
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                                    5. Agenda / Lecture Notes
+                                    {launchMode === 'SCHEDULED' ? '7. Agenda / Lecture Notes' : '6. Agenda / Lecture Notes'}
                                 </label>
                                 <textarea
                                     value={agenda}
@@ -816,10 +1004,22 @@ const AllMeetings = () => {
                             <button
                                 type="submit"
                                 disabled={publishing}
-                                className="w-full py-4 rounded-2xl bg-[#1a1b4b] hover:bg-[#2d3a8c] text-white font-black text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                                className={`w-full py-4 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${
+                                    launchMode === 'INSTANT' 
+                                        ? 'bg-[#4B7BFF] hover:bg-[#3b66d6] shadow-[#4B7BFF]/25' 
+                                        : 'bg-[#1a1b4b] hover:bg-[#2d3a8c] shadow-[#1a1b4b]/20'
+                                }`}
                             >
-                                {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                                <span>Start Live Room & Publish Announcement</span>
+                                {publishing ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : launchMode === 'INSTANT' ? (
+                                    <Radio className="w-4 h-4 animate-pulse" />
+                                ) : (
+                                    <Calendar className="w-4 h-4" />
+                                )}
+                                <span>
+                                    {launchMode === 'INSTANT' ? 'Start Live Room Now & Broadcast' : 'Schedule Meeting & Broadcast'}
+                                </span>
                             </button>
                         </form>
                     </div>
@@ -860,61 +1060,78 @@ const AllMeetings = () => {
                         {visibleSessions.map((s) => (
                             <div
                                 key={s.id}
-                                className="bg-white border border-gray-200 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-5"
+                                className="bg-white border border-gray-200 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all space-y-4 overflow-hidden"
                             >
-                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-widest border ${
-                                                s.convenerRole === 'DEAN' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                                                s.convenerRole === 'HOD' ? 'bg-purple-50 text-purple-700 border-purple-200' :
-                                                'bg-blue-50 text-blue-700 border-blue-200'
-                                            }`}>
-                                                {s.convenerRole} CONVENER
-                                            </span>
-                                            <span className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-widest border flex items-center gap-1.5 ${
-                                                s.status === 'ONGOING' 
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                    : 'bg-amber-50 text-amber-700 border-amber-200'
-                                            }`}>
-                                                <Radio className="w-3 h-3 animate-pulse" /> {s.status === 'ONGOING' ? 'LIVE NOW' : 'SCHEDULED'}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-base font-black text-[#1a1b4b] uppercase tracking-wide">{s.title}</h3>
-                                        <p className="text-xs font-bold text-gray-500 mt-1">
-                                            Audience: <strong className="text-[#1a1b4b]">{s.targetAudience}</strong>
-                                        </p>
+                                {/* Header Row: Status Badges (Left) & Action Buttons (Right) */}
+                                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-widest border ${
+                                            s.convenerRole === 'DEAN' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                            s.convenerRole === 'HOD' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                            'bg-blue-50 text-blue-700 border-blue-200'
+                                        }`}>
+                                            {s.convenerRole} CONVENER
+                                        </span>
+                                        <span className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-widest border flex items-center gap-1.5 ${
+                                            s.status === 'ONGOING' 
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                                        }`}>
+                                            <Radio className="w-3 h-3 animate-pulse" /> {s.status === 'ONGOING' ? 'LIVE NOW' : 'SCHEDULED'}
+                                        </span>
                                     </div>
 
-                                    {s.status === 'ONGOING' ? (
-                                        <button
-                                            onClick={() => setActiveLiveRoom({
-                                                roomId: s.roomId,
-                                                title: s.title,
-                                                convenerName: s.convenerName
-                                            })}
-                                            className="px-6 py-3 rounded-2xl bg-[#4B7BFF] hover:bg-[#3b66d6] text-white font-black text-xs uppercase tracking-widest shadow-md flex items-center justify-center gap-2 transition-all shrink-0"
-                                        >
-                                            <Video className="w-4 h-4" />
-                                            <span>Join Online Class</span>
-                                        </button>
-                                    ) : isStudent ? (
-                                        <div className="px-5 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 font-black text-xs uppercase tracking-widest flex items-center gap-2 shrink-0">
-                                            <Clock className="w-4 h-4" />
-                                            <span>Scheduled • Awaiting Faculty</span>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleStartScheduledClass(s)}
-                                            className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest shadow-md flex items-center justify-center gap-2 transition-all shrink-0"
-                                        >
-                                            <Play className="w-4 h-4" />
-                                            <span>Start Online Class Now</span>
-                                        </button>
-                                    )}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {s.status === 'ONGOING' ? (
+                                            <button
+                                                onClick={() => setActiveLiveRoom({
+                                                    roomId: s.roomId,
+                                                    title: s.title,
+                                                    convenerName: s.convenerName
+                                                })}
+                                                className="px-5 py-2.5 rounded-2xl bg-[#4B7BFF] hover:bg-[#3b66d6] text-white font-black text-xs uppercase tracking-widest shadow-md flex items-center gap-2 transition-all"
+                                            >
+                                                <Video className="w-4 h-4" />
+                                                <span>Join Online Class</span>
+                                            </button>
+                                        ) : isStudent ? (
+                                            <div className="px-4 py-2.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                                                <Clock className="w-4 h-4" />
+                                                <span>Awaiting Faculty</span>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleStartScheduledClass(s)}
+                                                className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest shadow-md flex items-center gap-2 transition-all"
+                                            >
+                                                <Play className="w-4 h-4" />
+                                                <span>Start Class Now</span>
+                                            </button>
+                                        )}
+
+                                        {!isStudent && (
+                                            <button
+                                                onClick={() => handleEndMeeting(s)}
+                                                className="px-4 py-2.5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-black text-xs uppercase tracking-widest border border-red-200 transition-all flex items-center gap-1.5"
+                                                title="Complete meeting and remove from all dashboards"
+                                            >
+                                                <Square className="w-3.5 h-3.5" />
+                                                <span>End & Remove</span>
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                {/* Body Section: Title & Audience */}
+                                <div>
+                                    <h3 className="text-base font-black text-[#1a1b4b] uppercase tracking-wide leading-snug">{s.title}</h3>
+                                    <p className="text-xs font-bold text-gray-500 mt-1">
+                                        Audience: <strong className="text-[#1a1b4b]">{s.targetAudience}</strong>
+                                    </p>
+                                </div>
+
+                                {/* Footer Section: Details */}
+                                <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
                                     <div className="flex items-center gap-2">
                                         <User className="w-4 h-4 text-indigo-500" />
                                         <span>Convener: {s.convenerName}</span>

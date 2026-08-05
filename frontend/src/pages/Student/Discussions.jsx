@@ -650,7 +650,7 @@ const Discussions = () => {
                                         <div>
                                             <h2 className="text-[17px] font-black text-[#1a1b4b] uppercase tracking-tight">{selectedCourse.subject?.name}</h2>
                                             <p className="text-[12px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Community Access Verified
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" /> Community Access Verified
                                             </p>
                                         </div>
                                     </>
