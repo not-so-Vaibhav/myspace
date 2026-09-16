@@ -6,10 +6,16 @@ import {
   Megaphone, Plus, Calendar as CalIcon, Users, Loader2,
   Paperclip, ExternalLink, Trash2, Heart, FileText,
   Clock, CheckCircle, XCircle, Send, Bell, AlertTriangle,
-  Settings, Search, Filter, SlidersHorizontal
+  Settings, Search, Filter, SlidersHorizontal, BookOpen,
+  BarChart3, Sparkles, GraduationCap, Check
 } from 'lucide-react';
-import { format, parseISO, endOfDay } from 'date-fns';
+import { format, parseISO, endOfDay, isPast } from 'date-fns';
 import notificationApi from '../../api/notificationApi';
+import AdminSubjectPreferenceModal from '../../components/Announcements/AdminSubjectPreferenceModal';
+import FacultySubjectPreferenceForm from '../../components/Announcements/FacultySubjectPreferenceForm';
+import FacultyPreferenceSubmitModal from '../../components/Announcements/FacultyPreferenceSubmitModal';
+import AdminPreferenceResponsesModal from '../../components/Announcements/AdminPreferenceResponsesModal';
+import { fetchFacultyPreferences } from '../../services/subjectPreferenceService';
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'];
 const isImageUrl = (url) => {
@@ -23,7 +29,7 @@ const Announcements = () => {
   const { profile } = useAuth();
   const role = profile?.role?.toLowerCase();
   const isAdmin = role === 'admin';
-  const isFacultyLike = ['faculty', 'instructor', 'hod'].includes(role);
+  const isFacultyLike = ['faculty', 'instructor', 'hod', 'teacher'].includes(role);
 
   const [announcements, setAnnouncements] = useState([]);
   const [pendingList, setPendingList] = useState([]);
@@ -40,6 +46,12 @@ const Announcements = () => {
   const [priorityFilter, setPriorityFilter] = useState('ALL');
   const [showPrefsModal, setShowPrefsModal] = useState(false);
   const [preferences, setPreferences] = useState(null);
+
+  // Subject Preference Call States
+  const [showSubjectPreferenceModal, setShowSubjectPreferenceModal] = useState(false);
+  const [activeResponseModalAnn, setActiveResponseModalAnn] = useState(null);
+  const [selectedFacultyPreferenceAnn, setSelectedFacultyPreferenceAnn] = useState(null);
+  const [facultyPreferencesMap, setFacultyPreferencesMap] = useState({});
 
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -88,6 +100,28 @@ const Announcements = () => {
         .order('created_at', { ascending: false });
       if (e1) throw e1;
       setAnnouncements(approved || []);
+
+      // Load faculty preferences for preference calls
+      if (isFacultyLike && profile?.id && approved && approved.length > 0) {
+        const prefCalls = approved.filter(a => 
+          a.is_preference_call || 
+          a.category === 'SUBJECT_PREFERENCE' || 
+          (a.title && a.title.toLowerCase().includes('subject preference')) ||
+          (a.title && a.title.toLowerCase().includes('teaching preference'))
+        );
+        if (prefCalls.length > 0) {
+          const map = {};
+          await Promise.all(prefCalls.map(async (call) => {
+            try {
+              const list = await fetchFacultyPreferences(call.id, profile.id);
+              map[call.id] = list || [];
+            } catch (err) {
+              map[call.id] = [];
+            }
+          }));
+          setFacultyPreferencesMap(map);
+        }
+      }
 
       // Fetch pending (admins see all pending; faculty see only their own pending)
       if (isAdmin) {
@@ -369,16 +403,35 @@ const Announcements = () => {
     const liked = likedIds.has(ann.id);
     const hasImage = isImageUrl(ann.attachment_url);
     const isCritical = ann.priority === 'CRITICAL';
+
+    const isPreferenceCall = Boolean(
+      ann.is_preference_call || 
+      ann.category === 'SUBJECT_PREFERENCE' || 
+      (ann.description && ann.description.includes('[PREFERENCE_CALL')) ||
+      (ann.title && ann.title.toLowerCase().includes('subject preference')) ||
+      (ann.title && ann.title.toLowerCase().includes('teaching preference'))
+    );
+
+    const deadlineString = ann.preference_deadline || ann.end_date;
+    const isDeadlinePassed = deadlineString ? isPast(new Date(deadlineString)) : false;
+
     return (
-      <div className={`bg-white rounded-[1.75rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col transition-all hover:shadow-md hover:-translate-y-0.5 ${past ? 'opacity-60 hover:opacity-100' : ''} ${isCritical ? 'border-l-4 border-l-red-500 bg-red-50/10' : ''}`}>
+      <div className={`bg-white rounded-[1.75rem] overflow-hidden shadow-sm border ${
+        isPreferenceCall ? 'border-indigo-300 ring-2 ring-indigo-100' : 'border-gray-100'
+      } flex flex-col transition-all hover:shadow-md hover:-translate-y-0.5 ${past ? 'opacity-60 hover:opacity-100' : ''} ${isCritical ? 'border-l-4 border-l-red-500 bg-red-50/10' : ''}`}>
         {hasImage && (
           <div className="relative w-full overflow-hidden" style={{ paddingBottom: '58%' }}>
             <img src={ann.attachment_url} alt={ann.title} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
           </div>
         )}
-        <div className="p-6 flex flex-col flex-1 gap-3">
+        <div className="p-6 flex flex-col flex-1 gap-4">
           <div className="flex items-center gap-2 flex-wrap">
+            {isPreferenceCall && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-indigo-600 to-[#1a1b4b] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-xs">
+                <BookOpen size={11} /> Teaching Subject Call
+              </span>
+            )}
             {isCritical && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest animate-pulse">
                 <AlertTriangle size={10} /> Critical
@@ -389,10 +442,15 @@ const Announcements = () => {
                 <Megaphone size={10} /> Live
               </span>
             )}
+            {ann.target_semester && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[11px] font-black uppercase tracking-widest border border-indigo-100">
+                <GraduationCap size={11} /> Semester {ann.target_semester}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 rounded-lg text-[12px] font-black uppercase tracking-widest border border-gray-100">
               <CalIcon size={10} /> {format(parseISO(ann.start_date), 'MMM dd')} – {format(parseISO(ann.end_date), 'MMM dd, yy')}
             </span>
-            {ann.category && (
+            {ann.category && !isPreferenceCall && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[11px] font-black uppercase tracking-widest border border-indigo-100">
                 {ann.category}
               </span>
@@ -403,6 +461,7 @@ const Announcements = () => {
               </span>
             )}
           </div>
+
           <div className="flex items-start gap-3">
             <h2 className="text-xl font-black text-[#1a1b4b] leading-tight flex-1">{ann.title}</h2>
             {!isAdmin && (
@@ -416,15 +475,68 @@ const Announcements = () => {
               </button>
             )}
           </div>
-          <p className={`text-sm text-gray-500 leading-relaxed font-medium ${past ? 'line-clamp-2' : 'line-clamp-4'}`}>{ann.description}</p>
+
+          {/* Subject Preference Deadline Alert Banner */}
+          {isPreferenceCall && deadlineString && (
+            <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+              isDeadlinePassed ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-amber-50/80 border-amber-200 text-amber-900'
+            }`}>
+              <div className="flex items-center gap-2.5">
+                <Clock size={16} className={isDeadlinePassed ? 'text-rose-600' : 'text-amber-600'} />
+                <div>
+                  <span className="text-[11px] font-black uppercase tracking-wider">
+                    {isDeadlinePassed ? 'Submission Closed (Deadline Expired)' : 'Faculty Submission Deadline'}
+                  </span>
+                  <p className="text-[11px] font-bold opacity-80 mt-0.5">
+                    {format(new Date(deadlineString), 'MMMM dd, yyyy • h:mm a')}
+                  </p>
+                </div>
+              </div>
+              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest w-fit ${
+                isDeadlinePassed ? 'bg-rose-200 text-rose-900' : 'bg-amber-200 text-amber-950'
+              }`}>
+                {isDeadlinePassed ? 'Expired' : 'Active Call'}
+              </span>
+            </div>
+          )}
+
+          <p className={`text-sm text-gray-500 leading-relaxed font-medium ${past ? 'line-clamp-2' : 'line-clamp-3'}`}>
+            {(ann.description || '').replace(/\[DEADLINE:[^\]]*\]/g, '').replace(/\[SEMESTER:[^\]]*\]/g, '').replace(/\[PREFERENCE_CALL:[^\]]*\]/g, '').trim()}
+          </p>
+          
           {ann.attachment_url && !hasImage && (
             <a href={ann.attachment_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 mt-1 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest transition-colors w-fit">
               <FileText size={13} /> View Document <ExternalLink size={11} />
             </a>
           )}
+
+          {/* Faculty / HOD Interactive Subject Selection Form */}
+          {isPreferenceCall && isFacultyLike && profile?.id && (
+            <div className="pt-2">
+              <FacultySubjectPreferenceForm 
+                announcement={ann}
+                preferences={facultyPreferencesMap[ann.id] || []}
+                isDeadlinePassed={isDeadlinePassed}
+                onOpenModal={() => setSelectedFacultyPreferenceAnn(ann)}
+              />
+            </div>
+          )}
+
+          {/* Admin Management Actions */}
           {isAdmin && (
-            <div className="flex items-center justify-end pt-2 border-t border-gray-50 mt-auto">
-              <button onClick={() => handleDelete(ann.id)} className="w-9 h-9 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors">
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto gap-3">
+              {isPreferenceCall ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveResponseModalAnn(ann)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-indigo-200 shadow-2xs"
+                >
+                  <BarChart3 size={15} />
+                  <span>View Faculty Submissions & Schedule Data</span>
+                </button>
+              ) : <div />}
+
+              <button onClick={() => handleDelete(ann.id)} className="w-9 h-9 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors shrink-0">
                 <Trash2 size={15} />
               </button>
             </div>
@@ -512,13 +624,22 @@ const Announcements = () => {
             {isFacultyLike ? 'Submit announcements for admin approval' : 'Important updates and notices'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={() => setShowPrefsModal(true)}
             className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm"
           >
             <Settings size={14} /> Preferences
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowSubjectPreferenceModal(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-700 via-indigo-800 to-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-indigo-100 border border-indigo-500/30"
+            >
+              <BookOpen size={15} className="text-indigo-200" />
+              <span>Teaching Subject Request</span>
+            </button>
+          )}
           {(isAdmin || isFacultyLike) && !showForm && (
             <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-3 bg-[#1a1b4b] text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-[#2d3a8c] transition-all shadow-md">
               <Plus size={15} /> {isAdmin ? 'Create Announcement' : 'Submit Request'}
@@ -1041,6 +1162,38 @@ const Announcements = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Admin Subject Preference Broadcast Modal */}
+      <AdminSubjectPreferenceModal
+        isOpen={showSubjectPreferenceModal}
+        onClose={() => setShowSubjectPreferenceModal(false)}
+        onCreated={(newAnn) => {
+          if (newAnn) setAnnouncements(prev => [newAnn, ...prev]);
+          fetchAnnouncements();
+        }}
+        adminProfile={profile}
+      />
+
+      {/* Admin Preference Responses Drawer / Modal */}
+      <AdminPreferenceResponsesModal
+        isOpen={Boolean(activeResponseModalAnn)}
+        onClose={() => setActiveResponseModalAnn(null)}
+        announcement={activeResponseModalAnn}
+      />
+
+      {/* Faculty Preference Submit / Edit Modal */}
+      {selectedFacultyPreferenceAnn && (
+        <FacultyPreferenceSubmitModal
+          isOpen={Boolean(selectedFacultyPreferenceAnn)}
+          onClose={() => setSelectedFacultyPreferenceAnn(null)}
+          announcement={selectedFacultyPreferenceAnn}
+          facultyId={profile?.id}
+          onSubmitted={(annId, savedList) => {
+            setFacultyPreferencesMap(prev => ({ ...prev, [annId]: savedList }));
+            fetchAnnouncements();
+          }}
+        />
       )}
     </div>
   );

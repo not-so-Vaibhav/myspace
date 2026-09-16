@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Search, UserCheck, Shield, Users, Mail, Phone, MoreVertical, Filter, ChevronDown, Trash2, Edit2, Plus, X, AlertCircle } from 'lucide-react';
+import { Search, UserCheck, Shield, Users, Mail, Phone, MoreVertical, Filter, ChevronDown, Trash2, Edit2, Plus, X, AlertCircle, BookOpen, Tag, Layers } from 'lucide-react';
+import { fetchAllFacultySubjectTags } from '../../services/facultySubjectService';
 
 const roleConfig = {
     'student': { bg: 'bg-green-50', text: 'text-green-600', dot: 'bg-green-400', label: 'Student' },
@@ -12,6 +13,7 @@ const roleConfig = {
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
+    const [facultyTagsMap, setFacultyTagsMap] = useState({});
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [activeTab, setActiveTab] = useState('all'); // 'all', 'student', 'faculty', 'admins'
@@ -30,13 +32,14 @@ const UserManagement = () => {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const { data, error: fetchError } = await supabase
-                .from('profiles')
-                .select('*')
-                .order('full_name', { ascending: true });
+            const [usersRes, tagsMap] = await Promise.all([
+                supabase.from('profiles').select('*').order('full_name', { ascending: true }),
+                fetchAllFacultySubjectTags()
+            ]);
 
-            if (fetchError) throw fetchError;
-            setUsers(data || []);
+            if (usersRes.error) throw usersRes.error;
+            setUsers(usersRes.data || []);
+            setFacultyTagsMap(tagsMap || {});
         } catch (err) {
             setError(err.message);
         } finally {
@@ -103,8 +106,23 @@ const UserManagement = () => {
     };
 
     const filteredUsers = users.filter(user => {
-        const matchesSearch = user.full_name?.toLowerCase().includes(search.toLowerCase()) || 
-                             user.email?.toLowerCase().includes(search.toLowerCase());
+        const userTags = facultyTagsMap[user.id] || [];
+        const searchLower = search.toLowerCase().trim();
+
+        const matchesName = user.full_name?.toLowerCase().includes(searchLower);
+        const matchesEmail = user.email?.toLowerCase().includes(searchLower);
+        const matchesUid = user.id?.toLowerCase().includes(searchLower);
+        const matchesSubjectTag = userTags.some(t => {
+            const sub = t.subject || {};
+            return (
+                sub.name?.toLowerCase().includes(searchLower) ||
+                sub.code?.toLowerCase().includes(searchLower) ||
+                t.name?.toLowerCase().includes(searchLower) ||
+                t.code?.toLowerCase().includes(searchLower)
+            );
+        });
+
+        const matchesSearch = !searchLower || matchesName || matchesEmail || matchesUid || matchesSubjectTag;
         
         if (activeTab === 'all') return matchesSearch;
         if (activeTab === 'student') return matchesSearch && user.role === 'student';
@@ -232,7 +250,7 @@ const UserManagement = () => {
                     <Search className="absolute left-7 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
                     <input 
                         type="text"
-                        placeholder="Search by name, email or roll number..."
+                        placeholder="Search by name, email, roll number, or subject tags (e.g. CSE234, Photography)..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full pl-14 pr-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold text-[#1a1b4b] focus:ring-2 focus:ring-indigo-100 outline-none placeholder:text-gray-300"
@@ -246,7 +264,7 @@ const UserManagement = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest pl-10">User Identity</th>
+                                <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest pl-10">User Identity & Subject Tags</th>
                                 <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest">Assigned Role</th>
                                 <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest">Contact Intel</th>
                                 <th className="p-6 text-[12px] font-black text-gray-400 uppercase tracking-widest">Status</th>
@@ -266,16 +284,47 @@ const UserManagement = () => {
                             ) : (
                                 filteredUsers.map(user => {
                                     const config = roleConfig[user.role?.toLowerCase()] || roleConfig.student;
+                                    const userTags = facultyTagsMap[user.id] || [];
+                                    const isTeaching = ['faculty', 'hod', 'instructor', 'teacher'].includes(user.role?.toLowerCase());
+
                                     return (
                                         <tr key={user.id} className="hover:bg-gray-50/30 transition-colors group">
                                             <td className="p-6 pl-10">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 flex items-center justify-center font-black text-indigo-400 shadow-inner group-hover:scale-110 transition-transform">
+                                                <div className="flex items-start gap-4">
+                                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 flex items-center justify-center font-black text-indigo-400 shadow-inner group-hover:scale-110 transition-transform shrink-0 mt-0.5">
                                                         {user.full_name?.charAt(0).toUpperCase()}
                                                     </div>
-                                                    <div>
+                                                    <div className="min-w-0">
                                                         <p className="text-sm font-black text-[#1a1b4b] tracking-tight">{user.full_name}</p>
                                                         <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">UID: {user.id.substring(0,8)}</p>
+                                                        
+                                                        {/* Teaching Subject Tags Badges */}
+                                                        {isTeaching && (
+                                                            <div className="mt-2.5 flex flex-wrap items-center gap-1.5 max-w-md">
+                                                                {userTags && userTags.length > 0 ? (
+                                                                    userTags.map((t) => {
+                                                                        const sub = t.subject || {};
+                                                                        const code = sub.code || 'CODE';
+                                                                        const name = sub.name || 'Subject';
+                                                                        return (
+                                                                            <span 
+                                                                                key={t.id || t.subject_id} 
+                                                                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-md text-[10px] font-black uppercase tracking-wider"
+                                                                                title={`${code}: ${name} (${sub.type || 'Theory'})`}
+                                                                            >
+                                                                                <BookOpen size={10} className="text-indigo-500 shrink-0" />
+                                                                                <span className="font-mono font-bold text-indigo-900">{code}</span>
+                                                                                <span className="text-indigo-600 truncate max-w-[110px]">{name}</span>
+                                                                            </span>
+                                                                        );
+                                                                    })
+                                                                ) : (
+                                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+                                                                        <Tag size={10} /> No Subject Tags
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </td>

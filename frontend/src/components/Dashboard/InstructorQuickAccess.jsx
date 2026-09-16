@@ -1,7 +1,15 @@
-import { Users, FileText, FolderOpen, CalendarOff, Clock, UserCircle } from 'lucide-react';
+import { Users, FileText, FolderOpen, CalendarOff, Clock, UserCircle, FileSpreadsheet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const cards = [
+  {
+    name: 'Subject Evaluation',
+    subtitle: 'Continuous Assessment & Marks',
+    icon: FileSpreadsheet,
+    iconBg: 'bg-indigo-50',
+    to: '/faculty/evaluation',
+    accent: '#4f46e5',
+  },
   {
     name: 'Student Attendance',
     subtitle: 'Mark & Track',

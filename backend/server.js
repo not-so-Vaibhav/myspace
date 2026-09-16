@@ -59,6 +59,7 @@ app.use('/api/bulk-data', (req, res, next) => require('./routes/bulkDataRoutes')
 app.use('/api/notifications', (req, res, next) => require('./routes/notificationRoutes')(req, res, next));
 app.use('/api/audit-trail', (req, res, next) => require('./routes/auditRoutes')(req, res, next));
 app.use('/api/student-360', (req, res, next) => require('./routes/student360Routes')(req, res, next));
+app.use('/api/evaluation', (req, res, next) => require('./routes/evaluationRoutes')(req, res, next));
 
 // Health check
 app.get('/', (req, res) => {

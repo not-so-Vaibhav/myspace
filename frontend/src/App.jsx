@@ -36,6 +36,9 @@ import AssignmentCreate from './pages/Faculty/AssignmentCreate';
 import AssignmentDetail from './pages/Faculty/AssignmentDetail';
 import FacultyRegistrationDashboard from './pages/Faculty/FacultyRegistrationDashboard';
 import FacultyBatchDashboard from './pages/Faculty/FacultyBatchDashboard';
+import FacultyEvaluation from './pages/Faculty/FacultyEvaluation';
+import StudentSubjectEvaluation from './pages/Student/StudentSubjectEvaluation';
+import SubjectEvaluationAdmin from './pages/Admin/SubjectEvaluationAdmin';
 
 // --- HOD Pages ---
 import HODDashboard from './pages/HOD/HODDashboard';
@@ -327,6 +330,9 @@ function App() {
             <Route path="/student/class-batch" element={<StudentClassBatchDashboard />} />
             <Route path="/faculty/course-registration" element={<FacultyRegistrationDashboard />} />
             <Route path="/faculty/class-batches" element={<FacultyBatchDashboard />} />
+            <Route path="/faculty/evaluation" element={<RoleRoute allowedRoles={['faculty', 'hod', 'admin', 'dean']}><FacultyEvaluation /></RoleRoute>} />
+            <Route path="/admin/evaluation" element={<RoleRoute allowedRoles={['admin', 'dean', 'hod']}><SubjectEvaluationAdmin /></RoleRoute>} />
+            <Route path="/student/evaluation" element={<RoleRoute allowedRoles={['student', 'faculty', 'admin', 'dean', 'hod']}><StudentSubjectEvaluation /></RoleRoute>} />
             <Route path="/faculty-attendance" element={<FacultyAttendance />} />
             <Route path="/discussions" element={<Discussions />} />
             <Route path="/users" element={<RoleRoute allowedRoles={['admin']}><UserManagement /></RoleRoute>} />

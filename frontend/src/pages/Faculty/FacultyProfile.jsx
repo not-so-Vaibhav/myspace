@@ -24,6 +24,7 @@ import {
     KeyRound
 } from 'lucide-react';
 import ChangePasswordModal from '../../components/Auth/ChangePasswordModal';
+import FacultySubjectTagsSection from '../../components/Faculty/FacultySubjectTagsSection';
 
 // ─── Reusable field row ─────────────────────────────────────────────────────
 const Field = ({ label, value, editing, onChange, name, type = 'text', options }) => (
@@ -325,6 +326,14 @@ const FacultyProfile = () => {
                 <div className="lg:col-span-8 space-y-10">
                     {activeTab === 'general' && (
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
+                            {/* Teaching Subject Tags (Only for Faculty and HOD teaching personnel) */}
+                            {['faculty', 'hod', 'instructor', 'teacher'].includes(profile?.role?.toLowerCase()) && (
+                                <FacultySubjectTagsSection 
+                                    facultyId={profile?.id || user?.id} 
+                                    userRole={profile?.role} 
+                                />
+                            )}
+
                             <SectionCard 
                                 title="Personal Details" 
                                 icon={User} 

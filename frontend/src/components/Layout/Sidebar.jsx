@@ -28,7 +28,8 @@ import {
   Layers,
   Database,
   Eye,
-  Video
+  Video,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -41,6 +42,7 @@ const getNavItems = (role) => {
       { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/calendar', icon: CalendarDays, label: 'Calendar' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
+      { to: '/admin/evaluation', icon: FileSpreadsheet, label: 'Subject Evaluations' },
       { to: '/users', icon: FileText, label: 'Users' },
       { to: '/student-letter-requests', icon: Mail, label: 'Letter Requests' },
       { to: '/faculty-requisitions', icon: Briefcase, label: 'Faculty Requisitions' },
@@ -73,6 +75,7 @@ const getNavItems = (role) => {
       { to: '/dean-dashboard', icon: Home, label: 'Dean Dashboard' },
       { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/approvals', icon: Clock, label: 'Leave Approvals' },
+      { to: '/admin/evaluation', icon: FileSpreadsheet, label: 'Subject Evaluations' },
       { to: '/analytics', icon: FileText, label: 'Analytics' },
       { to: '/reports', icon: FileText, label: 'Reports' },
       { to: '/inventory', icon: Package, label: 'Inventory' },
@@ -101,6 +104,7 @@ const getNavItems = (role) => {
       { to: '/leave-application', icon: FileText, label: 'Leave Application' },
       { to: '/discussions', icon: MessageSquare, label: 'Discussion' },
       { to: '/allocation-dashboard', icon: CalendarDays, label: 'Allocations' },
+      { to: '/admin/evaluation', icon: FileSpreadsheet, label: 'Subject Evaluations' },
       { to: '/faculty-dashboard', icon: Home, label: 'Instructor View' },
       { to: '/faculty', icon: FileText, label: 'Faculty List' },
       { to: '/calendar', icon: Calendar, label: 'Calendar' },
@@ -147,6 +151,7 @@ const getNavItems = (role) => {
   if (role === 'faculty') {
     return [
       { to: '/faculty-dashboard', icon: Home, label: 'Home' },
+      { to: '/faculty/evaluation', icon: FileSpreadsheet, label: 'Evaluation' },
       { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
       { to: '/faculty-courses', icon: BookOpen, label: 'My Courses' },
       { to: '/performance-appraisal', icon: Award, label: 'Performance & Appraisal' },
@@ -167,6 +172,7 @@ const getNavItems = (role) => {
     { to: '/announcements', icon: Megaphone, label: 'Announcement' },
     { to: '/meetings', icon: Video, label: 'Meetings & Live Classes' },
     { to: '/student-courses', icon: GraduationCap, label: 'Courses' },
+    { to: '/student/evaluation', icon: FileSpreadsheet, label: 'Evaluation & Marks' },
     { to: '/course-registration', icon: BookOpen, label: 'Course Registration' },
     { to: '/student/credits', icon: Award, label: 'Credit Portfolio & Audit' },
     { to: '/student/class-batch', icon: Layers, label: 'Class & Practical Batch' },
