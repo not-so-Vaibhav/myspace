@@ -790,6 +790,17 @@ const AdminPreferenceResponsesModal = ({ isOpen, onClose, announcement }) => {
                                 </span>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
+                                <button 
+                                    type="button"
+                                    onClick={() => setFilterSubject('ALL')}
+                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                                        filterSubject === 'ALL'
+                                            ? 'bg-[#1a1b4b] text-white shadow-sm ring-2 ring-[#1a1b4b]/30' 
+                                            : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    <span>All Subjects ({subjectList.length})</span>
+                                </button>
                                 {subjectList.map((sItem) => {
                                     const isSelected = filterSubject === sItem.key;
                                     const hasAllocated = sItem.allocatedCount > 0;
@@ -907,38 +918,23 @@ const AdminPreferenceResponsesModal = ({ isOpen, onClose, announcement }) => {
 
                         </div>
 
-                        {/* Search Input and Subject Dropdown Filter */}
-                        <div className="flex flex-col sm:flex-row items-center gap-2.5">
-                            <div className="relative flex-1 w-full">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300" size={15} />
-                                <input
-                                    type="text"
-                                    placeholder="Search by faculty name, email, department, or subject code..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
-                                />
-                                {searchQuery && (
-                                    <button 
-                                        onClick={() => setSearchQuery('')}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                    >
-                                        <X size={14} />
-                                    </button>
-                                )}
-                            </div>
-
-                            {subjectList.length > 0 && (
-                                <select
-                                    value={filterSubject}
-                                    onChange={(e) => setFilterSubject(e.target.value)}
-                                    className="px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 cursor-pointer w-full sm:w-auto"
+                        {/* Search Input (Full Width, cleanly unified) */}
+                        <div className="relative w-full">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300" size={15} />
+                            <input
+                                type="text"
+                                placeholder="Search by faculty name, email, department, or subject code..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
+                            />
+                            {searchQuery && (
+                                <button 
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
-                                    <option value="ALL">All Subjects ({subjectList.length})</option>
-                                    {subjectList.map(s => (
-                                        <option key={s.key} value={s.key}>{s.key} ({s.preferences.length})</option>
-                                    ))}
-                                </select>
+                                    <X size={14} />
+                                </button>
                             )}
                         </div>
                     </div>
