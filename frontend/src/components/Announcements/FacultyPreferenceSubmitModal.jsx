@@ -10,7 +10,8 @@ import {
     Plus, 
     Trash2, 
     Loader2, 
-    Sparkles
+    Sparkles,
+    Check
 } from 'lucide-react';
 import { format, isPast } from 'date-fns';
 import { 
@@ -275,31 +276,80 @@ const FacultyPreferenceSubmitModal = ({ isOpen, onClose, announcement, facultyId
                                             </select>
                                         </div>
 
-                                        {/* Mode Toggles + Slot */}
+                                        {/* Mode Toggles (Select Theory, Practical, or Both) + Slot Notes */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
-                                            <div className="flex gap-1">
-                                                {['Theory', 'Practical', 'Both'].map((mode) => (
-                                                    <button
-                                                        key={mode}
-                                                        type="button"
-                                                        onClick={() => handleChoiceChange(index, 'preferred_type', mode)}
-                                                        className={`flex-1 py-1 px-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border ${
-                                                            choice.preferred_type === mode
-                                                                ? 'bg-[#1a1b4b] text-white border-[#1a1b4b]'
-                                                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-100'
-                                                        }`}
-                                                    >
-                                                        {mode === 'Both' ? 'Theory+Lab' : mode}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                            {(() => {
+                                                const currentMode = choice.preferred_type || 'Theory';
+                                                const hasTheory = currentMode === 'Theory' || currentMode === 'Both';
+                                                const hasPractical = currentMode === 'Practical' || currentMode === 'Both';
+
+                                                const handleToggleMode = (target) => {
+                                                    let nextMode = currentMode;
+                                                    if (target === 'Theory') {
+                                                        if (hasTheory && hasPractical) {
+                                                            nextMode = 'Practical'; // Uncheck Theory, keep Practical
+                                                        } else if (!hasTheory) {
+                                                            nextMode = hasPractical ? 'Both' : 'Theory'; // Add Theory
+                                                        }
+                                                    } else if (target === 'Practical') {
+                                                        if (hasPractical && hasTheory) {
+                                                            nextMode = 'Theory'; // Uncheck Practical, keep Theory
+                                                        } else if (!hasPractical) {
+                                                            nextMode = hasTheory ? 'Both' : 'Practical'; // Add Practical
+                                                        }
+                                                    }
+                                                    handleChoiceChange(index, 'preferred_type', nextMode);
+                                                };
+
+                                                return (
+                                                    <div className="flex items-center gap-1.5">
+                                                        {/* Theory Toggle Button */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleToggleMode('Theory')}
+                                                            className={`flex-1 py-1.5 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border cursor-pointer ${
+                                                                hasTheory
+                                                                    ? 'bg-[#1a1b4b] text-white border-[#1a1b4b] shadow-2xs'
+                                                                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                            }`}
+                                                            title={hasTheory ? "Theory selected (click to remove)" : "Click to select Theory"}
+                                                        >
+                                                            <span className={`w-3.5 h-3.5 rounded-md border flex items-center justify-center ${
+                                                                hasTheory ? 'bg-white text-[#1a1b4b] border-white' : 'border-gray-300 bg-gray-50'
+                                                            }`}>
+                                                                {hasTheory && <Check size={10} strokeWidth={3} />}
+                                                            </span>
+                                                            <span>Theory</span>
+                                                        </button>
+
+                                                        {/* Practical Toggle Button */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleToggleMode('Practical')}
+                                                            className={`flex-1 py-1.5 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border cursor-pointer ${
+                                                                hasPractical
+                                                                    ? 'bg-[#1a1b4b] text-white border-[#1a1b4b] shadow-2xs'
+                                                                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                            }`}
+                                                            title={hasPractical ? "Practical selected (click to remove)" : "Click to select Practical"}
+                                                        >
+                                                            <span className={`w-3.5 h-3.5 rounded-md border flex items-center justify-center ${
+                                                                hasPractical ? 'bg-white text-[#1a1b4b] border-white' : 'border-gray-300 bg-gray-50'
+                                                            }`}>
+                                                                {hasPractical && <Check size={10} strokeWidth={3} />}
+                                                            </span>
+                                                            <span>Practical</span>
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })()}
 
                                             <input
                                                 type="text"
                                                 value={choice.remarks}
                                                 onChange={(e) => handleChoiceChange(index, 'remarks', e.target.value)}
                                                 placeholder="Timing / slot notes (optional)"
-                                                className="w-full px-2.5 py-1 bg-white rounded-lg border border-gray-200 text-xs font-medium text-gray-800 outline-none focus:ring-2 focus:ring-indigo-100"
+                                                className="w-full px-2.5 py-1.5 bg-white rounded-xl border border-gray-200 text-xs font-medium text-gray-800 outline-none focus:ring-2 focus:ring-indigo-100"
                                             />
                                         </div>
                                     </div>
