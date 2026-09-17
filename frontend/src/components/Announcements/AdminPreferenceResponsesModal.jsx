@@ -258,41 +258,76 @@ const AdminPreferenceResponsesModal = ({ isOpen, onClose, announcement }) => {
     // ── 1. EXPORT ALLOCATED DATA TO EXCEL (.xlsx) ──────────────────────────────
     const handleExportAllocatedToExcel = () => {
         try {
-            const allocatedRows = [];
+            const exportRows = [];
             let sNo = 1;
 
-            responses.filter(r => r.is_allocated).forEach(p => {
-                const sub = p.subject || {};
-                const fac = p.faculty || {};
-                allocatedRows.push({
-                    'S.No': sNo++,
-                    'Faculty Name': fac.full_name || 'Faculty Member',
-                    'Faculty Email': fac.email || '',
-                    'Department': fac.department || 'Computer Science & Engineering',
-                    'Subject Code': sub.code || 'UNKNOWN',
-                    'Subject Name': sub.name || 'Subject',
-                    'Subject Credits': sub.credits || 3,
-                    'Teaching Mode': p.preferred_type || 'Theory',
-                    'Assigned Hours/Week': p.preferred_hours_per_week || 4,
-                    'Original Choice Rank': `Choice #${p.preference_rank || 1}`,
-                    'Preferred Slots': p.preferred_day_slots || 'Flexible',
-                    'Remarks': p.remarks || '',
-                    'Allocation Status': 'ALLOCATED / APPROVED',
-                    'Target Semester': `Semester ${announcement.target_semester || 1}`,
-                    'Academic Year': announcement.target_academic_year || '2026-2027',
-                    'Allocated Date': p.allocated_at ? format(new Date(p.allocated_at), 'yyyy-MM-dd HH:mm') : format(new Date(), 'yyyy-MM-dd HH:mm'),
-                    'Announcement Reference': announcement.title || ''
-                });
-            });
+            if (responses.length > 0) {
+                responses.forEach(p => {
+                    const sub = p.subject || {};
+                    const fac = p.faculty || {};
+                    const isMarked = Boolean(p.is_allocated);
 
-            if (allocatedRows.length === 0) {
-                setImportErrorMsg('No subjects are currently marked as allocated. Please tick the allocation checkmark on faculty subject choices first.');
-                setTimeout(() => setImportErrorMsg(''), 5000);
-                return;
+                    exportRows.push({
+                        'S.No': sNo++,
+                        'Faculty Name': isMarked ? (fac.full_name || 'Faculty Member') : 'Not Assigned',
+                        'Faculty Email': isMarked ? (fac.email || '') : '',
+                        'Department': isMarked ? (fac.department || 'Computer Science & Engineering') : '',
+                        'Subject Code': sub.code || 'UNKNOWN',
+                        'Subject Name': sub.name || 'Subject',
+                        'Subject Credits': sub.credits || 3,
+                        'Teaching Mode': p.preferred_type || 'Theory',
+                        'Assigned Hours/Week': p.preferred_hours_per_week || 4,
+                        'Choice Preference': isMarked ? `Choice #${p.preference_rank || 1}` : `Choice #${p.preference_rank || 1} (Unmarked)`,
+                        'Preferred Slots': p.preferred_day_slots || 'Flexible',
+                        'Remarks': p.remarks || '',
+                        'Allocation Status': isMarked ? 'ALLOCATED / APPROVED' : 'UNALLOCATED / PENDING',
+                        'Target Semester': `Semester ${announcement.target_semester || 1}`,
+                        'Academic Year': announcement.target_academic_year || '2026-2027',
+                        'Allocated Date': isMarked ? (p.allocated_at ? format(new Date(p.allocated_at), 'yyyy-MM-dd HH:mm') : format(new Date(), 'yyyy-MM-dd HH:mm')) : 'Pending Allocation',
+                        'Announcement Reference': announcement.title || ''
+                    });
+                });
+            } else if (availableSubjects.length > 0) {
+                // If no faculty responses yet, generate complete subject catalog for the term with unassigned status
+                availableSubjects.forEach(sub => {
+                    exportRows.push({
+                        'S.No': sNo++,
+                        'Faculty Name': 'Not Assigned',
+                        'Faculty Email': '',
+                        'Department': '',
+                        'Subject Code': sub.code || 'UNKNOWN',
+                        'Subject Name': sub.name || 'Subject',
+                        'Subject Credits': sub.credits || 3,
+                        'Teaching Mode': sub.type || 'Theory',
+                        'Assigned Hours/Week': 4,
+                        'Choice Preference': 'Not Assigned',
+                        'Preferred Slots': 'Flexible',
+                        'Remarks': '',
+                        'Allocation Status': 'UNALLOCATED / PENDING',
+                        'Target Semester': `Semester ${announcement.target_semester || 1}`,
+                        'Academic Year': announcement.target_academic_year || '2026-2027',
+                        'Allocated Date': 'Pending Allocation',
+                        'Announcement Reference': announcement.title || ''
+                    });
+                });
+            }
+
+            if (exportRows.length === 0) {
+                exportRows.push({
+                    'S.No': 1,
+                    'Faculty Name': 'Not Assigned',
+                    'Subject Code': '23CSE1415',
+                    'Subject Name': 'Design Thinking',
+                    'Subject Credits': 3,
+                    'Teaching Mode': 'Theory',
+                    'Allocation Status': 'UNALLOCATED / PENDING',
+                    'Target Semester': `Semester ${announcement.target_semester || 1}`,
+                    'Academic Year': announcement.target_academic_year || '2026-2027'
+                });
             }
 
             // Sheet 2: Subject Coverage Summary
-            const subjectAllocSummary = subjectList.map(s => {
+            const subjectAllocSummary = subjectList.length > 0 ? subjectList.map(s => {
                 const allocatedFaculty = s.preferences
                     .filter(p => p.is_allocated)
                     .map(p => `${p.faculty?.full_name || 'Faculty'} (${p.preferred_type || 'Theory'})`);
@@ -301,16 +336,24 @@ const AdminPreferenceResponsesModal = ({ isOpen, onClose, announcement }) => {
                     'Subject Code': s.code,
                     'Subject Name': s.name,
                     'Credits': s.subject.credits || 3,
-                    'Allocated Faculty Instructors': allocatedFaculty.length > 0 ? allocatedFaculty.join('; ') : 'UNASSIGNED',
+                    'Allocated Faculty Instructors': allocatedFaculty.length > 0 ? allocatedFaculty.join('; ') : 'NOT ASSIGNED',
                     'Allocated Faculty Count': allocatedFaculty.length,
                     'Total Faculty Applicants': s.preferences.length,
-                    'Status': allocatedFaculty.length > 0 ? 'FULLY ALLOCATED' : 'PENDING ALLOCATION'
+                    'Status': allocatedFaculty.length > 0 ? 'ALLOCATED' : 'UNALLOCATED / PENDING'
                 };
-            });
+            }) : availableSubjects.map(sub => ({
+                'Subject Code': sub.code,
+                'Subject Name': sub.name,
+                'Credits': sub.credits || 3,
+                'Allocated Faculty Instructors': 'NOT ASSIGNED',
+                'Allocated Faculty Count': 0,
+                'Total Faculty Applicants': 0,
+                'Status': 'UNALLOCATED / PENDING'
+            }));
 
             // Create Workbook
             const wb = XLSX.utils.book_new();
-            const wsAllocated = XLSX.utils.json_to_sheet(allocatedRows);
+            const wsAllocated = XLSX.utils.json_to_sheet(exportRows);
             const wsSummary = XLSX.utils.json_to_sheet(subjectAllocSummary);
 
             // Column Widths
@@ -324,13 +367,13 @@ const AdminPreferenceResponsesModal = ({ isOpen, onClose, announcement }) => {
                 { wch: 14 }, // Credits
                 { wch: 16 }, // Mode
                 { wch: 20 }, // Hours
-                { wch: 20 }, // Rank
+                { wch: 22 }, // Rank
                 { wch: 20 }, // Slots
                 { wch: 25 }, // Remarks
-                { wch: 24 }, // Status
+                { wch: 26 }, // Status
                 { wch: 18 }, // Semester
                 { wch: 16 }, // Year
-                { wch: 20 }, // Date
+                { wch: 22 }, // Date
                 { wch: 30 }  // Announcement
             ];
 
@@ -341,20 +384,20 @@ const AdminPreferenceResponsesModal = ({ isOpen, onClose, announcement }) => {
                 { wch: 45 },
                 { wch: 24 },
                 { wch: 24 },
-                { wch: 22 }
+                { wch: 24 }
             ];
 
-            XLSX.utils.book_append_sheet(wb, wsAllocated, 'Allocated Faculty Subjects');
+            XLSX.utils.book_append_sheet(wb, wsAllocated, 'Subject Allocation Schedule');
             XLSX.utils.book_append_sheet(wb, wsSummary, 'Subject Coverage Summary');
 
-            const fileName = `Allocated_Faculty_Subjects_Sem${announcement.target_semester || 1}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+            const fileName = `Subject_Allocations_Sem${announcement.target_semester || 1}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
             XLSX.writeFile(wb, fileName);
 
-            setImportSuccessMsg(`✓ Successfully downloaded allocated schedule with ${allocatedRows.length} assignments!`);
+            setImportSuccessMsg(`✓ Successfully downloaded Excel schedule with ${exportRows.length} subject entries!`);
             setTimeout(() => setImportSuccessMsg(''), 5000);
         } catch (err) {
             console.error('Error exporting allocated Excel:', err);
-            setImportErrorMsg('Failed to export allocated spreadsheet: ' + err.message);
+            setImportErrorMsg('Failed to export Excel spreadsheet: ' + err.message);
         }
     };
 
