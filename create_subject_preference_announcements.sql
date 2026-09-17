@@ -188,6 +188,7 @@ CREATE POLICY "Delete faculty subject preferences"
     );
 
 -- ── 5. ENTERPRISE VIEW FOR SCHEDULE ALLOCATION & TIMETABLE PREPARATION ────────
+DROP VIEW IF EXISTS public.view_faculty_subject_preferences CASCADE;
 CREATE OR REPLACE VIEW public.view_faculty_subject_preferences AS
 SELECT 
     fsp.id AS preference_id,

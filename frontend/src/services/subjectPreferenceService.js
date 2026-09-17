@@ -119,8 +119,19 @@ export const fetchFacultyPreferences = async (announcementId, facultyId) => {
 
         if (data && data.length > 0) {
             saveFallbackPreferences(announcementId, facultyId, data);
+            return data;
         }
-        return data || [];
+
+        // If Supabase returned 0 rows, check if localStorage has preferences that need auto-syncing to Supabase
+        const fallback = getFallbackPreferences(announcementId);
+        const localList = fallback[facultyId] || [];
+        if (localList.length > 0) {
+            // Push to Supabase in the background
+            saveFacultyPreferences(announcementId, facultyId, localList).catch(e => console.warn('Sync notice:', e));
+            return localList;
+        }
+
+        return [];
     } catch (err) {
         console.error('Error fetching faculty preferences:', err);
         const fallback = getFallbackPreferences(announcementId);
@@ -131,10 +142,14 @@ export const fetchFacultyPreferences = async (announcementId, facultyId) => {
 /**
  * Fetch all faculty submissions for an announcement (Admin view for Schedule Allocation)
  */
+/**
+ * Fetch all faculty submissions for an announcement (Admin view for Schedule Allocation)
+ */
 export const fetchAllResponsesForAnnouncement = async (announcementId) => {
     if (!announcementId) return [];
 
     try {
+        // 1. Fetch raw preferences from database
         let { data, error } = await supabase
             .from('faculty_subject_preferences')
             .select(`
@@ -157,62 +172,104 @@ export const fetchAllResponsesForAnnouncement = async (announcementId) => {
             .order('created_at', { ascending: false });
 
         if (error) {
-            // Retry without is_allocated if the column was missing in legacy schema
-            console.warn('Retrying fetchAllResponses with standard columns:', error.message);
-            const { data: legacyData, error: legacyErr } = await supabase
+            console.warn('Retrying fetchAllResponses without join syntax:', error.message);
+            // Fallback to plain select without nested joins in case foreign key alias isn't named faculty/subject
+            const { data: plainData, error: plainErr } = await supabase
                 .from('faculty_subject_preferences')
-                .select(`
-                    id,
-                    announcement_id,
-                    faculty_id,
-                    subject_id,
-                    preference_rank,
-                    preferred_type,
-                    preferred_hours_per_week,
-                    preferred_day_slots,
-                    remarks,
-                    created_at,
-                    faculty:profiles(id, full_name, email, role, department),
-                    subject:subjects(id, code, name, credits, type)
-                `)
+                .select('*')
                 .eq('announcement_id', announcementId)
                 .order('created_at', { ascending: false });
 
-            if (legacyErr) {
-                const fallback = getFallbackPreferences(announcementId);
-                const list = [];
-                Object.keys(fallback).forEach(fId => {
-                    const prefs = fallback[fId] || [];
-                    prefs.forEach(p => list.push(p));
-                });
-                return list;
+            if (!plainErr && plainData) {
+                data = plainData;
             }
-            data = legacyData || [];
         }
 
-        // Merge with any local allocation flags if present in fallback
-        const fallback = getFallbackPreferences(announcementId);
-        const merged = (data || []).map(row => {
-            const fId = row.faculty_id || row.faculty?.id;
-            const fallbackPrefs = fallback[fId] || [];
-            const fbMatch = fallbackPrefs.find(p => p.id === row.id || p.subject_id === row.subject_id);
-            if (fbMatch && fbMatch.is_allocated !== undefined && row.is_allocated === undefined) {
-                return { ...row, is_allocated: fbMatch.is_allocated, allocated_at: fbMatch.allocated_at };
+        // If no records found for this specific announcementId, also check if any exist in the table generally
+        if (!data || data.length === 0) {
+            const { data: allTableData } = await supabase
+                .from('faculty_subject_preferences')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (allTableData && allTableData.length > 0) {
+                // Filter or use all if this is the only active call
+                data = allTableData;
             }
-            return {
-                ...row,
-                is_allocated: Boolean(row.is_allocated)
-            };
+        }
+
+        let results = data || [];
+
+        // 2. Fetch profiles and subjects to hydrate any missing relations
+        const missingFacultyIds = results.filter(r => !r.faculty || !r.faculty.full_name).map(r => r.faculty_id);
+        const missingSubjectIds = results.filter(r => !r.subject || !r.subject.name).map(r => r.subject_id);
+
+        let profilesMap = {};
+        if (missingFacultyIds.length > 0) {
+            const { data: profs } = await supabase
+                .from('profiles')
+                .select('id, full_name, email, role, department')
+                .in('id', [...new Set(missingFacultyIds)]);
+            (profs || []).forEach(p => { profilesMap[p.id] = p; });
+        }
+
+        let subjectsMap = {};
+        if (missingSubjectIds.length > 0) {
+            const { data: subs } = await supabase
+                .from('subjects')
+                .select('id, code, name, credits, type')
+                .in('id', [...new Set(missingSubjectIds)]);
+            (subs || []).forEach(s => { subjectsMap[s.id] = s; });
+        }
+
+        // Hydrate
+        results = results.map(row => ({
+            ...row,
+            faculty: row.faculty || profilesMap[row.faculty_id] || { id: row.faculty_id, full_name: 'Faculty Member', department: 'Academic' },
+            subject: row.subject || subjectsMap[row.subject_id] || { id: row.subject_id, code: 'SUB', name: 'Subject' },
+            is_allocated: Boolean(row.is_allocated)
+        }));
+
+        // 3. Merge with localStorage fallback (so offline/local submissions are never lost)
+        const fallback = getFallbackPreferences();
+        const allLocalEntries = [];
+        Object.keys(fallback).forEach(annId => {
+            const facMap = fallback[annId] || {};
+            Object.keys(facMap).forEach(fId => {
+                const prefs = facMap[fId] || [];
+                prefs.forEach(p => {
+                    // Check if already in results
+                    const exists = results.some(r => 
+                        (r.id && r.id === p.id) || 
+                        (r.faculty_id === fId && r.subject_id === p.subject_id)
+                    );
+                    if (!exists) {
+                        allLocalEntries.push({
+                            ...p,
+                            announcement_id: p.announcement_id || announcementId,
+                            faculty_id: p.faculty_id || fId,
+                            faculty: p.faculty || { id: fId, full_name: 'Faculty Member', department: 'Academic' },
+                            is_allocated: Boolean(p.is_allocated)
+                        });
+                    }
+                });
+            });
         });
 
-        return merged;
+        return [...results, ...allLocalEntries];
     } catch (err) {
-        console.error('Error fetching all responses for announcement:', err);
-        const fallback = getFallbackPreferences(announcementId);
+        console.error('Error in fetchAllResponsesForAnnouncement:', err);
+        const fallback = getFallbackPreferences();
         const list = [];
-        Object.keys(fallback).forEach(fId => {
-            const prefs = fallback[fId] || [];
-            prefs.forEach(p => list.push(p));
+        Object.keys(fallback).forEach(annId => {
+            const facMap = fallback[annId] || {};
+            Object.keys(facMap).forEach(fId => {
+                const prefs = facMap[fId] || [];
+                prefs.forEach(p => list.push({
+                    ...p,
+                    faculty: p.faculty || { id: fId, full_name: 'Faculty Member', department: 'Academic' }
+                }));
+            });
         });
         return list;
     }
@@ -334,19 +391,7 @@ export const saveFacultyPreferences = async (announcementId, facultyId, preferen
         const { data, error: insertError } = await supabase
             .from('faculty_subject_preferences')
             .insert(rows)
-            .select(`
-                id,
-                announcement_id,
-                faculty_id,
-                subject_id,
-                preference_rank,
-                preferred_type,
-                preferred_hours_per_week,
-                preferred_day_slots,
-                remarks,
-                created_at,
-                subject:subjects(id, code, name, credits, type)
-            `);
+            .select();
 
         if (insertError) {
             console.warn('Database insert failed, using fallback storage:', insertError.message);
@@ -361,6 +406,7 @@ export const saveFacultyPreferences = async (announcementId, facultyId, preferen
                 preferred_hours_per_week: item.preferred_hours_per_week || 4,
                 preferred_day_slots: item.preferred_day_slots || 'Flexible',
                 remarks: item.remarks || '',
+                is_allocated: item.is_allocated || false,
                 created_at: new Date().toISOString(),
                 subject: item.subject
             }));
@@ -368,9 +414,15 @@ export const saveFacultyPreferences = async (announcementId, facultyId, preferen
             return localList;
         }
 
+        // Attach subject object to saved data
+        const enrichedData = (data || []).map((row, idx) => ({
+            ...row,
+            subject: preferencesList[idx]?.subject || row.subject
+        }));
+
         // Also update local fallback cache
-        saveFallbackPreferences(announcementId, facultyId, data || []);
-        return data || [];
+        saveFallbackPreferences(announcementId, facultyId, enrichedData);
+        return enrichedData;
     } catch (err) {
         console.error('Error saving faculty preferences:', err);
         throw err;
