@@ -447,6 +447,11 @@ const Announcements = () => {
                 <GraduationCap size={11} /> Semester {ann.target_semester}
               </span>
             )}
+            {(ann.curriculum_pattern || ann.title?.includes('Pattern') || (ann.description && ann.description.includes('[PATTERN:'))) && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-800 rounded-lg text-[11px] font-black uppercase tracking-widest border border-purple-200">
+                <span>{ann.curriculum_pattern || (ann.title?.includes('2027') ? '2027 Pattern' : '2023 Pattern')}</span>
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 rounded-lg text-[12px] font-black uppercase tracking-widest border border-gray-100">
               <CalIcon size={10} /> {format(parseISO(ann.start_date), 'MMM dd')} – {format(parseISO(ann.end_date), 'MMM dd, yy')}
             </span>

@@ -61,6 +61,16 @@ BEGIN
         ALTER TABLE public.announcements ADD COLUMN max_preferences INT DEFAULT 3;
     END IF;
 
+    -- Curriculum Pattern / Regulation (e.g. '2023 Pattern', '2027 Pattern')
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'announcements' 
+        AND column_name = 'curriculum_pattern'
+    ) THEN
+        ALTER TABLE public.announcements ADD COLUMN curriculum_pattern VARCHAR(50) DEFAULT '2023 Pattern';
+    END IF;
+
     -- Allowed subjects array (empty means all available subjects in department/institution)
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 

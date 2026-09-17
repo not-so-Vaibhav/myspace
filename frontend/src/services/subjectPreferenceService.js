@@ -452,6 +452,7 @@ export const createSubjectPreferenceAnnouncement = async (formData, adminProfile
             preference_deadline: formData.deadline,
             target_semester: parseInt(formData.semester, 10) || 1,
             target_academic_year: formData.academicYear || '2026-2027',
+            curriculum_pattern: formData.pattern || '2023 Pattern',
             max_preferences: parseInt(formData.maxPreferences, 10) || 3,
             allowed_subject_ids: formData.allowedSubjectIds || []
         };
@@ -486,6 +487,7 @@ export const createSubjectPreferenceAnnouncement = async (formData, adminProfile
                     preference_deadline: formData.deadline,
                     target_semester: parseInt(formData.semester, 10) || 1,
                     target_academic_year: formData.academicYear || '2026-2027',
+                    curriculum_pattern: formData.pattern || '2023 Pattern',
                     max_preferences: parseInt(formData.maxPreferences, 10) || 3
                 }])
                 .select()
@@ -498,7 +500,7 @@ export const createSubjectPreferenceAnnouncement = async (formData, adminProfile
                     .from('announcements')
                     .insert([{
                         title: payload.title,
-                        description: payload.description + `\n\n[DEADLINE: ${formData.deadline}] [SEMESTER: ${formData.semester}] [PREFERENCE_CALL: true]`,
+                        description: payload.description + `\n\n[DEADLINE: ${formData.deadline}] [SEMESTER: ${formData.semester}] [PATTERN: ${formData.pattern || '2023 Pattern'}] [PREFERENCE_CALL: true]`,
                         start_date: payload.start_date,
                         end_date: payload.end_date,
                         target_audience: 'faculty',
@@ -514,7 +516,13 @@ export const createSubjectPreferenceAnnouncement = async (formData, adminProfile
                     .single();
 
                 if (baseErr) throw baseErr;
-                createdAnnouncement = { ...baseData, is_preference_call: true, preference_deadline: formData.deadline, target_semester: formData.semester };
+                createdAnnouncement = { 
+                    ...baseData, 
+                    is_preference_call: true, 
+                    preference_deadline: formData.deadline, 
+                    target_semester: formData.semester,
+                    curriculum_pattern: formData.pattern || '2023 Pattern'
+                };
             } else {
                 createdAnnouncement = data;
             }

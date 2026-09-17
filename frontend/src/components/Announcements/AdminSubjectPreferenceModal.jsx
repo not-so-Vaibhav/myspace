@@ -8,7 +8,10 @@ import {
     AlertCircle, 
     Loader2, 
     Users, 
-    Send
+    Send,
+    GraduationCap,
+    Check,
+    Layers
 } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { fetchAvailableSubjects, createSubjectPreferenceAnnouncement } from '../../services/subjectPreferenceService';
@@ -23,10 +26,11 @@ const AdminSubjectPreferenceModal = ({ isOpen, onClose, onCreated, adminProfile 
     const defaultDeadline = format(addDays(new Date(), 7), "yyyy-MM-dd'T'18:00");
 
     const [form, setForm] = useState({
-        title: 'Faculty Subject Allocation: Call for Teaching Preferences',
+        title: 'Faculty Subject Allocation: Call for Teaching Preferences (2023 Pattern)',
         description: 'Please select your preferred subjects to teach for the upcoming semester. Submissions will be used by the Academic Allocation Board to prepare the official class timetable.',
         semester: 1,
         academicYear: '2026-2027',
+        pattern: '2023 Pattern', // '2023 Pattern' | '2027 Pattern'
         deadline: defaultDeadline,
         maxPreferences: 3,
         priority: 'HIGH'
@@ -51,6 +55,20 @@ const AdminSubjectPreferenceModal = ({ isOpen, onClose, onCreated, adminProfile 
     };
 
     if (!isOpen) return null;
+
+    const handlePatternChange = (newPattern) => {
+        setForm(prev => {
+            const cleanTitle = prev.title
+                .replace(/\(2023\s*Pattern\)/gi, '')
+                .replace(/\(2027\s*Pattern\)/gi, '')
+                .trim();
+            return {
+                ...prev,
+                pattern: newPattern,
+                title: `${cleanTitle} (${newPattern})`
+            };
+        });
+    };
 
     const handleSubmit = async (e) => {
         e?.preventDefault();
@@ -79,7 +97,7 @@ const AdminSubjectPreferenceModal = ({ isOpen, onClose, onCreated, adminProfile 
                 deadlineDate: form.deadline.split('T')[0]
             }, adminProfile);
 
-            setSuccessMsg('Subject Preference Announcement broadcasted successfully!');
+            setSuccessMsg(`Subject Preference Announcement (${form.pattern}) broadcasted successfully!`);
             setTimeout(() => {
                 onCreated(created);
                 onClose();
@@ -147,9 +165,80 @@ const AdminSubjectPreferenceModal = ({ isOpen, onClose, onCreated, adminProfile 
                             required
                             value={form.title}
                             onChange={(e) => setForm({ ...form, title: e.target.value })}
-                            placeholder="e.g. Faculty Subject Allocation: Semester 1"
+                            placeholder="e.g. Faculty Subject Allocation: Semester 1 (2023 Pattern)"
                             className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs font-bold text-[#1a1b4b] outline-none focus:ring-2 focus:ring-indigo-100"
                         />
+                    </div>
+
+                    {/* ── 2023 Pattern vs 2027 Pattern Selector ── */}
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                                <GraduationCap size={13} className="text-indigo-600" />
+                                Curriculum Scheme / Pattern *
+                            </span>
+                            <span className="text-[10px] text-indigo-600 font-bold uppercase">
+                                Selected: {form.pattern}
+                            </span>
+                        </label>
+
+                        <div className="grid grid-cols-2 gap-2.5">
+                            {/* Option 1: 2023 Pattern */}
+                            <button
+                                type="button"
+                                onClick={() => handlePatternChange('2023 Pattern')}
+                                className={`p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                                    form.pattern === '2023 Pattern'
+                                        ? 'bg-indigo-50/90 border-indigo-300 ring-2 ring-[#1a1b4b]/20 shadow-xs'
+                                        : 'bg-gray-50/60 border-gray-200 hover:border-gray-300 hover:bg-gray-100/50'
+                                }`}
+                            >
+                                <div className="space-y-0.5">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-black text-[#1a1b4b]">2023 Pattern</span>
+                                        <span className="px-1.5 py-0.2 bg-indigo-100 text-indigo-900 rounded text-[9px] font-black uppercase">
+                                            NEP-2020
+                                        </span>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-gray-400">Current Regular Syllabus</p>
+                                </div>
+                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                                    form.pattern === '2023 Pattern'
+                                        ? 'bg-[#1a1b4b] border-[#1a1b4b] text-white'
+                                        : 'border-gray-300 bg-white'
+                                }`}>
+                                    {form.pattern === '2023 Pattern' && <Check size={12} strokeWidth={3} />}
+                                </div>
+                            </button>
+
+                            {/* Option 2: 2027 Pattern */}
+                            <button
+                                type="button"
+                                onClick={() => handlePatternChange('2027 Pattern')}
+                                className={`p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                                    form.pattern === '2027 Pattern'
+                                        ? 'bg-indigo-50/90 border-indigo-300 ring-2 ring-[#1a1b4b]/20 shadow-xs'
+                                        : 'bg-gray-50/60 border-gray-200 hover:border-gray-300 hover:bg-gray-100/50'
+                                }`}
+                            >
+                                <div className="space-y-0.5">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-black text-[#1a1b4b]">2027 Pattern</span>
+                                        <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-900 rounded text-[9px] font-black uppercase">
+                                            NEW
+                                        </span>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-gray-400">Revised / Upcoming Scheme</p>
+                                </div>
+                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                                    form.pattern === '2027 Pattern'
+                                        ? 'bg-[#1a1b4b] border-[#1a1b4b] text-white'
+                                        : 'border-gray-300 bg-white'
+                                }`}>
+                                    {form.pattern === '2027 Pattern' && <Check size={12} strokeWidth={3} />}
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
                     {/* Target Semester & Academic Year */}
@@ -267,7 +356,7 @@ const AdminSubjectPreferenceModal = ({ isOpen, onClose, onCreated, adminProfile 
                     <div className="p-3 bg-amber-50/70 border border-amber-200/70 rounded-xl flex items-center gap-2.5">
                         <Users size={16} className="text-amber-600 shrink-0" />
                         <p className="text-[11px] font-bold text-amber-900 uppercase tracking-wider">
-                            Broadcast Target: Locked to <span className="font-black">Faculty, Instructors & HODs</span>.
+                            Broadcast Target: Locked to <span className="font-black">Faculty, Instructors & HODs</span> ({form.pattern}).
                         </p>
                     </div>
                 </div>
@@ -295,7 +384,7 @@ const AdminSubjectPreferenceModal = ({ isOpen, onClose, onCreated, adminProfile 
                         ) : (
                             <>
                                 <Send size={14} />
-                                <span>Broadcast Preference Call</span>
+                                <span>Broadcast {form.pattern} Call</span>
                             </>
                         )}
                     </button>
