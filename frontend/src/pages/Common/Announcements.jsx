@@ -500,9 +500,11 @@ const Announcements = () => {
             </div>
           )}
 
-          <p className={`text-sm text-gray-500 leading-relaxed font-medium ${past ? 'line-clamp-2' : 'line-clamp-3'}`}>
-            {(ann.description || '').replace(/\[DEADLINE:[^\]]*\]/g, '').replace(/\[SEMESTER:[^\]]*\]/g, '').replace(/\[PREFERENCE_CALL:[^\]]*\]/g, '').trim()}
-          </p>
+          {!isPreferenceCall && (
+            <p className={`text-sm text-gray-500 leading-relaxed font-medium ${past ? 'line-clamp-2' : 'line-clamp-3'}`}>
+              {(ann.description || '').replace(/\[DEADLINE:[^\]]*\]/g, '').replace(/\[SEMESTER:[^\]]*\]/g, '').replace(/\[PREFERENCE_CALL:[^\]]*\]/g, '').trim()}
+            </p>
+          )}
           
           {ann.attachment_url && !hasImage && (
             <a href={ann.attachment_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 mt-1 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-[#1a1b4b] rounded-xl text-[12px] font-black uppercase tracking-widest transition-colors w-fit">
@@ -524,19 +526,19 @@ const Announcements = () => {
 
           {/* Admin Management Actions */}
           {isAdmin && (
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto gap-3">
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto gap-2.5">
               {isPreferenceCall ? (
                 <button
                   type="button"
                   onClick={() => setActiveResponseModalAnn(ann)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-indigo-200 shadow-2xs"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-[#1a1b4b] rounded-xl text-xs font-black uppercase tracking-wider transition-all border border-indigo-200 shadow-2xs text-center"
                 >
-                  <BarChart3 size={15} />
-                  <span>View Faculty Submissions & Schedule Data</span>
+                  <BarChart3 size={15} className="shrink-0 text-indigo-700" />
+                  <span>View Faculty Submissions</span>
                 </button>
               ) : <div />}
 
-              <button onClick={() => handleDelete(ann.id)} className="w-9 h-9 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors shrink-0">
+              <button onClick={() => handleDelete(ann.id)} className="w-9 h-9 rounded-xl bg-gray-50 text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors shrink-0" title="Delete Announcement">
                 <Trash2 size={15} />
               </button>
             </div>
