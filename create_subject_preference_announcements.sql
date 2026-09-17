@@ -83,6 +83,9 @@ CREATE TABLE IF NOT EXISTS public.faculty_subject_preferences (
     preferred_hours_per_week INT DEFAULT 4 CHECK (preferred_hours_per_week >= 1 AND preferred_hours_per_week <= 40),
     preferred_day_slots TEXT DEFAULT 'Flexible',
     remarks TEXT,
+    is_allocated BOOLEAN DEFAULT false,
+    allocated_at TIMESTAMPTZ,
+    allocated_by UUID REFERENCES public.profiles(id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     -- Enforce uniqueness: A faculty cannot pick the same subject twice in one call, nor duplicate ranks
@@ -90,10 +93,42 @@ CREATE TABLE IF NOT EXISTS public.faculty_subject_preferences (
     CONSTRAINT uq_fsp_call_faculty_rank UNIQUE (announcement_id, faculty_id, preference_rank)
 );
 
+-- Migration check for existing installations:
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'faculty_subject_preferences' 
+        AND column_name = 'is_allocated'
+    ) THEN
+        ALTER TABLE public.faculty_subject_preferences ADD COLUMN is_allocated BOOLEAN DEFAULT false;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'faculty_subject_preferences' 
+        AND column_name = 'allocated_at'
+    ) THEN
+        ALTER TABLE public.faculty_subject_preferences ADD COLUMN allocated_at TIMESTAMPTZ;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'faculty_subject_preferences' 
+        AND column_name = 'allocated_by'
+    ) THEN
+        ALTER TABLE public.faculty_subject_preferences ADD COLUMN allocated_by UUID REFERENCES public.profiles(id);
+    END IF;
+END $$;
+
 -- ── 3. PERFORMANCE INDEXES ────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_fsp_announcement ON public.faculty_subject_preferences(announcement_id);
 CREATE INDEX IF NOT EXISTS idx_fsp_faculty ON public.faculty_subject_preferences(faculty_id);
 CREATE INDEX IF NOT EXISTS idx_fsp_subject ON public.faculty_subject_preferences(subject_id);
+CREATE INDEX IF NOT EXISTS idx_fsp_allocated ON public.faculty_subject_preferences(announcement_id, is_allocated);
 CREATE INDEX IF NOT EXISTS idx_fsp_rank ON public.faculty_subject_preferences(announcement_id, preference_rank);
 CREATE INDEX IF NOT EXISTS idx_fsp_created ON public.faculty_subject_preferences(created_at DESC);
 
@@ -176,9 +211,13 @@ SELECT
     fsp.preferred_hours_per_week,
     fsp.preferred_day_slots,
     fsp.remarks,
+    fsp.is_allocated,
+    fsp.allocated_at,
+    fsp.allocated_by,
     fsp.created_at AS submitted_at,
     fsp.updated_at AS last_updated_at
 FROM public.faculty_subject_preferences fsp
 JOIN public.announcements a ON fsp.announcement_id = a.id
 JOIN public.profiles p ON fsp.faculty_id = p.id
 JOIN public.subjects s ON fsp.subject_id = s.id;
+

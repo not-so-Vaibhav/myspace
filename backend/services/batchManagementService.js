@@ -543,6 +543,7 @@ async function getAttendanceRoster({ classId, batchId, sessionType = 'THEORY' })
                 batch_id: batchId || null,
                 session_type: sessionType,
                 total_enrolled: data.length,
+                student_count: data.length,
                 roster: data
             };
         }
@@ -562,6 +563,7 @@ async function getAttendanceRoster({ classId, batchId, sessionType = 'THEORY' })
                 batch_id: batchId || null,
                 session_type: sessionType,
                 total_enrolled: data.length,
+                student_count: data.length,
                 roster: data
             };
         }

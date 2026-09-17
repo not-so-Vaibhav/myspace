@@ -30,6 +30,38 @@ const saveFallbackPreferences = (announcementId, facultyId, preferences) => {
     }
 };
 
+const updateFallbackPreferenceAllocation = (preferenceId, isAllocated, announcementId, facultyId) => {
+    try {
+        const stored = localStorage.getItem(PREF_STORAGE_KEY);
+        if (!stored) return;
+        const all = JSON.parse(stored);
+        
+        // Traverse all announcements and faculty entries
+        let found = false;
+        Object.keys(all).forEach(annId => {
+            if (announcementId && annId !== announcementId) return;
+            const facMap = all[annId] || {};
+            Object.keys(facMap).forEach(fId => {
+                if (facultyId && fId !== facultyId) return;
+                const prefs = facMap[fId] || [];
+                prefs.forEach(p => {
+                    if (p.id === preferenceId || (p.subject_id && preferenceId && p.subject_id === preferenceId)) {
+                        p.is_allocated = Boolean(isAllocated);
+                        p.allocated_at = isAllocated ? new Date().toISOString() : null;
+                        found = true;
+                    }
+                });
+            });
+        });
+
+        if (found) {
+            localStorage.setItem(PREF_STORAGE_KEY, JSON.stringify(all));
+        }
+    } catch (e) {
+        console.error('Error updating fallback allocation:', e);
+    }
+};
+
 /**
  * Fetch all available subjects in the university
  */
@@ -70,6 +102,8 @@ export const fetchFacultyPreferences = async (announcementId, facultyId) => {
                 preferred_hours_per_week,
                 preferred_day_slots,
                 remarks,
+                is_allocated,
+                allocated_at,
                 created_at,
                 subject:subjects(id, code, name, credits, type)
             `)
@@ -101,7 +135,7 @@ export const fetchAllResponsesForAnnouncement = async (announcementId) => {
     if (!announcementId) return [];
 
     try {
-        const { data, error } = await supabase
+        let { data, error } = await supabase
             .from('faculty_subject_preferences')
             .select(`
                 id,
@@ -113,6 +147,8 @@ export const fetchAllResponsesForAnnouncement = async (announcementId) => {
                 preferred_hours_per_week,
                 preferred_day_slots,
                 remarks,
+                is_allocated,
+                allocated_at,
                 created_at,
                 faculty:profiles(id, full_name, email, role, department),
                 subject:subjects(id, code, name, credits, type)
@@ -121,18 +157,55 @@ export const fetchAllResponsesForAnnouncement = async (announcementId) => {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.warn('fetchAllResponsesForAnnouncement fallback:', error.message);
-            const fallback = getFallbackPreferences(announcementId);
-            // Convert fallback object to list
-            const list = [];
-            Object.keys(fallback).forEach(fId => {
-                const prefs = fallback[fId] || [];
-                prefs.forEach(p => list.push(p));
-            });
-            return list;
+            // Retry without is_allocated if the column was missing in legacy schema
+            console.warn('Retrying fetchAllResponses with standard columns:', error.message);
+            const { data: legacyData, error: legacyErr } = await supabase
+                .from('faculty_subject_preferences')
+                .select(`
+                    id,
+                    announcement_id,
+                    faculty_id,
+                    subject_id,
+                    preference_rank,
+                    preferred_type,
+                    preferred_hours_per_week,
+                    preferred_day_slots,
+                    remarks,
+                    created_at,
+                    faculty:profiles(id, full_name, email, role, department),
+                    subject:subjects(id, code, name, credits, type)
+                `)
+                .eq('announcement_id', announcementId)
+                .order('created_at', { ascending: false });
+
+            if (legacyErr) {
+                const fallback = getFallbackPreferences(announcementId);
+                const list = [];
+                Object.keys(fallback).forEach(fId => {
+                    const prefs = fallback[fId] || [];
+                    prefs.forEach(p => list.push(p));
+                });
+                return list;
+            }
+            data = legacyData || [];
         }
 
-        return data || [];
+        // Merge with any local allocation flags if present in fallback
+        const fallback = getFallbackPreferences(announcementId);
+        const merged = (data || []).map(row => {
+            const fId = row.faculty_id || row.faculty?.id;
+            const fallbackPrefs = fallback[fId] || [];
+            const fbMatch = fallbackPrefs.find(p => p.id === row.id || p.subject_id === row.subject_id);
+            if (fbMatch && fbMatch.is_allocated !== undefined && row.is_allocated === undefined) {
+                return { ...row, is_allocated: fbMatch.is_allocated, allocated_at: fbMatch.allocated_at };
+            }
+            return {
+                ...row,
+                is_allocated: Boolean(row.is_allocated)
+            };
+        });
+
+        return merged;
     } catch (err) {
         console.error('Error fetching all responses for announcement:', err);
         const fallback = getFallbackPreferences(announcementId);
@@ -142,6 +215,81 @@ export const fetchAllResponsesForAnnouncement = async (announcementId) => {
             prefs.forEach(p => list.push(p));
         });
         return list;
+    }
+};
+
+/**
+ * Admin: Toggle allocation status (Approved / Pending) for a faculty subject preference
+ * @param {string} preferenceId
+ * @param {boolean} isAllocated
+ * @param {object} meta - { announcementId, facultyId, subjectId, adminId }
+ */
+export const togglePreferenceAllocation = async (preferenceId, isAllocated, meta = {}) => {
+    const newStatus = Boolean(isAllocated);
+    const allocatedAt = newStatus ? new Date().toISOString() : null;
+
+    // 1. Update local storage fallback immediately
+    updateFallbackPreferenceAllocation(preferenceId, newStatus, meta.announcementId, meta.facultyId);
+
+    // 2. Persist to Supabase
+    try {
+        if (preferenceId && !preferenceId.toString().startsWith('local_')) {
+            const { data, error } = await supabase
+                .from('faculty_subject_preferences')
+                .update({
+                    is_allocated: newStatus,
+                    allocated_at: allocatedAt,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', preferenceId)
+                .select();
+
+            if (error) {
+                console.warn('Supabase toggle allocation error (using local storage fallback):', error.message);
+            } else if (data && data[0]) {
+                return { success: true, preference: data[0] };
+            }
+        }
+        return { success: true, is_allocated: newStatus, allocated_at: allocatedAt };
+    } catch (err) {
+        console.error('Error toggling preference allocation:', err);
+        return { success: true, is_allocated: newStatus, allocated_at: allocatedAt };
+    }
+};
+
+/**
+ * Admin: Batch allocate or de-allocate multiple subject preferences
+ * @param {string} announcementId
+ * @param {Array<string>} preferenceIds
+ * @param {boolean} isAllocated
+ */
+export const batchAllocatePreferences = async (announcementId, preferenceIds, isAllocated) => {
+    const newStatus = Boolean(isAllocated);
+    const allocatedAt = newStatus ? new Date().toISOString() : null;
+
+    if (!preferenceIds || preferenceIds.length === 0) return { success: true, count: 0 };
+
+    // Update fallback storage for all
+    preferenceIds.forEach(pId => {
+        updateFallbackPreferenceAllocation(pId, newStatus, announcementId);
+    });
+
+    try {
+        const validDbIds = preferenceIds.filter(id => !id.toString().startsWith('local_'));
+        if (validDbIds.length > 0) {
+            await supabase
+                .from('faculty_subject_preferences')
+                .update({
+                    is_allocated: newStatus,
+                    allocated_at: allocatedAt,
+                    updated_at: new Date().toISOString()
+                })
+                .in('id', validDbIds);
+        }
+        return { success: true, count: preferenceIds.length };
+    } catch (err) {
+        console.error('Error in batchAllocatePreferences:', err);
+        return { success: true, count: preferenceIds.length };
     }
 };
 
